@@ -1,0 +1,33 @@
+{% extends "main/base.html" %}
+{% load staticfiles %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "css/social-auth.css"%}">
+{% endblock %}
+
+{% block content %}
+<div id="fh5co-portfolio">
+
+    {% if user and not user.is_anonymous %}
+    <h3><a>Hello, {{ user.get_full_name }}!</a></h3>
+    <br>
+    <div>
+       <a href="{% url 'my_container_collections' %}"><button class="btn btn-default">My Container Collections</button></a>
+       <a href="{% url 'logout' %}"><button class="btn btn-default">Logout</button></a>
+    </div>
+    {% else %}
+
+<div class="login-box">
+        <a class="social-button" id="twitter-connect" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Login with Twitter</a>
+        <!-- Note, Google isn't currently set up -->
+        <a class="social-button" id="google-connect" href="{% url 'social:begin' 'google' %}?next={{ request.path }}">Login with Google</a>
+        <a class="social-button" id="github-connect" href="{% url 'social:begin' 'github' %}?next={{ request.path }}">Login with Github</a>
+    {% endif %}
+</div>
+
+
+</div>
+{% endblock %}
+{% block footer %}
+{% include 'main/footer.html' %}
+{% endblock %}

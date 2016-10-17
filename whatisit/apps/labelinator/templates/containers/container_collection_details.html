@@ -1,0 +1,173 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block header %}
+{% include 'main/mega_dropdown.html' %}
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static "css/material-table.css"%}">
+{% endblock%}
+
+{% block content %}
+<div id="fh5co-portfolio">
+<!-- Error messages for container uploads will be added here-->
+{% include 'main/message.html' %}
+<div class="row">
+
+    <!-- Container collection meta -->
+    <div class="col-md-11">
+        <div class="card" style="padding:20px">
+            <div class="header" style="padding-bottom:50px">
+                   <h3 class="title">
+                   <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
+                   {{ collection.name }}</h3>
+            </div>
+            <div class="content">
+                <div data-background-color="white" data-active-color="danger">
+                     <p style="padding-left:30px">{{ collection.description }}</p>
+                </div>
+            </div>
+                <div class="footer">
+                </div>
+        </div>    
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-md-1">
+            <div class="card">
+                <h3>
+                     <span class="icon-controls" style="position:relative;top:-10px">
+                         <a href=""><i class="fa fa-download"></i></a><br>
+                         <a href=""><i class="fa fa-share"></i></a>
+                     </span>
+                </h3>
+            </div>
+    </div>
+ </div>
+
+<!-- Containers! -->
+<div class="row">
+    <div class="col-md-12">
+        {% if containers %}
+                <div class="card material-table mdl-data-table--selectable">
+                   <div class="table-header">
+                       <span class="table-title">Containers</span>
+                           <div class="actions">
+                               <!-- not sure what operations I want here
+                               <a href="#add_users" class="modal-trigger waves-effect btn-flat nopadding"><i class="material-icons">person_add</i></a>
+                               <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>-->
+                           </div>
+                   </div>
+                   <table id="datatable">
+                       <thead>
+                           <tr>
+                               <td></td><!-- eventually below can be select / deselect all-->
+                               <!--<td style="width:80px"><span class="mdl-list__item-secondary-action">
+                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-selectall">
+                                   <input type="checkbox" id="checkbox-selectall" class="mdl-checkbox__input"/>
+                                   </label>
+                                </span>
+                               </td>-->
+                               <th></th>
+                               <th>Name</th>
+                               <th>Inputs and Outputs</th>
+                               <th></th>
+                           </tr>
+                       </thead>
+
+                       <form method="POST" action="#" id="container-table">
+                           {% csrf_token %}
+                           <tbody>
+                           {% for container in containers %}
+                           <tr>
+                               <td style="width:80px"><span class="mdl-list__item-secondary-action">
+                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-{{ container.id }}">
+                                   <input type="checkbox" name="{{ container.id }}" id="list-checkbox-{{ container.id }}" class="mdl-checkbox__input"/>
+                                   </label>
+                                </span></td>
+
+                               <!-- Edit Container -->
+                               <td>
+                               <a href="{% url 'edit_container_spec' collection.id container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Container</button></a>
+                               </td>
+
+                               <!-- Name-->
+                               <td>
+                               {% if container.name %}
+                               <a href="{% url 'edit_container_spec' collection.id container.id %}">{{ container.collection.owner }}/{{ container.name }}</a>
+                               {% else %}
+                               <a href="{% url 'edit_container_spec' collection.id container.id %}">Edit Container</a>
+                               {% endif %}
+                               </td>
+
+                               <!-- Inputs and outputs-->
+                               <td><a id="edit-container-specs" href="{% url 'edit_container_specs' container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Inputs / Outputs</button></a></td>
+
+                                
+                               {% if container.image %}
+                               <td><a href="{{ container.image.url }}"><i class="fa fa-download"></a></td>
+                               {% else %}
+                               <td> Container Image is Building </td>
+                               {% endif %}
+                           </tr>
+                           {% endfor %}
+                       </tbody>
+                       </form>    
+
+                    </table>
+                </div>
+            {% else %}
+            
+            <!-- No containers! Tell the user to add one -->
+            <div class="col-lg-8 col-sm-6">
+               <!--<a id="new_container" href="{% url 'new_container' collection.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Upload container</button></a> |--> 
+                   <!-- Add a new container -->
+                   <a id="new-container" href="{% url 'new_container_spec' collection.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Add a container</button></a>
+                   <div class="mdl-tooltip" for="new-container">
+                      A container can be a singularity image (.img) or a package with an image (.zip).
+                   </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static "js/jquery.dataTables.min.js"%}"></script>
+<script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+<script src="{% static "js/materialize.min.js"%}"></script>
+<script src="{% static "js/material.datatables.js"%}"></script>
+<script>
+$(document).ready(function(){
+    $(".icons").remove();
+
+    // Submit the form when the user clicks "new workflow"
+    $("#submit").click(function(){
+        $("#container-table").submit();
+    });
+    // Select all functionality for table checkbox
+    /*
+    $("#checkbox-selectall").click(function(){
+
+      if ($(this).hasClass("isselected")){
+          $(":checkbox").each(function(e,i){
+              console.log(i);
+              $(i).prop("checked",false)
+          })
+          $(this).removeClass("isselected");
+      } else {
+          $(":checkbox").each(function(e,i){ 
+               $(i).prop("checked",true)
+          })
+          $(this).addClass("isselected");
+      };
+    })
+    */
+})
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "containers/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block image_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header" style="padding-bottom:50px">
+                <h4 class="title">New Container</h4>
+            </div>
+            <div class="content">
+                <div>
+                     {% crispy form %}
+                </div>
+                <div class="footer">
+                <hr>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Submit for on save button push
+$("form").attr("action","{% url 'upload_container' collection.id %}");
+$("#submid-id-submit").click(function(){
+    $("form").submit();
+});
+</script>
+
+<!-- Add loading spinner -->
+{% include "routes/loading.html" %}
+
+{% endblock %}
+
+

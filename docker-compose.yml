@@ -1,0 +1,44 @@
+db:
+  image: postgres
+
+uwsgi:
+  restart: always
+  image: vanessa/whatisit
+  volumes:
+    - .:/code
+    - ./static:/var/www/static
+  links:
+    - redis
+    - db
+
+nginx:
+  restart: always
+  privileged: true
+  environment:
+    - C_FORCE_ROOT=1
+  image: nginx
+  ports:
+    - "80:80"
+  volumes:
+    - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    - ./uwsgi_params.par:/etc/nginx/uwsgi_params.par:ro
+  volumes_from:
+    - uwsgi
+  links:
+    - uwsgi
+    - db
+
+redis:
+  restart: always
+  image: redis
+
+worker:
+  image: vanessa/whatisit
+  command: celery worker -A whatisit.celery -Q default -n default@%h
+  volumes:
+    - .:/code
+  volumes_from:
+    - uwsgi
+  links:
+    - redis
+    - db

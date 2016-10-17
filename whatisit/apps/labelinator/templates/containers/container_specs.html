@@ -1,0 +1,140 @@
+{% extends "containers/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block image_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="padding:20px">
+            <div class="header" style="padding-bottom:50px">
+                <h2 class="title" style="padding-bottom:10px">{{ container.name }}</h2>
+                <p><italic>in collection:</italic> <a href="{% url 'container_collection_details' container.collection.id %}">{{ container.collection.name}}</a></p>
+                {% include 'main/message.html' %}
+                <h3>
+                     <span class="icon-controls" style="position:relative;top:-70px">
+                         <a href=""><i class="fa fa-download"></i></a>
+                         <a href=""><i class="fa fa-eye"></i></a>
+                         <a href=""><i class="fa fa-share"></i></a>
+                     </span>
+                </h3>
+        </div>
+    <div class="content">
+       
+       <a id="add_spec_button"><button type="button" data-toggle="modal" data-target="#spec_modal" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Add new specification</button></a>
+    </div>
+   </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card" style="padding:20px">
+            <div class="header">
+                <h4 class="title">Inputs</h4>
+            </div>
+            <div class="content">
+       
+        <!-- Inputs Table -->
+        {% if specs %}
+        <div style="padding:15px;box-shadow:none !important;" class="card material-table mdl-data-table--selectable">
+            <table id="datatable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Command Line Flag</th>
+                    <th>Required</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for spec in specs %}
+                {% if spec.direction = "input" %}
+                <tr>
+                    <td>{{ spec.name }}</td>
+                    <td>{{ spec.description }}</td>
+                    <td>{{ spec.spec_type }}</td>
+                    <td>{{ spec.command_line_flag }}</td>
+                    <td>{{ spec.required }}</td>
+                    <td><a href="{% url 'edit_container_spec' container.id spec.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit</button></a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+   </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card" style="padding:20px">
+            <div class="header">
+                <h4 class="title">Outputs</h4>
+            </div>
+            <div class="content">
+
+
+        <!-- Outputs Table -->
+        {% if specs %}
+        <div style="padding:15px; box-shadow:none !important;" class="card material-table mdl-data-table--selectable">
+            <table id="datatable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Command Line Flag</th>
+                    <th>Required</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for spec in specs %}
+                {% if spec.direction = "output" %}
+                <tr>
+                    <td>{{ spec.name }}</td>
+                    <td>{{ spec.description }}</td>
+                    <td>{{ spec.spec_type }}</td>
+                    <td>{{ spec.command_line_flag }}</td>
+                    <td>{{ spec.required }}</td>
+                    <td><a href="{% url 'edit_container_spec' container.id  spec.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit</button></a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+                
+            </div>
+        </div>
+    </div>
+
+<!-- Add spec modal -->
+<div class="modal fade" tabindex="-1" id="spec_modal">
+  <div class="modal-dialog" role="document">
+      <div class="header">
+          <h4 class="title">{{ form_title }}</h4>
+      </div>
+      <div class="content">
+        {% crispy form %}
+      </div>
+      <div class="footer">
+        <button style="float:right" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+{% if edit_spec %}
+// If this variable is added, the user has selected to edit a spec
+$("#spec_modal").modal("show");
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block header %}
+{% include 'main/mega_dropdown.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header" style="padding:50px">
+                <h3 class="title">New Container Collection</h3>
+            </div>
+            <div class="content">
+                <div>
+                     {% crispy form %}
+                </div>
+                <div class="footer">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Submit for on save button push
+$("#submid-id-submit").click(function(){
+    $("form").attr("action","");
+    $("form").submit();
+});
+</script>
+{% endblock %}

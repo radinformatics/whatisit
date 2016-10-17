@@ -1,0 +1,102 @@
+{% extends "containers/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block image_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="header" style="padding-left:20px;padding-bottom:50px">
+                <h4 class="title">{{ page_title }}</h4>
+            </div>
+            <div class="content">
+                <form action="{% url 'new_container_spec' collection.id %}" class="form-horizontal" method="post">
+                {% crispy form %}
+                <div id="div_id_specdummy" class="form-group"> 
+                    <label for="dummytextarea" class="control-label col-lg-2">
+                    Spec<span class="asteriskField">*</span> </label> 
+                    <div class="controls col-lg-8"> 
+                        <div id="dummytextarea"></div>
+                        <p id="hint_dummytextarea" class="help-block">The complete bootstrap file specification.</p> 
+                     </div> 
+                 </div>
+                 </form>
+                   <div class="controls col-lg-8"> 
+                       <input type="submit" name="submit" value="Save" class="btn btn-primary" id="submit-id-submit">
+                   </div> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card" style="margin-top:0px">
+            <a style="padding-left:20px; padding-top:20px;margin-bottom:20px; margin-right:30px" href="{% url 'container_collection_details' collection.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect"> << BACK</button></a>
+            <a class="example-template" id="docker"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Load Docker Example</button></a>
+             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Write templates into variable-->
+{% for template,code in defaults.items %}
+   <textarea id="ta_{{ template }}" class="hidden">
+     {{ code }}
+   </textarea>
+{% endfor %}
+
+
+{% endblock %}
+
+{% block scripts %}
+<style type="text/css" media="screen">
+    #id_spec { 
+     position: absolute;
+     height:800px;
+     top: 0;
+     right: 0;
+     bottom: 0;
+     left: 0;
+}
+</style>
+
+
+<script src="{% static "js/ace.js"%}" type="text/javascript" charset="utf-8"></script>
+<script>
+$(document).ready(function(){
+
+    // We will feed script into hidden text area
+    var textarea = $('textarea').hide()
+    $("#div_id_spec").hide()
+    var editor = ace.edit("dummytextarea");
+    editor.getSession().setValue(textarea.val());
+    editor.getSession().on('change', function(){
+        textarea.val(editor.getSession().getValue());
+     });
+    editor.setOption("maxLines", 1000)
+
+    // Submit for on save button push
+    $("#submit-id-submit").click(function(){
+      $("form").submit();
+    });
+
+    $(".example-template").click(function(){
+    var templateType = $(this).attr("id")
+   
+    // Get text from hidden element
+    var template = $("#" + "ta_" + templateType).text()
+    console.log(template)
+    editor.session.insert(0, template)
+})
+
+
+})
+</script>
+
+<!-- Add loading spinner -->
+{% include "routes/loading.html" %}
+
+{% endblock %}
+
+

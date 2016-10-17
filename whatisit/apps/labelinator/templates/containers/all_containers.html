@@ -1,0 +1,103 @@
+{% extends "main/base.html" %}
+{% load staticfiles %}
+{% block header %}
+{% include 'main/mega_dropdown.html' %}
+{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{% static "css/collection-grid.css"%}">     
+{% endblock %}
+
+{% block content %}
+<div class="row">
+        <div id="fh5co-portfolio" style="min-height:600px">
+            <div class="container-fluid">
+                <div class="row" style="padding-bottom:50px;">
+
+                    {% if not collections %}
+                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you  <a href="{% url 'new_container_collection' %}"><button style="margin-left:10px" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Create A Collection</button></a><p>
+
+                    {% else %}
+                        <h3 class="title">{{ page_title }}</h3>
+                        <div class=grid style=width:1230px>
+                        {% for collection in collections %}
+                            <div class=grid-item>
+                                <div class="card app-icon-card">
+                                    <div class="app-icon-image container-collection" id="{{ collection.id }}" style="background: url(http://api.adorable.io/avatars/270/con-{{ collection.id }}) center">
+                                        <a class="hidden" href="{% url 'container_collection_details' collection.id %}"></a>
+                                    </div>
+                                    <div class=app-icon-details>
+                                        <div class=app-icon-title>{{ collection.name }}</div>
+                                            <a href="{% url 'container_collection_details' collection.id %}"><i style="color:#666; margin-right:20px" class="ti-package"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+               </div>
+            </div>
+            <div class="button-box">
+                    {% if collections %}
+                    <a href="{% url 'new_container_collection' %}"><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">New Container Collection</button></a>
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+{% if collections %}
+<script>
+! function(t) {
+        "use strict";
+
+        function e(t, e, i, n, r) {
+                var o = Array.prototype.forEach,
+                        f = t instanceof Node ? t : document.querySelector(t);
+                if (!f) return !1;
+                var s = f.querySelectorAll(e);
+                if (0 === s.length) return !1;
+                i = "number" == typeof i && isFinite(i) && Math.floor(i) === i ? i : 6, f.style.width = "";
+                var u = f.getBoundingClientRect().width,
+                        d = s[0].getBoundingClientRect().width + i,
+                        l = Math.max(Math.floor((u - i) / d), 1),
+                        a = 0;
+                u = d * l + i + "px", f.style.width = u, f.style.position = "relative";
+                for (var c = [], m = [], p = 0; l > p; p++) m.push(p * d + i), c.push(i);
+                o.call(s, function(t) {
+                        var e = c.slice(0).sort(function(t, e) {
+                                return t - e
+                        }).shift();
+                        e = c.indexOf(e);
+                        var r = m[e],
+                                f = c[e],
+                                s = ["webkitTransform", "MozTransform", "msTransform", "OTransform", "transform"];
+                        return t.style.position = "absolute", n || o.call(s, function(e) {
+                                t.style[e] = "translate3D(" + r + "px," + f + "px,0)"
+                        }), c[e] += t.getBoundingClientRect().height + i, a += 1, n ? n(t, r, f, a) : void 0
+                });
+                var h = c.slice(0).sort(function(t, e) {
+                        return t - e
+                }).pop();
+                f.style.height = h + "px", "function" == typeof r && r(s)
+        }
+        "function" == typeof define && define.amd ? define(function() {
+                return e
+        }) : "undefined" != typeof module && module.exports ? module.exports = e : t.minigrid = e
+}(this),
+function() {
+        minigrid(".grid", ".grid-item"), window.addEventListener("resize", function() {
+                minigrid(".grid", ".grid-item")
+        })
+}();
+
+$(document).ready(function() {
+    $(".container-collection").click(function() {
+        window.location = $(this).find("a").attr("href"); 
+        return false
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

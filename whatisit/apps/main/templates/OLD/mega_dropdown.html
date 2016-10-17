@@ -1,0 +1,28 @@
+            <li class="dropdown mega-dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Containers <span class="glyphicon glyphicon-chevron-down pull-right"></span></a>
+                
+                <ul class="dropdown-menu mega-dropdown-menu row" style="background-color:white; padding-top:30px; padding-bottom:50px">
+                    {% include "main/featured_containers.html" %}
+                    <li class="col-sm-3">
+                        <h5 style="color:#428bca">Containers</h5>
+                        <ul>
+                            {% if user.is_authenticated %}
+                            <li><a href="{% url 'my_container_collections' %}">My Container Collections</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'container_collections' %}">All Container Collections</a></li>
+                            <li><a href="#">Containers getting started</a></li>
+                            <li><a href="singularityware.github.io" target="_blank">About Singularity</a></li>
+                        </ul>
+                    </li>
+                    <li class="col-sm-3">
+                        <h5 style="color:#428bca">Tools</h5>
+                        <ul>
+                            <li><a href="{% url 'api' %}">Singularity Hub API</a></li>
+                            <li><a href="#">Deployment Tools</a></li>
+                        </ul>
+                    </li>
+            <li style="float:right;padding-top:250px;padding-right:30px"><a href="{% url 'container_collections' %}">View all Containers <span class="glyphicon glyphicon-chevron-right pull-right"></span></a></li>                
+
+                </ul>
+            </li>
+
