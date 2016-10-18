@@ -18,7 +18,7 @@ class ReportForm(ModelForm):
 
     class Meta:
         model = Report
-        fields = ("uid","text",)
+        fields = ("report_id","report_text",)
 
     def clean(self):
         cleaned_data = super(ReportForm, self).clean()

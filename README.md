@@ -20,6 +20,10 @@ Then start the application:
       docker-compose up -d
 
 
+### Create a User
+You will want to create a user (other than anonymous) for associating with the first collection of reports to upload. You can do this by navigating to `127.0.0.1` and clicking the button to Register. Currently supported backends (meaning we have OAuth2 tokens for them) are Twitter and Github. Once you've logged in, your user is created!
+
+
 ### Loading Test Data
 The test dataset consists of reports and annotations for ~100K radiologist reports from Stanford Medicine, de-identified (and data is NOT available in this repo). To load the data, you should use the script [scripts/upload_demo.py](scripts/upload_demo.py). First send the command to the instance to run the script:
 
@@ -32,4 +36,5 @@ Where `containerID` corresponds to the container ID obtained from `docker ps`. I
 
       docker exec -it [containerID] bash
 
+The collection will be associated with the first user created, and you should edit the script if you want this to be different.
 

@@ -35,6 +35,48 @@ PRIVACY_CHOICES = ((False, 'Public (The collection will be accessible by anyone 
                    (True, 'Private (The collection will be not listed. It will be possible to share it with others at a private URL.)'))
 
 #######################################################################################################
+# Annotations #########################################################################################
+#######################################################################################################
+
+class Annotation(models.Model):
+    '''An annotation is a report is a text string associated with a report collection and
+    one or more labels.
+    '''
+    # Who did the annotation? This is the annotator?
+    annotator = models.ForeignKey(User,related_name="annotator",related_query_name="annotator", blank=False,help_text="user that created the annotation.",verbose_name="Annotator")
+    
+    # The annotation is what the user labeled the report with
+    annotation = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
+
+    # The label is the what "field/thing" the annotation is describing
+    label = models.CharField(max_length=250, null=False, blank=False, help_text="descriptor text or name for what the annotation is (e.g., disease_state) determined by report.")
+    tags = TaggableManager()
+    
+
+    def __str__(self):
+        return "<annotation:%s>" %(self.id)
+
+    def __unicode__(self):
+        return "<annotation:%s>" %(self.id)
+
+    def get_label(self):
+        return "labelinator"
+
+    class Meta:
+        ordering = ['annotator','id']
+        app_label = 'labelinator'
+ 
+        # A specific annotator can only give one label for some annotation label
+        unique_together =  (("id", "label","annotator"),)
+
+
+    # Get the url for a container
+    def get_absolute_url(self):
+        return_cid = self.id
+        return reverse('report_details', args=[str(return_cid)])
+
+
+#######################################################################################################
 # Reports ##########################################################################################
 #######################################################################################################
 
@@ -83,36 +125,37 @@ class ReportCollection(models.Model):
             ('edit_report_collection', 'Edit container collection')
         )
 
+
 class Report(models.Model):
     '''A report is a text string associated with a report collection and
     one or more labels.
     '''
-    uid = models.CharField(max_length=250, null=False, blank=False)
-    text = models.CharField(max_length=5000, null=False, blank=False)
+    report_id = models.CharField(max_length=250, null=False, blank=False)
+    report_text = models.CharField(max_length=50000, null=False, blank=False)
     #image = models.FileField(upload_to=get_upload_folder,null=True,blank=False)
-    annotators = models.ManyToManyField(User,related_name="report_annotators",related_query_name="annotator", blank=True,help_text="users that have annotated the report.",verbose_name="Annotators")
     labels = JSONField()
+    annotations = models.ManyToManyField(Annotation,blank=True,help_text="Annotation objects to label the reports with",verbose_name='Report Annotations', related_query_name='report_annotations')
     collection = models.ForeignKey(ReportCollection,null=False,blank=False)
     tags = TaggableManager()
     
     def __str__(self):
-        return "%s:%s" %(self.uid,self.labels)
+        return "<Report:%s|%s>" %(self.collection,self.report_id)
 
     def __unicode__(self):
-        return self.uid
+        return "<Report:%s|%s>" %(self.collection,self.report_id)
+ 
 
     def get_label(self):
         return "labelinator"
 
     class Meta:
-        ordering = ['uid']
+        ordering = ['report_id']
         app_label = 'labelinator'
  
         # Container names in a collection must be unique
-        unique_together =  (("uid", "collection"),)
+        unique_together =  (("report_id", "collection"),)
 
-
-    # Get the url for a container
+    # Get the url for a report collection
     def get_absolute_url(self):
         return_cid = self.id
         return reverse('report_details', args=[str(return_cid)])
