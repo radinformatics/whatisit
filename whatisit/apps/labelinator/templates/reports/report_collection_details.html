@@ -26,7 +26,7 @@
             </div>
             <div class="content">
                 <div data-background-color="white" data-active-color="danger">
-                     <p style="padding-left:30px">{{ collection.description }}</p>
+                     <p style="padding-left:30px"></p>
                 </div>
             </div>
                 <div class="footer">
@@ -34,7 +34,7 @@
         </div>    
     </div>
 
-    <!-- Buttons -->
+    <!-- Buttons
     <div class="col-md-1">
             <div class="card">
                 <h3>
@@ -44,16 +44,17 @@
                      </span>
                 </h3>
             </div>
-    </div>
+    </div>-->
+
  </div>
 
-<!-- Containers! -->
+<!-- Reports -->
 <div class="row">
     <div class="col-md-12">
-        {% if containers %}
+        {% if reports %}
                 <div class="card material-table mdl-data-table--selectable">
                    <div class="table-header">
-                       <span class="table-title">Containers</span>
+                       <span class="table-title">Reports</span>
                            <div class="actions">
                                <!-- not sure what operations I want here
                                <a href="#add_users" class="modal-trigger waves-effect btn-flat nopadding"><i class="material-icons">person_add</i></a>
@@ -83,22 +84,22 @@
                            {% for container in containers %}
                            <tr>
                                <td style="width:80px"><span class="mdl-list__item-secondary-action">
-                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-{{ container.id }}">
-                                   <input type="checkbox" name="{{ container.id }}" id="list-checkbox-{{ container.id }}" class="mdl-checkbox__input"/>
+                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-{{ report.id }}">
+                                   <input type="checkbox" name="{{ report.id }}" id="list-checkbox-{{ report.id }}" class="mdl-checkbox__input"/>
                                    </label>
                                 </span></td>
 
                                <!-- Edit Container -->
                                <td>
-                               <a href="{% url 'edit_container_spec' collection.id container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Container</button></a>
+                               <a href="#"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Container</button></a>
                                </td>
 
                                <!-- Name-->
                                <td>
-                               {% if container.name %}
-                               <a href="{% url 'edit_container_spec' collection.id container.id %}">{{ container.collection.owner }}/{{ container.name }}</a>
+                               {% if report.name %}
+                               <a href="#">{{ report.collection.owner }}/{{ report.name }}</a>
                                {% else %}
-                               <a href="{% url 'edit_container_spec' collection.id container.id %}">Edit Container</a>
+                               <a href="#">Edit Container</a>
                                {% endif %}
                                </td>
 
@@ -106,8 +107,8 @@
                                <td><a id="edit-container-specs" href="{% url 'edit_container_specs' container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Inputs / Outputs</button></a></td>
 
                                 
-                               {% if container.image %}
-                               <td><a href="{{ container.image.url }}"><i class="fa fa-download"></a></td>
+                               {% if report.image %}
+                               <td><a href="{{ report.image.url }}"><i class="fa fa-download"></a></td>
                                {% else %}
                                <td> Container Image is Building </td>
                                {% endif %}
@@ -122,11 +123,12 @@
             
             <!-- No containers! Tell the user to add one -->
             <div class="col-lg-8 col-sm-6">
-               <!--<a id="new_container" href="{% url 'new_container' collection.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Upload container</button></a> |--> 
                    <!-- Add a new container -->
-                   <a id="new-container" href="{% url 'new_container_spec' collection.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Add a container</button></a>
+                   <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
                    <div class="mdl-tooltip" for="new-container">
-                      A container can be a singularity image (.img) or a package with an image (.zip).
+                      <p>
+                      Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and each corresponding column as labels that you want to import.
+                      </p>
                    </div>
             </div>
             {% endif %}

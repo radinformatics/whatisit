@@ -52,8 +52,8 @@ def get_report(cid,request):
 def get_report_collection(cid,request):
     keyargs = {'id':cid}
     try:
-        collection = reportCollection.objects.get(**keyargs)
-    except reportCollection.DoesNotExist:
+        collection = ReportCollection.objects.get(**keyargs)
+    except ReportCollection.DoesNotExist:
         raise Http404
     else:
         return collection
@@ -122,10 +122,12 @@ def edit_report(request,coid,cid=None):
     if collection.owner == request.user:
 
         # Has the user provided a report?
+        #TODO: make report file/upload view here, we shouldn't
+        # be able to edit an individual report!
         if cid != None:
             report = get_report(cid,request)
         else:
-            report = report()
+            report = Report()
 
         if request.method == "POST":
             form = reportForm(request.POST,instance=report)

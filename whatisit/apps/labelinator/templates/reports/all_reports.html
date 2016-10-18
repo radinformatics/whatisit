@@ -14,7 +14,7 @@
                 <div class="row" style="padding-bottom:50px;">
 
                     {% if not collections %}
-                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you  <a href="{% url 'new_container_collection' %}"><button style="margin-left:10px" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">Create A Collection</button></a><p>
+                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you  <a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-primary btn-huge btn-big">Create A Collection</button></a><p>
 
                     {% else %}
                         <h3 class="title">{{ page_title }}</h3>
@@ -23,11 +23,11 @@
                             <div class=grid-item>
                                 <div class="card app-icon-card">
                                     <div class="app-icon-image container-collection" id="{{ collection.id }}" style="background: url(http://api.adorable.io/avatars/270/con-{{ collection.id }}) center">
-                                        <a class="hidden" href="{% url 'container_collection_details' collection.id %}"></a>
+                                        <a class="hidden" href="{% url 'report_collection_details' collection.id %}"></a>
                                     </div>
                                     <div class=app-icon-details>
                                         <div class=app-icon-title>{{ collection.name }}</div>
-                                            <a href="{% url 'container_collection_details' collection.id %}"><i style="color:#666; margin-right:20px" class="ti-package"></i></a>
+                                            <a href="{% url 'report_collection_details' collection.id %}"><i style="color:#666; margin-right:20px" class="ti-package"></i></a>
                                         </div>
                                     </div>
                                 </div>
@@ -38,7 +38,7 @@
             </div>
             <div class="button-box">
                     {% if collections %}
-                    <a href="{% url 'new_container_collection' %}"><button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored">New Container Collection</button></a>
+                    <a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-primary">New Container Collection</button></a>
                     {% endif %}
             </div>
         </div>
