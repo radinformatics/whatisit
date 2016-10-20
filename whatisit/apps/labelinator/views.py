@@ -1,6 +1,6 @@
 from whatisit.apps.labelinator.forms import (ReportForm, ReportCollectionForm)
-from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation
-from whatisit.apps.labelinator.utils import save_image_upload, save_package, add_message
+from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation, AllowedAnnotation
+from whatisit.apps.labelinator.utils import get_annotation_counts, add_message
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -82,11 +82,12 @@ def my_report_collections(request):
 @login_required
 def view_report_collection(request,cid):
     collection = get_report_collection(cid,request)
-    # STOPPED HERE - how do I filter this?
-    #labels = Annotation.objects.filter()
-    reports = Report.objects.filter(collection=collection)
+    # Get a count of annotations by label in the collection
+    annotation_counts = get_annotation_counts(collection)
+    report_count = Report.objects.filter(collection=collection).count()
     context = {"collection":collection,
-               "reports":reports}
+               "annotation_counts":annotation_counts,
+               "report_count":report_count}
     return render(request, 'reports/report_collection_details.html', context)
 
 # View report

@@ -2,8 +2,8 @@
 # This script will upload the data from @mlungren's project, including basic reports and labels
 # (see README.md for full instructions). In the long run we want a standard data format for importing.
 
-# Labels stored with each report look like this: a label (key of dict) with options (list of values)
-# {'historicity_label': ['new', 'mixed', 'old'], 'uncertainty_label': ['definitely negative', 'definitely positive', 'probably negative', 'Indeterminate', 'probably positive'], 'disease_state_label': ['definitely negative', 'definitely positive', 'probably negative', 'Indeterminate', 'probably positive'], 'quality_label': ['diagnostic', 'limited', 'non-diagnostic']}
+# AllowedAnnotation objects store a label name and allowed value, and an Annotation combines one of these objects
+# with a list of reports and a user, for easy query/filter
 
 import os
 import re
@@ -66,9 +66,16 @@ if os.path.exists(input_file):
                                                                       annotation=annotation_object)
                 if created==True:
                     annotation.save()
-                    annotation.reports.add(new_report)
-                    annotation.save()
+                annotation.reports.add(new_report)
+                annotation.save()
 
+
+#Annotation.objects.count()
+#16
+#AllowedAnnotation.objects.count()
+#16
+#Report.objects.count()
+#117816
 
 else:
     print("Cannot find file %s.\n It is not included in the repo, did you get it from @vsoch?" %(input_file))

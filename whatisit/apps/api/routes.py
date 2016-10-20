@@ -10,6 +10,19 @@ from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.response import Response
 
 from whatisit.apps.labelinator.models import Report, ReportCollection
+from whatisit.apps.labelinator.utils import get_annotation_counts
+from whatisit.apps.labelinator.views import get_report_collection
+
+@api_view(['GET'])
+def get_annotation_counts(request,cid):
+    '''get_annotation_counts serves the get_annotation_counts function
+    from labelinator.utils as an API endpoint
+    :param cid: should be the collection id
+    '''
+    collection = get_report_collection(cid,request)
+    counts = get_annotation_counts(collection)
+    return JsonResponse({"counts":counts,
+                         "collection":collection.id})
 
 @api_view(['POST'])
 @parser_classes((JSONParser,))

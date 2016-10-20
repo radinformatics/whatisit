@@ -46,7 +46,7 @@ def getToken(request,json_response=True):
 
 #########################################################################
 # GET
-# requests for information about containers and collections
+# requests for information about reports and collections
 #########################################################################
 
 def api_view(request,api_version=None):

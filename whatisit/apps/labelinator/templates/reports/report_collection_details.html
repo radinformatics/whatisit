@@ -1,32 +1,24 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
-
-{% block header %}
-{% include 'main/mega_dropdown.html' %}
-{% endblock %}
-
-{% block css %}
-<link rel="stylesheet" href="{% static "css/material-table.css"%}">
-{% endblock%}
+{% load humanize %}
 
 {% block content %}
-<div id="fh5co-portfolio">
-<!-- Error messages for container uploads will be added here-->
 {% include 'main/message.html' %}
 <div class="row">
 
     <!-- Container collection meta -->
-    <div class="col-md-11">
-        <div class="card" style="padding:20px">
+    <div class="col-md-11" style="padding-bottom:50px">
+        <div class="card" style="padding:30px">
             <div class="header" style="padding-bottom:50px">
-                   <h3 class="title">
+                   <h3 class="title" style="padding-bottom:20px">
                    <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
                    {{ collection.name }}</h3>
             </div>
             <div class="content">
                 <div data-background-color="white" data-active-color="danger">
-                     <p style="padding-left:30px">Reports: {{ collection.reports.count }}</p>
+                     <p>Total Reports: {{ report_count|intcomma }}</p>
+                     <p>Annotations: {{ annotation_counts.total|intcomma }}</p>
                 </div>
             </div>
                 <div class="footer">
@@ -51,70 +43,40 @@
 <!-- Reports -->
 <div class="row">
     <div class="col-md-12">
-        {% if reports %}
-                <div class="card material-table mdl-data-table--selectable">
-                   <div class="table-header">
-                       <span class="table-title">Reports</span>
-                           <div class="actions">
-                               <!-- not sure what operations I want here
-                               <a href="#add_users" class="modal-trigger waves-effect btn-flat nopadding"><i class="material-icons">person_add</i></a>
-                               <a href="#" class="search-toggle waves-effect btn-flat nopadding"><i class="material-icons">search</i></a>-->
-                           </div>
-                   </div>
-                   <table id="datatable">
-                       <thead>
+        {% if report_count > 0 %}
+                   <table class="table">
+                       <thead class="thead-inverse">
                            <tr>
-                               <td></td><!-- eventually below can be select / deselect all-->
-                               <!--<td style="width:80px"><span class="mdl-list__item-secondary-action">
-                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox-selectall">
-                                   <input type="checkbox" id="checkbox-selectall" class="mdl-checkbox__input"/>
-                                   </label>
-                                </span>
-                               </td>-->
-                               <th></th>
-                               <th>Name</th>
-                               <th>Inputs and Outputs</th>
-                               <th></th>
+                               <th>Name of Label</th>
+                               <th>Annotation</th>
+                               <th>Count</th>
                            </tr>
                        </thead>
-
                        <form method="POST" action="#" id="container-table">
                            {% csrf_token %}
                            <tbody>
+                           {% for mainlabel,counts in annotation_counts.items %}
+                           {% if counts %}
+                           {% if mainlabel != "total" %}
                            <tr>
-                               <td style="width:80px"><span class="mdl-list__item-secondary-action">
-                                   <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-{{ report.id }}">
-                                   <input type="checkbox" name="{{ report.id }}" id="list-checkbox-{{ report.id }}" class="mdl-checkbox__input"/>
-                                   </label>
-                                </span></td>
 
-                               <!-- Edit Container -->
-                               <td>
-                               <a href="#"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Container</button></a>
-                               </td>
-
-                               <!-- Name-->
-                               <td>
-                               {% if report.name %}
-                               <a href="#">{{ report.collection.owner }}/{{ report.name }}</a>
-                               {% else %}
-                               <a href="#">Edit Container</a>
-                               {% endif %}
-                               </td>
-
-                               <!-- Inputs and outputs-->
-                               <td><a id="edit-container-specs" href="#"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Inputs / Outputs</button></a></td>
-
-                                
-                               {% if report.image %}
-                               <td><a href="{{ report.image.url }}"><i class="fa fa-download"></a></td>
-                               {% else %}
-                               <td> Container Image is Building </td>
-                               {% endif %}
+                               <!-- Iterate through label options and counts -->
+                               <th scope="row">{{ mainlabel }}</th>
+                               <th scope="row">
+                                   {% for label,labelcount in counts.items %}
+                                   <tr>
+                                       <th></th>
+                                       <th scope="row">{{ label }}</th>
+                                       <th scope="row">{{ labelcount }}</th>
+                                   </tr>
+                                   {% endfor %}
+                                </th>
                            </tr>
-                       </tbody>
+                           {% endif %}
+                           {% endif %}
+                           {% endfor %}
+                           </tbody>
                        </form>    
-
                     </table>
                 </div>
             {% else %}
@@ -125,7 +87,7 @@
                    <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
                    <div class="mdl-tooltip" for="new-container">
                       <p>
-                      Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and each corresponding column as labels that you want to import.
+                      Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.
                       </p>
                    </div>
             </div>
@@ -145,29 +107,9 @@
 <script>
 $(document).ready(function(){
     $(".icons").remove();
-
-    // Submit the form when the user clicks "new workflow"
     $("#submit").click(function(){
         $("#container-table").submit();
     });
-    // Select all functionality for table checkbox
-    /*
-    $("#checkbox-selectall").click(function(){
-
-      if ($(this).hasClass("isselected")){
-          $(":checkbox").each(function(e,i){
-              console.log(i);
-              $(i).prop("checked",false)
-          })
-          $(this).removeClass("isselected");
-      } else {
-          $(":checkbox").each(function(e,i){ 
-               $(i).prop("checked",true)
-          })
-          $(this).addClass("isselected");
-      };
-    })
-    */
 })
 </script>
 {% endblock %}

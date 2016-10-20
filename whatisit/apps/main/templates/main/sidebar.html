@@ -1,43 +1,40 @@
-      <!-- Sidebar -->
-      <section id='sidebar'>
-        <i class='icon-align-justify icon-large' id='toggle'></i>
+                <div class="col-md-4">
 
-        <ul id='dock'>
-          <p style='font-weight:800;margin-top:10px'><span style='color:lightsalmon;'>What</span>IsIt</p>
+                    <div class="widget-wrapper">
+                        <h4>Categories:</h4>
+                        <br>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item active">Woman</a>
+                            <a href="#" class="list-group-item">Man</a>
+                            <a href="#" class="list-group-item">Shoes</a>
+                            <a href="#" class="list-group-item">T-shirt</a>
+                            <a href="#" class="list-group-item">Jewellery</a>
+                        </div>
+                    </div>
 
-          <!-- User -->
-          {% if active == "user" %}
-          <li class='active launcher dropdown hover'>
-          {% else %}
-          <li class='launcher'>
-          {% endif %}
-            <i class="fa fa-user"></i>
-            {% if request.user.is_authenticated %}
-            <a href="{% url 'logout' %}">Logout</a> 
-            {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            {% endif %}
-          </li>
+                    <div class="widget-wrapper">
+                        <h4>Subscription form:</h4>
+                        <br>
+                        <div class="card">
+                            <div class="card-block">
+                                <p><strong>Subscribe to our newsletter</strong></p>
+                                <p>Once a week we will send you a summary of the most useful news</p>
+                                <div class="md-form">
+                                    <i class="fa fa-user prefix"></i>
+                                    <input type="text" id="form1" class="form-control">
+                                    <label for="form1">Your name</label>
+                                </div>
+                                <div class="md-form">
+                                    <i class="fa fa-envelope prefix"></i>
+                                    <input type="text" id="form2" class="form-control">
+                                    <label for="form2">Your email</label>
+                                </div>
+                                <button class="btn btn-primary">Submit</button>
 
-          <!-- Reports -->
-          {% if active == "reports" %}
-          <li class='active launcher dropdown hover'>
-          {% else %}
-          <li class='launcher'>
-          {% endif %}
-            <i class="fa fa-book"></i>
-            <a href="{% url 'report_collections' %}">Reports</a>
-            <ul class='dropdown-menu'>
-              <li class='dropdown-header'>Reports</li>
-              <li>
-                <a href="#">All Reports</a>
-              </li>
-              <li>
-                <a href='/assessments/new'>Add Reports</a>
-              </li>
-            </ul>
-          </li>
+                            </div>
+                        </div>
+                    </div>
 
-        </ul>
-        <div data-toggle='tooltip' id='beaker' title='Made by Poldracklab'></div>
-      </section>
+                </div>
+                <!--/.Sidebar-->
+

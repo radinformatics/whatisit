@@ -2,13 +2,35 @@ from django.core.files.uploadedfile import UploadedFile, InMemoryUploadedFile
 from django.core.files.base import ContentFile
 from whatisit.apps.labelinator.models import Report
 from whatisit.settings import MEDIA_ROOT
+from whatisit.apps.labelinator.models import AllowedAnnotation
 from django.core.files import File
 import shutil
 import os
 import re
 
-#TODO: edit these to upload reports 
+def get_annotation_counts(collection):
+    '''get_annotation_counts will return a dictionary with annotation labels, values,
+    and counts for all allowed_annotations for a given collection
+    :param collection: the collection to get annotation counts for
+    '''
+    # What annotations are allowed across the report collection?
+    annotations_allowed =  AllowedAnnotation.objects.filter(annotation__reports__collection=collection)
 
+    # Take a count
+    counts = dict()
+    total = 0
+    for annotation_allowed in annotations_allowed:
+        if annotation_allowed.name not in counts:
+            counts[annotation_allowed.name] = {}
+        report_n = annotation_allowed.annotation_set.values_list('reports', flat=True).distinct().count()
+        counts[annotation_allowed.name][annotation_allowed.label] = report_n
+        total += report_n
+    counts['total'] = total
+
+    return counts    
+
+
+#TODO: edit these to upload reports 
 def save_image_upload(collection,image,report=None):
     '''save_image_upload will save an image object to a collection
     :param collection: the collection object

@@ -5,6 +5,7 @@ from rest_framework import routers
 from rest_framework.authtoken import views as rest_views
 
 import whatisit.apps.api.views as api_views
+import whatisit.apps.api.routes as route_views
 from whatisit.settings import API_VERSION
 
 router = routers.DefaultRouter()
@@ -23,5 +24,8 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # Always have default API view return current version
-    url(r'^docs$', api_views.api_view, name="api")
+    url(r'^docs$', api_views.api_view, name="api"),
+
+    # API calls to get json of collection,report details
+    url(r'^collection/(?P<cid>.+?)/counts$', route_views.get_annotation_counts), # user token obtained from command line
 ]
