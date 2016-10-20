@@ -34,67 +34,6 @@ def get_upload_folder(instance,filename):
 PRIVACY_CHOICES = ((False, 'Public (The collection will be accessible by anyone and all the data in it will be distributed under CC0 license)'),
                    (True, 'Private (The collection will be not listed. It will be possible to share it with others at a private URL.)'))
 
-#######################################################################################################
-# Annotations #########################################################################################
-#######################################################################################################
-
-class Annotation(models.Model):
-    '''An annotation is a report is a text string associated with a report collection and
-    one or more labels.
-    '''
-    # Who did the annotation? This is the annotator?
-    annotator = models.ForeignKey(User,related_name="annotator",related_query_name="annotator", blank=False,help_text="user that created the annotation.",verbose_name="Annotator")
-    
-    # The annotation is what the user labeled the report with
-    annotation = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
-
-    # The label is the what "field/thing" the annotation is describing
-    label = models.CharField(max_length=250, null=False, blank=False, help_text="descriptor text or name for what the annotation is (e.g., disease_state) determined by report.")
-    tags = TaggableManager()
-    
-
-    def __str__(self):
-        return "<annotation:%s>" %(self.id)
-
-    def __unicode__(self):
-        return "<annotation:%s>" %(self.id)
-
-    def get_label(self):
-        return "labelinator"
-
-    class Meta:
-        ordering = ['annotator','id']
-        app_label = 'labelinator'
- 
-        # A specific annotator can only give one label for some annotation label
-        unique_together =  (("id", "label","annotator"),)
-
-
-class AllowedAnnotation(models.Model):
-    '''An allowed annotation is key/list of labels lookup to find allowable annotations
-    '''
-    
-    # The annotation is what the user labeled the report with
-    name = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
-
-    # The label is the what "field/thing" the annotation is describing
-    labels = JSONField()
-    
-    def __str__(self):
-        return "<%s>" %(self.name)
-
-    def __unicode__(self):
-        return "<%s>" %(self.name)
-
-    def get_label(self):
-        return "labelinator"
-
-    class Meta:
-        ordering = ['name']
-        app_label = 'labelinator'
-
-
-
 
 #######################################################################################################
 # Reports ##########################################################################################
@@ -153,8 +92,6 @@ class Report(models.Model):
     report_id = models.CharField(max_length=250, null=False, blank=False)
     report_text = models.CharField(max_length=50000, null=False, blank=False)
     #image = models.FileField(upload_to=get_upload_folder,null=True,blank=False)
-    allowed_annotations = models.ManyToManyField(AllowedAnnotation,blank=True,help_text="Allowed Annotations are values and lists of keys that can be used to make an annotation",verbose_name='Allowed Annotations', related_query_name='allowed_annotations')
-    annotations = models.ManyToManyField(Annotation,blank=True,help_text="Annotation objects to label the reports with",verbose_name='Report Annotations', related_query_name='report_annotations')
     collection = models.ForeignKey(ReportCollection,null=False,blank=False)
     tags = TaggableManager()
     
@@ -179,6 +116,66 @@ class Report(models.Model):
     def get_absolute_url(self):
         return_cid = self.id
         return reverse('report_details', args=[str(return_cid)])
+
+
+#######################################################################################################
+# Annotations #########################################################################################
+#######################################################################################################
+
+class AllowedAnnotation(models.Model):
+    '''An allowed annotation is key/list of labels lookup to find allowable annotations
+    '''
+    
+    # The annotation is what the user labeled the report with
+    name = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
+    # The label is the what "field/thing" the annotation is describing
+    label = models.CharField(max_length=250, null=False, blank=False,help_text="label allowed for the term")
+
+    
+    def __str__(self):
+        return "<%s>" %(self.name)
+
+    def __unicode__(self):
+        return "<%s>" %(self.name)
+
+    def get_label(self):
+        return "labelinator"
+
+    class Meta:
+        ordering = ['name']
+        app_label = 'labelinator'
+
+        # A specific annotator can only give one label for some annotation label
+        unique_together =  (("name", "label"),)
+
+
+class Annotation(models.Model):
+    '''An annotation is a report is a text string associated with a report collection and
+    one or more labels.
+    '''
+    # Who did the annotation? This is the annotator?
+    annotator = models.ForeignKey(User,related_name="annotator",related_query_name="annotator", blank=False,help_text="user that created the annotation.",verbose_name="Annotator")
+    # The annotation is what the user labeled the report with
+    annotation = models.ForeignKey(AllowedAnnotation,blank=False,help_text="the name,labels allowed for this particular annotation")
+    reports = models.ManyToManyField(Report,related_name="reports_annotated",related_query_name="reports_annotated", blank=True,verbose_name="Reports Annotated")
+
+    tags = TaggableManager()
+    
+    def __str__(self):
+        return "<annotation:%s>" %(self.id)
+
+    def __unicode__(self):
+        return "<annotation:%s>" %(self.id)
+
+    def get_label(self):
+        return "labelinator"
+
+    class Meta:
+        ordering = ['annotator','id']
+        app_label = 'labelinator'
+ 
+        # A specific annotator can only give one label for some annotation label
+        unique_together =  (("id", "annotation","annotator"),)
 
 
 def contributors_changed(sender, instance, action, **kwargs):

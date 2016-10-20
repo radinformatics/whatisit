@@ -12,7 +12,7 @@ django-taggit
 django-taggit-templatetags
 django-form-utils
 numpy
-python-social-auth==0.2.7
+python-social-auth
 requests
 requests-oauthlib
 jsonfield
