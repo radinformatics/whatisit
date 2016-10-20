@@ -70,10 +70,30 @@ class Annotation(models.Model):
         unique_together =  (("id", "label","annotator"),)
 
 
-    # Get the url for a container
-    def get_absolute_url(self):
-        return_cid = self.id
-        return reverse('report_details', args=[str(return_cid)])
+class AllowedAnnotation(models.Model):
+    '''An allowed annotation is key/list of labels lookup to find allowable annotations
+    '''
+    
+    # The annotation is what the user labeled the report with
+    name = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
+
+    # The label is the what "field/thing" the annotation is describing
+    labels = JSONField()
+    
+    def __str__(self):
+        return "<%s>" %(self.name)
+
+    def __unicode__(self):
+        return "<%s>" %(self.name)
+
+    def get_label(self):
+        return "labelinator"
+
+    class Meta:
+        ordering = ['name']
+        app_label = 'labelinator'
+
+
 
 
 #######################################################################################################
@@ -133,7 +153,7 @@ class Report(models.Model):
     report_id = models.CharField(max_length=250, null=False, blank=False)
     report_text = models.CharField(max_length=50000, null=False, blank=False)
     #image = models.FileField(upload_to=get_upload_folder,null=True,blank=False)
-    labels = JSONField()
+    allowed_annotations = models.ManyToManyField(AllowedAnnotation,blank=True,help_text="Allowed Annotations are values and lists of keys that can be used to make an annotation",verbose_name='Allowed Annotations', related_query_name='allowed_annotations')
     annotations = models.ManyToManyField(Annotation,blank=True,help_text="Annotation objects to label the reports with",verbose_name='Report Annotations', related_query_name='report_annotations')
     collection = models.ForeignKey(ReportCollection,null=False,blank=False)
     tags = TaggableManager()

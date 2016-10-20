@@ -5,7 +5,6 @@ from rest_framework import routers
 from rest_framework.authtoken import views as rest_views
 
 import whatisit.apps.api.views as api_views
-import whatisit.apps.api.routes as route_views
 from whatisit.settings import API_VERSION
 
 router = routers.DefaultRouter()
@@ -21,13 +20,7 @@ urlpatterns = [
     url(r'^token/', api_views.getToken), # user token obtained in browser session
     url(r'^api-token-auth/', rest_views.obtain_auth_token), # user token obtained from command line
     # returns a JSON response when valid username and password fields are POSTed to the view using form data or JSON
-
-    # View or update a single container
-    url(r'^containers/(?P<pk>[0-9]+)$', api_views.ReportRetriever),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    # Upload an image
-    url(r'^upload/(?P<collection>[0-9]+)/(?P<name>[^/]+)$', route_views.PushImage.as_view()),
 
     # Always have default API view return current version
     url(r'^docs$', api_views.api_view, name="api")

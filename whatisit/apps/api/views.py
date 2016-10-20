@@ -9,7 +9,7 @@ from whatisit.apps.labelinator.models import Report, ReportCollection
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from whatisit.apps.api.serializers import ReportSerializer, ReportCollectionSerializer, UserSerializer
+from whatisit.apps.api.serializers import ReportSerializer, ReportCollectionSerializer
 from whatisit.apps.api.utils import chooseJsonResponse
 
 from django.contrib.auth.models import User
@@ -61,7 +61,7 @@ class ReportViewSet(viewsets.ReadOnlyModelViewSet):
     '''ReportViewSet is an API endpoint that allows 
        all containers to be viewed.
     '''
-    queryset = Report.objects.all().order_by('name')
+    queryset = Report.objects.all().order_by('report_id')
     serializer_class = ReportSerializer
 
 
@@ -71,39 +71,3 @@ class ReportCollectionViewSet(viewsets.ReadOnlyModelViewSet):
     '''
     queryset = ReportCollection.objects.all()
     serializer_class = ReportCollectionSerializer
-
-
-
-#########################################################################
-# PUT
-# requests to upload built containers
-#########################################################################
-
-
-class ReportRetriever(APIView):
-    '''Retrieve or update a container instance. Deletion is not allowed
-       programatically.
-    '''
-    def get_object(self, pk):
-        try:
-            return Container.objects.get(pk=pk)
-        except Container.DoesNotExist:
-            raise Http404
-
-    # Associate user with created object
-    def perform_create(self, serializer):
-        # Here validate that the user token has permissions for the collection
-        serializer.save(owner=self.request.user)
-
-    def get(self, request, pk, format=None):
-        container = self.get_object(pk)
-        serializer = ContainerSerializer(container)
-        return Response(serializer.data)
-
-    def put(self, request, pk, format=None):
-        container = self.get_object(pk)
-        serializer = SnippetSerializer(container, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

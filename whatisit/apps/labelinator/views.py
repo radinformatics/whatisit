@@ -1,5 +1,5 @@
 from whatisit.apps.labelinator.forms import (ReportForm, ReportCollectionForm)
-from whatisit.apps.labelinator.models import Report, ReportCollection
+from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation
 from whatisit.apps.labelinator.utils import save_image_upload, save_package, add_message
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 
@@ -82,6 +82,8 @@ def my_report_collections(request):
 @login_required
 def view_report_collection(request,cid):
     collection = get_report_collection(cid,request)
+    # STOPPED HERE - how do I filter this?
+    #labels = Annotation.objects.filter()
     reports = Report.objects.filter(collection=collection)
     context = {"collection":collection,
                "reports":reports}

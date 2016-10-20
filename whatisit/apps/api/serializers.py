@@ -6,7 +6,7 @@ from rest_framework import serializers
 class ReportSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Report
-        fields = ('uid', 'text')
+        fields = ('report_id', 'report_text')
 
 
 class ReportCollectionSerializer(serializers.HyperlinkedModelSerializer):
@@ -15,9 +15,8 @@ class ReportCollectionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('name',)
 
 
-class UserSerializer(serializers.ModelSerializer):
-    collections = serializers.PrimaryKeyRelatedField(many=True, queryset=ReportCollection.objects.all())
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'collections')
+#class UserSerializer(serializers.ModelSerializer):
+#    collections = serializers.PrimaryKeyRelatedField(many=True, queryset=ReportCollection.objects.all())#
+#    class Meta:
+#        model = User
+#        fields = ('id', 'username', 'collections')

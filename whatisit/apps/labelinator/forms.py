@@ -30,7 +30,7 @@ class ReportForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
 
-        super(ContainerForm, self).__init__(*args, **kwargs)
+        super(ReportForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-horizontal'
         self.helper.label_class = 'col-lg-2'

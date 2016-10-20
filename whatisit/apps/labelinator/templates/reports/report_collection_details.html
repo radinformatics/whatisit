@@ -26,7 +26,7 @@
             </div>
             <div class="content">
                 <div data-background-color="white" data-active-color="danger">
-                     <p style="padding-left:30px"></p>
+                     <p style="padding-left:30px">Reports: {{ collection.reports.count }}</p>
                 </div>
             </div>
                 <div class="footer">
@@ -81,7 +81,6 @@
                        <form method="POST" action="#" id="container-table">
                            {% csrf_token %}
                            <tbody>
-                           {% for container in containers %}
                            <tr>
                                <td style="width:80px"><span class="mdl-list__item-secondary-action">
                                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-{{ report.id }}">
@@ -104,7 +103,7 @@
                                </td>
 
                                <!-- Inputs and outputs-->
-                               <td><a id="edit-container-specs" href="{% url 'edit_container_specs' container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Inputs / Outputs</button></a></td>
+                               <td><a id="edit-container-specs" href="#"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Inputs / Outputs</button></a></td>
 
                                 
                                {% if report.image %}
@@ -113,7 +112,6 @@
                                <td> Container Image is Building </td>
                                {% endif %}
                            </tr>
-                           {% endfor %}
                        </tbody>
                        </form>    
 

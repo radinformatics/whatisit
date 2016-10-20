@@ -15,7 +15,7 @@ RUN pip install -v scipy
 RUN pip install numpy
 RUN pip install scikit-learn pandas h5py matplotlib
 RUN pip install uwsgi
-RUN pip install 'Django==1.9'
+RUN pip install 'Django==1.10'
 RUN pip install python-social-auth
 RUN pip install djangorestframework
 RUN pip install markdown
@@ -27,7 +27,6 @@ RUN pip install django-taggit-templatetags
 RUN pip install django-dirtyfields
 RUN pip install 'dropbox==1.6'
 RUN pip install 'django-dbbackup<2.3'
-RUN pip install nibabel
 RUN pip install psycopg2
 RUN pip install cython
 RUN pip install h5py
@@ -42,7 +41,6 @@ RUN pip install requests-oauthlib
 RUN pip install python-openid
 RUN pip install django-sendfile
 RUN pip install django-polymorphic
-RUN pip install networkx
 RUN pip install celery[redis]
 RUN pip install django-celery
 RUN pip install scikit-learn
@@ -52,19 +50,9 @@ RUN pip install opbeat
 RUN pip install 'django-hstore==1.3.5'
 RUN pip install django-datatables-view
 RUN pip install django-oauth-toolkit
-RUN pip install wdl
 RUN pip install simplejson
 RUN pip install django-gravatar2
 RUN pip install pygments
-
-# Install singularity
-RUN cd /tmp
-RUN git clone https://github.com/singularityware/singularity.git
-WORKDIR singularity
-RUN ./autogen.sh
-RUN ./configure --prefix=/usr/local
-RUN make
-RUN make install
 
 RUN mkdir /code
 WORKDIR /code
@@ -78,19 +66,6 @@ RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD . /code/
-
-# Set up verison control
-RUN echo `which git-shell` >> /etc/shells # This adds the git shell as an option
-RUN adduser --disabled-password --gecos "" git
-RUN chsh git | echo `which git-shell`
-RUN su git
-RUN mkdir ~/.ssh
-RUN chmod 700 ~/.ssh
-RUN touch ~/.ssh/authorized_keys
-RUN chmod 600 ~/.ssh/authorized_keys
-RUN ssh-keygen -t rsa -N "" -f ~/.ssh/shub.key
-RUN cat ~/.ssh/shub.key.pub >> ~/.ssh/authorized_keys
-
 CMD /code/run_uwsgi.sh
 
 EXPOSE 3031
