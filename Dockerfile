@@ -15,7 +15,7 @@ RUN pip install -v scipy
 RUN pip install numpy
 RUN pip install scikit-learn pandas h5py matplotlib
 RUN pip install uwsgi
-RUN pip install 'Django==1.10'
+RUN pip install 'Django==1.10.2'
 RUN pip install python-social-auth
 RUN pip install djangorestframework
 RUN pip install markdown
