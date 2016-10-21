@@ -36,6 +36,39 @@ PRIVACY_CHOICES = ((False, 'Public (The collection will be accessible by anyone 
 
 
 #######################################################################################################
+# Allowed Annotations #################################################################################
+#######################################################################################################
+
+class AllowedAnnotation(models.Model):
+    '''An allowed annotation is key/list of labels lookup to find allowable annotations
+    '''
+    
+    # The annotation is what the user labeled the report with
+    name = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
+    # The label is the what "field/thing" the annotation is describing
+    label = models.CharField(max_length=250, null=False, blank=False,help_text="label allowed for the term")
+
+    
+    def __str__(self):
+        return "<%s>" %(self.name)
+
+    def __unicode__(self):
+        return "<%s>" %(self.name)
+
+    def get_label(self):
+        return "labelinator"
+
+    class Meta:
+        ordering = ['name']
+        app_label = 'labelinator'
+
+        # A specific annotator can only give one label for some annotation label
+        unique_together =  (("name", "label"),)
+
+
+
+
+#######################################################################################################
 # Reports ##########################################################################################
 #######################################################################################################
 
@@ -48,6 +81,7 @@ class ReportCollection(models.Model):
     description = models.TextField(blank=True, null=True)
     add_date = models.DateTimeField('date published', auto_now_add=True)
     modify_date = models.DateTimeField('date modified', auto_now=True)
+    allowed_annotations = models.ManyToManyField(AllowedAnnotation,related_name="reports_allowed_annotation",related_query_name="annotations_allowed_collection", blank=True,verbose_name="Annotations allowed for Report Collection")
     
     # Users
     owner = models.ForeignKey(User)
@@ -83,6 +117,7 @@ class ReportCollection(models.Model):
             ('del_report_collection', 'Delete container collection'),
             ('edit_report_collection', 'Edit container collection')
         )
+
 
 
 class Report(models.Model):
@@ -121,33 +156,6 @@ class Report(models.Model):
 #######################################################################################################
 # Annotations #########################################################################################
 #######################################################################################################
-
-class AllowedAnnotation(models.Model):
-    '''An allowed annotation is key/list of labels lookup to find allowable annotations
-    '''
-    
-    # The annotation is what the user labeled the report with
-    name = models.CharField(max_length=250, null=False, blank=False,help_text="term the user labeled the report with")
-    # The label is the what "field/thing" the annotation is describing
-    label = models.CharField(max_length=250, null=False, blank=False,help_text="label allowed for the term")
-
-    
-    def __str__(self):
-        return "<%s>" %(self.name)
-
-    def __unicode__(self):
-        return "<%s>" %(self.name)
-
-    def get_label(self):
-        return "labelinator"
-
-    class Meta:
-        ordering = ['name']
-        app_label = 'labelinator'
-
-        # A specific annotator can only give one label for some annotation label
-        unique_together =  (("name", "label"),)
-
 
 class Annotation(models.Model):
     '''An annotation is a report is a text string associated with a report collection and

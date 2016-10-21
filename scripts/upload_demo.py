@@ -39,10 +39,12 @@ if os.path.exists(input_file):
             if created == True:
                 allowed_annotation.save()
                 allowed_annotations.append(allowed_annotation)
+    # Add allowed annotations to the collection
+    [collection.allowed_annotations.add(x) for x in allowed_annotations]
+    collection.save()
     # Note: The annotations themselves will be stored in separate objects)
     labels = [a.name for a in AllowedAnnotation.objects.all()]
     labels = numpy.unique(labels).tolist()
-
     # Now upload reports to it!
     for row in data.iterrows():
         print("Parsing %s of %s" %(row[0],data.shape[0]))
@@ -58,6 +60,7 @@ if os.path.exists(input_file):
             new_report.save()
         # For each label, create an annotation (for annotator user) if it isn't null
         for report_annotation in report_annotations:
+            # if the value isn't Null, add annotation to the report
             if not pandas.isnull(row[1][report_annotation]):
                 value = row[1][report_annotation].replace(" ","_").lower()
                 annotation_object = AllowedAnnotation.objects.get(name=report_annotation,

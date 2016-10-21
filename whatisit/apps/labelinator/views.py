@@ -6,12 +6,14 @@ from whatisit.settings import BASE_DIR, MEDIA_ROOT
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models.aggregates import Count
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, JsonResponse
 from django.http.response import HttpResponseRedirect, HttpResponseForbidden, Http404
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils import timezone
+
 
 import csv
 import datetime
@@ -22,6 +24,7 @@ import os
 import numpy
 import pandas
 import pickle
+from random import randint
 import re
 import shutil
 import tarfile
@@ -221,6 +224,18 @@ def upload_report(request,cid):
 
 @login_required
 def annotate_random(request,cid):
+    '''annotate_random will select a random record from a collection, and render a page for
+    the user to annotate
+    :param cid: the collection id to select from
+    '''
+    collection = get_report_collection(cid,request)
+    count = Report.objects.filter(collection=collection).aggregate(count=Count('id'))['count']
+    random_index = randint(0, count - 1)
+    record = Report.objects.filter(collection=collection)[random_index]
+    # Get annotations, and count each
+    annotations = Annotation.objects.filter(reports__report_id=record.report_id).annotate(Count('annotation', distinct=True))
+    context = {"report":report,
+               "annotations":annotations}
     return render(request, "annotate/annotate_random.html", context)
 
 
