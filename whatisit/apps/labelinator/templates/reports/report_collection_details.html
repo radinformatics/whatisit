@@ -8,8 +8,8 @@
 <div class="row">
 
     <!-- Container collection meta -->
-    <div class="col-md-11" style="padding-bottom:50px">
-        <div class="card" style="padding:30px">
+    <div class="col-md-4" style="padding-bottom:50px">
+        <div class="card card-block" style="padding:30px">
             <div class="header" style="padding-bottom:50px">
                    <h3 class="title" style="padding-bottom:20px">
                    <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
@@ -21,11 +21,21 @@
                      <p>Annotations: {{ annotation_counts.total|intcomma }}</p>
                 </div>
             </div>
-                <div class="footer">
-                </div>
         </div>    
     </div>
 
+    <div class="col-md-4" style="padding-bottom:50px">
+
+        <div class="card card-block" style="padding:30px;min-height:326px">
+            <h2>Annotate</h2>
+            <hr>
+            <!-- Annotate Random -->
+            <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Random Selection</button></a>
+            <button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>
+            <button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Custom</button>
+
+        </div>
+    </div>
     <!-- Buttons
     <div class="col-md-1">
             <div class="card">
@@ -40,9 +50,22 @@
 
  </div>
 
-<!-- Reports -->
-<div class="row">
+<!-- Nav tabs -->
+<ul role="tablist" style='padding-bottom:20px'>
+    <li class="nav-item">
+        <button type="button" class="btn btn-lg btn-default waves-effect waves-light button-choice" id="summary"> Summary</button>
+    </li>
+    <!--<li class="nav-item">
+        <a class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate</a>
+    </li>-->
+</ul>
+
+<!--Annotate-->
+<div class="row panel-choice" id="summaryPanel">
+
     <div class="col-md-12">
+        <br>
+
         {% if report_count > 0 %}
                    <table class="table">
                        <thead class="thead-inverse">
@@ -92,24 +115,35 @@
                    </div>
             </div>
             {% endif %}
-        </div>
     </div>
 </div>
-</div>
-</div>
-{% endblock %}
+<!--/Annotate-->
 
+<!--Summary-->
+<div class="row panel-choice" id="annotatePanel" style="display:none">
+
+    <div class="col-md-12">
+        <br>
+
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil odit magnam minima, soluta doloribus reiciendis molestiae placeat unde eos molestias. Quisquam aperiam, pariatur. Tempora, placeat ratione porro voluptate
+            odit minima.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil odit magnam minima, soluta doloribus reiciendis molestiae placeat unde eos molestias. Quisquam aperiam, pariatur. Tempora, placeat ratione porro voluptate
+            odit minima.</p>
+    </div>
+</div>
+    <!--/.Panel 2-->
+
+{% endblock %}
 {% block scripts %}
-<script src="{% static "js/jquery.dataTables.min.js"%}"></script>
-<script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
-<script src="{% static "js/materialize.min.js"%}"></script>
-<script src="{% static "js/material.datatables.js"%}"></script>
 <script>
 $(document).ready(function(){
-    $(".icons").remove();
-    $("#submit").click(function(){
-        $("#container-table").submit();
-    });
+   //$(".panel-choice").hide();
+   $('.button-choice').click(function(){
+      $(".panel-choice").hide();
+      var panel_id = $(this).attr('id')
+      console.log("#" + panel_id + "Panel")
+      $("#" + panel_id + "Panel").show();
+   })
 })
 </script>
 {% endblock %}

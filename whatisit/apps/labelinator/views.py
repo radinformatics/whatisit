@@ -213,3 +213,25 @@ def upload_report(request,cid):
             context = {"form": form,
                        "collection": collection}
             return render(request, "reports/edit_report.html", context)
+
+
+###############################################################################################
+# annotations #################################################################################
+###############################################################################################
+
+@login_required
+def annotate_random(request,cid):
+    return render(request, "annotate/annotate_random.html", context)
+
+
+@login_required
+def annotate_curated(request,cid):
+    return render(request, "annotate/annotate_curated.html", context)
+
+
+@login_required
+def annotate_custom(request,cid):
+    return render(request, "annotate/annotate_custom.html", context)
+
+
+
