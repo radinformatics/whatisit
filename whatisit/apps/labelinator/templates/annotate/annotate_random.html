@@ -61,8 +61,8 @@
     </div>     
     <div class="row" style='padding-top:25px'>
         <div class="col-md-12">
-            <div class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>
-            <div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div>
+            <div id="last-one" class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>
+            <a id="next-one" href="{% url 'annotate_random' collection.id %}"><div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div></a>
         </div>
     </div>     
 </div>
@@ -71,6 +71,13 @@
 <script src="{% static "js/jquery.sticky.js" %}"></script>
 <script>
 $(document).ready(function(){
+
+    // Going back returns to previous page/record
+    $("#last-one").click(function(){
+        history.back();
+    })
+
+    // The annotations move down the page when we scroll
     $("#annots").sticky({topSpacing:0,
                          zIndex:100});
 
@@ -80,6 +87,23 @@ $(document).ready(function(){
     $('#annots').on('sticky-end', function() { 
        $("#annots-row").css('padding-bottom','50px') 
     });
+
+
+    // Left and right arrow keys navigate as well
+    $(document).keydown(function(e) {
+    if (e.which == 37) { 
+       history.back();
+       e.preventDefault();
+       return false;
+    }
+
+    if (e.which == 39) { 
+       document.location = "{% url 'annotate_random' collection.id %}"
+       e.preventDefault();
+       return false;
+    }
+});
+
 });
 </script>
 </script>

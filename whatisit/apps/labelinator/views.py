@@ -14,7 +14,7 @@ from django.http.response import HttpResponseRedirect, HttpResponseForbidden, Ht
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils import timezone
-
+from django.urls import reverse
 
 import csv
 import datetime
@@ -46,8 +46,8 @@ media_dir = os.path.join(BASE_DIR,MEDIA_ROOT)
 def get_report(cid,request):
     keyargs = {'id':cid}
     try:
-        report = report.objects.get(**keyargs)
-    except report.DoesNotExist:
+        report = Report.objects.get(**keyargs)
+    except Report.DoesNotExist:
         raise Http404
     else:
         return report
@@ -266,7 +266,8 @@ def annotate_random(request,cid,rid=None):
         except:
             rid = None
 
-    return annotate_report(request,rid,record)
+    # Ensure url returned is for report
+    return HttpResponseRedirect(reverse('annotate_report', args=(rid,)))
     
 
 @login_required
