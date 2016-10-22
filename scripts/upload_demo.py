@@ -38,7 +38,7 @@ if os.path.exists(input_file):
                                                                                  label=label_option)
             if created == True:
                 allowed_annotation.save()
-                allowed_annotations.append(allowed_annotation)
+            allowed_annotations.append(allowed_annotation)
     # Add allowed annotations to the collection
     [collection.allowed_annotations.add(x) for x in allowed_annotations]
     collection.save()

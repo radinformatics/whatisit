@@ -1,0 +1,86 @@
+{% extends "main/base.html" %}
+{% load staticfiles %}
+{% load dictionary_extras %}
+{% block head %}
+{% endblock %}
+{% block content %}
+<style>
+.annotate-button{
+  background-color:white !important;
+  color:#333 !important; 
+  box-shadow:none !important;
+}
+.btn-primary.active{
+  color: white !important;
+}
+#annots {
+  background-color:white;
+  border-radius:10px;
+}
+.arrow{
+  width:200px;
+  height:50px;
+  color:#999;
+  font-size:30px;
+  cursor:pointer;
+}
+.arrow:hover{
+  color:#F3F3F3;
+}
+</style>
+<div class="container">
+    <div id="annots">
+    <div class="row" style="padding-bottom:50px;" id="annots-row">
+        <div class="col-md-12">
+        {% for name,labels in allowed_annotations.items %}
+            <fieldset style="border:dashed 1px;margin-bottom:10px">
+                <legend style="width:0%;font-size:1em;margin-bottom:0px"><span style="background-color:white">{{ name }}</span></legend>
+                <div class="btn-group" data-toggle="buttons">
+                    {% for label in labels %}
+                        {% if name in annotations and annotations|access:name == label %}
+                        <label class="btn btn-primary annotate-button active">
+                        {% else %}
+                        <label class="btn btn-primary annotate-button">                    
+                        {% endif %}
+                        <input class="annotate-button" type="radio" name="{{ name }}" id="{{ label }}" autocomplete="off" > {{ label }}
+                        </label>
+                    {% endfor %}
+                 </div>
+             </fieldset>
+        {% endfor %}
+        </div>
+    </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2 style="margin-bottom:50px">{{ collection.name }}/{{ report.report_id }}</h2>
+            <div class="card card-block">
+                <p>{{ report.report_text }}</p>
+            </div>
+        </div>
+    </div>     
+    <div class="row" style='padding-top:25px'>
+        <div class="col-md-12">
+            <div class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>
+            <div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div>
+        </div>
+    </div>     
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static "js/jquery.sticky.js" %}"></script>
+<script>
+$(document).ready(function(){
+    $("#annots").sticky({topSpacing:0,
+                         zIndex:100});
+
+    $('#annots').on('sticky-start', function() { 
+       $("#annots-row").css('padding-bottom','0px') 
+    });
+    $('#annots').on('sticky-end', function() { 
+       $("#annots-row").css('padding-bottom','50px') 
+    });
+});
+</script>
+</script>
+{% endblock %}

@@ -19,7 +19,8 @@ urlpatterns = [
     url(r'^collections/reports/my$',report_views.my_report_collections,name='my_report_collections'),
 
     # Do annotations
-    url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),
+    url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),       # random
+    url(r'^annotate/reports/(?P<cid>.+?)/(?P<rid>.+?)$',report_views.annotate_random,name='annotate_random'), # next
     url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),
     url(r'^annotate/reports/(?P<cid>.+?)/custom$',report_views.annotate_custom,name='annotate_custom'),
 ]

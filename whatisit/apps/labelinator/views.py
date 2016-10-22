@@ -1,6 +1,7 @@
 from whatisit.apps.labelinator.forms import (ReportForm, ReportCollectionForm)
 from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation, AllowedAnnotation
-from whatisit.apps.labelinator.utils import get_annotation_counts, add_message
+from whatisit.apps.labelinator.utils import get_annotation_counts, add_message, group_allowed_annotations, \
+   summarize_annotations
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -223,21 +224,50 @@ def upload_report(request,cid):
 ###############################################################################################
 
 @login_required
-def annotate_random(request,cid):
+def annotate_report(request,rid,report=None):
+    '''annotate_report is the view to return a report annotation interface for a particular report id
+    :param rid: report id to annotate
+    '''
+    if report == None:
+        report = get_report(rid,request)
+
+    # Get the concise annotations
+    annotations = Annotation.objects.filter(reports__report_id=report.report_id).annotate(Count('annotation', distinct=True))
+    annotations = summarize_annotations(annotations)
+
+    # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
+    allowed_annotations = report.collection.allowed_annotations.all()
+    allowed_annotations = group_allowed_annotations(allowed_annotations)
+
+    context = {"report":report,
+               "annotations":annotations['labels'],
+               "counts":annotations['counts'],
+               "collection":report.collection,
+               "allowed_annotations":allowed_annotations}
+
+    return render(request, "annotate/annotate_random.html", context)
+
+
+@login_required
+def annotate_random(request,cid,rid=None):
     '''annotate_random will select a random record from a collection, and render a page for
     the user to annotate
     :param cid: the collection id to select from
+    :param rid: a report id, if provided, to annotate
     '''
     collection = get_report_collection(cid,request)
-    count = Report.objects.filter(collection=collection).aggregate(count=Count('id'))['count']
-    random_index = randint(0, count - 1)
-    record = Report.objects.filter(collection=collection)[random_index]
-    # Get annotations, and count each
-    annotations = Annotation.objects.filter(reports__report_id=record.report_id).annotate(Count('annotation', distinct=True))
-    context = {"report":report,
-               "annotations":annotations}
-    return render(request, "annotate/annotate_random.html", context)
+  
+    # Get a random report
+    while rid == None:
+        count = Report.objects.filter(collection=collection).aggregate(count=Count('id'))['count']
+        rid = randint(0, count - 1)
+        try:
+            record = Report.objects.get(id=rid)
+        except:
+            rid = None
 
+    return annotate_report(request,rid,record)
+    
 
 @login_required
 def annotate_curated(request,cid):

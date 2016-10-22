@@ -30,6 +30,37 @@ def get_annotation_counts(collection):
     return counts    
 
 
+def group_allowed_annotations(allowed_annotations):
+    '''group_allowed_annotations will take a list of allowed annotations for a collection (or other)
+    and put them together in a dictionary by the annotation name
+    :param allowed_annotations: a list (queryset) of allowed annotations
+    '''
+    annotation_set = dict()
+    for allowed_annotation in allowed_annotations:
+        # Is the key (the annotation primary name) in our lookup?
+        if allowed_annotation.name not in annotation_set:
+            annotation_set[allowed_annotation.name] = []
+        # Is the value (the annotation option) in our list?
+        if allowed_annotation.label not in annotation_set[allowed_annotation.name]:
+            annotation_set[allowed_annotation.name].append(allowed_annotation.label)
+    return annotation_set
+
+
+def summarize_annotations(annotations):
+    '''summarize_annotations will return a list of annotations for a report, with key value
+    corresponding to name:label, and also include the count for each
+    :param annotations: a list (queryset) of annotations
+    '''
+    summary = dict()
+    counts = dict()
+    for annotation in annotations:
+        summary[annotation.annotation.name] = annotation.annotation.label
+        counts[annotation.annotation.name] = annotation.annotation__count
+    result = {"labels":summary,
+              "counts":counts}
+    return result
+
+
 #TODO: edit these to upload reports 
 def save_image_upload(collection,image,report=None):
     '''save_image_upload will save an image object to a collection
