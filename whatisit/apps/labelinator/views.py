@@ -232,7 +232,7 @@ def annotate_report(request,rid,report=None):
         report = get_report(rid,request)
 
     # Get the concise annotations
-    annotations = Annotation.objects.filter(reports__report_id=report.report_id).annotate(Count('annotation', distinct=True))
+    annotations = Annotation.objects.filter(reports__report_id=report.report_id,annotator=request.user).annotate(Count('annotation', distinct=True))
     annotations = summarize_annotations(annotations)
 
     # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
