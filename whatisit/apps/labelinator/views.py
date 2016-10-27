@@ -1,7 +1,7 @@
 from whatisit.apps.labelinator.forms import (ReportForm, ReportCollectionForm)
 from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation, AllowedAnnotation
 from whatisit.apps.labelinator.utils import get_annotation_counts, add_message, group_allowed_annotations, \
-   summarize_annotations
+   summarize_annotations, get_user_annotations, update_user_annotation
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -232,7 +232,7 @@ def annotate_report(request,rid,report=None):
         report = get_report(rid,request)
 
     # Get the concise annotations
-    annotations = Annotation.objects.filter(reports__report_id=report.report_id,annotator=request.user).annotate(Count('annotation', distinct=True))
+    annotations = get_user_annotations(user=request.user, report=report)
     annotations = summarize_annotations(annotations)
 
     # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
@@ -246,6 +246,48 @@ def annotate_report(request,rid,report=None):
                "allowed_annotations":allowed_annotations}
 
     return render(request, "annotate/annotate_random.html", context)
+
+
+@login_required
+def update_annotation(request,rid,report=None):
+    '''update_annotation is the view to update an annotation when it changes. It should return a JSON response.
+    '''
+    if report == None:
+        report = get_report(rid,request)
+
+    # Right now, only owners allowed to contribute
+    if request.user == report.collection.owner:
+
+        # Get the concise annotations (not sure if I need these, actually)        
+        annotations = get_user_annotations(user=request.user, report=report)
+
+        if request.method == 'POST':
+            try:
+                new_annotations = json.loads(request.POST.get('annotations'))
+            
+            except:
+                return JsonResponse({"error": "error parsing array!"})
+
+            # Update the annotations
+            for new_annotation in new_annotations:
+                if new_annotation['value'] == "on":
+                    aname,alabel = new_annotation['name'].split('||')
+                    annotation_object = AllowedAnnotation.objects.get(name=aname,
+                                                                      label=alabel)
+                    annot = update_user_annotation(user=request.user,
+                                                   annotation_object=annotation_object,
+                                                   report=report)
+
+            response_data = {}
+            response_data['result'] = 'Create post successful!'
+
+            return JsonResponse(response_data)
+
+        else:
+            return JsonResponse({"have you ever seen...": "a radiologist ravioli?"})
+
+    else:
+        return render(request, "messages/not_authorized.html", context)
 
 
 @login_required

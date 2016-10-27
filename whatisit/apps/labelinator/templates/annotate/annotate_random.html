@@ -30,8 +30,16 @@
 </style>
 <div class="container">
     <div id="annots">
+    
+    <!-- Display error messages to user -->
+    <div class="row" id="results"></div>
+
     <div class="row" style="padding-bottom:50px;" id="annots-row">
         <div class="col-md-12">
+
+        <!-- Form to send updates to server-->
+        <form action="{% url 'update_annotation' report.id %}" method="POST" id="update_annotation">
+
         {% for name,labels in allowed_annotations.items %}
             <fieldset style="border:dashed 1px;margin-bottom:10px">
                 <legend style="width:0%;font-size:1em;margin-bottom:0px"><span style="background-color:white">{{ name }}</span></legend>
@@ -42,12 +50,15 @@
                         {% else %}
                         <label class="btn btn-primary annotate-button">                    
                         {% endif %}
-                        <input class="annotate-button" type="radio" name="{{ name }}" id="{{ label }}" autocomplete="off" > {{ label }}
+                        <input class="annotate-button" type="radio" name="{{ name }}||{{ label }}" id="{{ label }}" autocomplete="off" > {{ label }}
                         </label>
                     {% endfor %}
                  </div>
              </fieldset>
         {% endfor %}
+
+        </form>
+
         </div>
     </div>
     </div>
@@ -66,16 +77,14 @@
         </div>
     </div>     
 
-    <!-- Hidden form to send updates to server-->
-    <form action="{% url 'update_annotation' report.id %}" method="POST" id="update_annotation" style='display:none'>
-       <!--https://realpython.com/blog/python/django-and-ajax-form-submissions/-->
-    </form>
-
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="{% static "js/cookie-token.js" %}"></script>
 <script src="{% static "js/jquery.sticky.js" %}"></script>
+<script src="{% static "js/mark.min.js" %}"></script>
 <script>
+
 $(document).ready(function(){
 
     // Going back returns to previous page/record
@@ -90,27 +99,67 @@ $(document).ready(function(){
     $('#annots').on('sticky-start', function() { 
        $("#annots-row").css('padding-bottom','0px') 
     });
+
     $('#annots').on('sticky-end', function() { 
        $("#annots-row").css('padding-bottom','50px') 
     });
 
-
     // Left and right arrow keys navigate as well
     $(document).keydown(function(e) {
-    if (e.which == 37) { 
-       history.back();
-       e.preventDefault();
-       return false;
+        if (e.which == 37) { 
+            history.back();
+            e.preventDefault();
+            return false;
+         }
+
+        if (e.which == 39) { 
+           document.location = "{% url 'annotate_random' collection.id %}"
+           e.preventDefault();
+           return false;
+        }
+    });
+
+    // Function to push an annotation change
+
+    function pushAnnotation() {
+
+        // Use promises to ensure that data is serialized before sending to server
+        var promise = new Promise(function(resolve, reject) {
+            var annotations = JSON.stringify($("#update_annotation").serializeArray())
+            return resolve(annotations);
+            
+        }).then(function(annotations){
+            console.log(annotations);
+            $.ajax({
+                url : "{% url 'update_annotation' report.id %}", // the endpoint
+                type : "POST", // http method
+                data : { annotations: annotations }, // data sent with the post request
+
+                // handle a successful response
+                success : function(json) {
+                    console.log(json); // log the returned json to the console
+                    console.log("success"); // another sanity check
+                },
+
+                // handle a non-successful response
+                error : function(xhr,errmsg,err) {
+                    $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                        " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                }
+             });
+
+        })
     }
 
-    if (e.which == 39) { 
-       document.location = "{% url 'annotate_random' collection.id %}"
-       e.preventDefault();
-       return false;
-    }
-});
+    // On change on input, submit form
+    $(".annotate-button").click(function(){
+        setTimeout(function(){
+             pushAnnotation();
+        },500)
+    });
+
 
 });
-</script>
 </script>
 {% endblock %}

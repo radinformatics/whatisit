@@ -1,9 +1,9 @@
 from django.core.files.uploadedfile import UploadedFile, InMemoryUploadedFile
 from django.core.files.base import ContentFile
-from whatisit.apps.labelinator.models import Report
-from whatisit.settings import MEDIA_ROOT
-from whatisit.apps.labelinator.models import AllowedAnnotation
 from django.core.files import File
+from django.db.models.aggregates import Count
+from whatisit.apps.labelinator.models import Report, AllowedAnnotation, Annotation
+from whatisit.settings import MEDIA_ROOT
 import shutil
 import os
 import re
@@ -28,6 +28,28 @@ def get_annotation_counts(collection):
     counts['total'] = total
 
     return counts    
+
+
+def get_user_annotations(user,report):
+    '''get_user_annotations will return the Annotation objects for a user and report
+    :param user: the user to return objects for
+    :param report: the report object to return for
+    '''
+    return Annotation.objects.filter(reports__report_id=report.report_id,annotator=user).annotate(Count('annotation', distinct=True))
+
+
+def update_user_annotation(user,annotation_object,report):
+    '''update_user_annotation will take a user, and an annotation object, a report, and update the report with the annotation.
+    :param user: the user object
+    :param annotation_object: the annotation
+    '''
+    annotation,created = Annotation.objects.get_or_create(annotator=user,
+                                                          annotation=annotation_object)
+    if created==True:
+        annotation.save()
+        annotation.reports.add(report)
+        annotation.save()
+    return annotation
 
 
 def group_allowed_annotations(allowed_annotations):

@@ -51,6 +51,8 @@
  </div>
 
 <!-- Nav tabs -->
+<div class="row">
+
 <ul role="tablist" style='padding-bottom:20px'>
     <li class="nav-item">
         <button type="button" class="btn btn-lg btn-default waves-effect waves-light button-choice" id="summary"> Summary</button>
@@ -105,7 +107,7 @@
             {% else %}
             
             <!-- No containers! Tell the user to add one -->
-            <div class="col-lg-8 col-sm-6">
+            <div>
                    <!-- Add a new container -->
                    <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
                    <div class="mdl-tooltip" for="new-container">
@@ -132,6 +134,7 @@
     </div>
 </div>
     <!--/.Panel 2-->
+</div>
 
 {% endblock %}
 {% block scripts %}
