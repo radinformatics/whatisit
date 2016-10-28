@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<style>
+mark{
+    background: orange;
+    color: black;
+}
+</style>
+<script src="{% static "js/mark.min.js" %}"></script>
+<script>
+$(document).ready(function(){
+
+    // Mark stuff up
+    $("#markme").mark(['no','evidence','diagnosis','rx','positive','negative','PE','pulmonary','embolism']);
+
+});
+</script>

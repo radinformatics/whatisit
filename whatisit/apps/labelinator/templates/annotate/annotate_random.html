@@ -66,7 +66,7 @@
         <div class="col-md-12">
             <h2 style="margin-bottom:50px">{{ collection.name }}/{{ report.report_id }}</h2>
             <div class="card card-block">
-                <p>{{ report.report_text }}</p>
+                <p id="markme">{{ report.report_text }}</p>
             </div>
         </div>
     </div>     
@@ -82,7 +82,9 @@
 {% block scripts %}
 <script src="{% static "js/cookie-token.js" %}"></script>
 <script src="{% static "js/jquery.sticky.js" %}"></script>
-<script src="{% static "js/mark.min.js" %}"></script>
+<script src="{% static "js/jquery.mark.min.js" %}"></script>
+{% include "annotate/highlight.html" %}
+
 <script>
 
 $(document).ready(function(){
@@ -120,7 +122,6 @@ $(document).ready(function(){
     });
 
     // Function to push an annotation change
-
     function pushAnnotation() {
 
         // Use promises to ensure that data is serialized before sending to server
