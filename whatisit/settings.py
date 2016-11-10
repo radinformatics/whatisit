@@ -43,7 +43,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'social.apps.django_app.default',
     'crispy_forms',
-    'djcelery',
+    #'djcelery',
     'rest_framework',
     'rest_framework.authtoken',
     'guardian',

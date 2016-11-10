@@ -71,7 +71,13 @@ You will want to create a user (other than anonymous) for associating with the f
 
 
 ### Loading Test Data
-The test dataset consists of reports and annotations for ~100K radiologist reports from Stanford Medicine, de-identified (and data is NOT available in this repo). To load the data, you should use the script [scripts/upload_demo.py](scripts/upload_demo.py). First send the command to the instance to run the script:
+The test dataset consists of reports and annotations for ~100K radiologist reports from Stanford Medicine, de-identified (and data is NOT available in this repo). To load the data, you should first push it to the instance, like this:
+
+      cd whatisit/scripts
+      gcloud compute copy-files data.tsv whatisit-wordfish:/home/vanessa/whatisit/scripts --zone us-west1-a
+
+
+And then, after starting the application, use the script [scripts/upload_demo.py](scripts/upload_demo.py). First send the command to the instance to run the script:
 
 
       docker exec [containerID] python manage.py shell < scripts/upload_demo.py

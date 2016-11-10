@@ -52,5 +52,5 @@ then
   git clone https://github.com/radinformatics/whatisit
   cd whatisit
   docker build -t vanessa/whatisit .
-  docker-compose -d up
+  docker-compose up -d
 fi
