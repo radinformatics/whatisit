@@ -49,7 +49,7 @@ sudo apt -y install docker-compose
 if [ ! -d $HOME/whatisit ]
 then
   cd $HOME
-  git clone https://github.com/radinformations/whatisit
+  git clone https://github.com/radinformatics/whatisit
   cd whatisit
   docker build -t vanessa/whatisit .
   docker-compose -d up
