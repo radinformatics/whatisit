@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^reports/(?P<coid>.+?)/new$', report_views.edit_report, name="upload_reports"),
 
     # Upload reports to a collection
-    url(r'^reports/(?P<cid>.+?)/$',report_views.view_report,name='report_details'),
+    url(r'^reports/(?P<rid>.+?)/$',report_views.view_report,name='report_details'),
     url(r'^reports/(?P<cid>.+?)/save$',report_views.upload_report,name='save_reports'),
 
     # Report Collections
@@ -21,11 +21,11 @@ urlpatterns = [
     url(r'^collections/my$',report_views.my_report_collections,name='my_report_collections'),
 
     # Do annotations
-    url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),       # getrandom
+    url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),   # getrandom
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
     url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),
     url(r'^annotate/reports/(?P<cid>.+?)/custom$',report_views.annotate_custom,name='annotate_custom'),
 
     # Update annotations
-    url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'),       # getrandom
+    url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'), # getrandom
 ]

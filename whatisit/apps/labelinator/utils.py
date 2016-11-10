@@ -8,10 +8,11 @@ import shutil
 import os
 import re
 
-def get_annotation_counts(collection):
+def get_annotation_counts(collection,reports=None):
     '''get_annotation_counts will return a dictionary with annotation labels, values,
     and counts for all allowed_annotations for a given collection
     :param collection: the collection to get annotation counts for
+    :param reports: if defined, return counts for only that set. Otherwise, count all.
     '''
     # What annotations are allowed across the report collection?
     annotations_allowed =  AllowedAnnotation.objects.filter(annotation__reports__collection=collection)
@@ -22,7 +23,10 @@ def get_annotation_counts(collection):
     for annotation_allowed in annotations_allowed:
         if annotation_allowed.name not in counts:
             counts[annotation_allowed.name] = {}
-        report_n = annotation_allowed.annotation_set.values_list('reports', flat=True).distinct().count()
+        if reports == None:
+            report_n = annotation_allowed.annotation_set.values_list('reports', flat=True).distinct().count()
+        else: 
+            report_n = annotation_allowed.annotation_set.filter(reports__in=reports).count()
         counts[annotation_allowed.name][annotation_allowed.label] = report_n
         total += report_n
     counts['total'] = total
@@ -30,12 +34,19 @@ def get_annotation_counts(collection):
     return counts    
 
 
-def get_user_annotations(user,report):
+def get_annotations(user=None,report=None):
     '''get_user_annotations will return the Annotation objects for a user and report
     :param user: the user to return objects for
     :param report: the report object to return for
     '''
-    return Annotation.objects.filter(reports__report_id=report.report_id,annotator=user).annotate(Count('annotation', distinct=True))
+    if user != None and report != None:
+        return Annotation.objects.filter(reports__report_id=report.report_id,annotator=user).annotate(Count('annotation', distinct=True))
+    elif user == None and report == None:
+        return []
+    elif user == None:
+        return Annotation.objects.filter(reports__report_id=report.report_id).annotate(Count('annotation', distinct=True))
+    else: # report is None
+        return Annotation.objects.filter(annotator=user).annotate(Count('annotation', distinct=True))
 
 
 def update_user_annotation(user,annotation_object,report):
@@ -43,12 +54,23 @@ def update_user_annotation(user,annotation_object,report):
     :param user: the user object
     :param annotation_object: the annotation
     '''
+
+    # Remove annotations done previously by the user for the report
+    previous_annotations = Annotation.objects.filter(annotator=user,
+                                                     reports__id=report.id,
+                                                     annotation__name=annotation_object.name)
     annotation,created = Annotation.objects.get_or_create(annotator=user,
                                                           annotation=annotation_object)
-    if created==True:
+
+    # If the annotation was just created, save it, and add report
+    if created == True:
         annotation.save()
         annotation.reports.add(report)
         annotation.save()
+    
+    # Finally, delete other annotation objects 
+    [x.delete() for x in previous_annotations if x.id != annotation.id]
+
     return annotation
 
 

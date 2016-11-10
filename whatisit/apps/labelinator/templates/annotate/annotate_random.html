@@ -50,7 +50,7 @@
                         {% else %}
                         <label class="btn btn-primary annotate-button">                    
                         {% endif %}
-                        <input class="annotate-button" type="radio" name="{{ name }}||{{ label }}" id="{{ label }}" autocomplete="off" > {{ label }}
+                        <input class="annotate-button" type="radio" name="{{ name }}||{{ label }}" id="{{ label }}" autocomplete="off"> {{ label }}
                         </label>
                     {% endfor %}
                  </div>
@@ -168,6 +168,13 @@ $(document).ready(function(){
     // Annotation tools
     $("#tool-toggle").click(function(){
         $("#tools").toggle();
+        if ($("#tool_direction").hasClass("fa-chevron-up")){
+            $("#tool_direction").removeClass("fa-chevron-up")
+            $("#tool_direction").addClass("fa-chevron-down")
+        } else {
+            $("#tool_direction").removeClass("fa-chevron-down")
+            $("#tool_direction").addClass("fa-chevron-up")
+        }
     })
 
 });

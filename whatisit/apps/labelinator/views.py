@@ -1,7 +1,7 @@
 from whatisit.apps.labelinator.forms import (ReportForm, ReportCollectionForm)
 from whatisit.apps.labelinator.models import Report, ReportCollection, Annotation, AllowedAnnotation
 from whatisit.apps.labelinator.utils import get_annotation_counts, add_message, group_allowed_annotations, \
-   summarize_annotations, get_user_annotations, update_user_annotation
+   summarize_annotations, get_annotations, update_user_annotation
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -120,11 +120,13 @@ def summarize_reports(request,cid):
 
 
 # View report
-#TODO: this will be the file/guts of the report, not done yet
 @login_required
-def view_report(request,cid):
-    report = get_report(cid,request)
-    context = {"report":report}
+def view_report(request,rid):
+    report = get_report(rid,request)
+    #TODO: In the future if we ever want to allow counting across collection, this needs to change
+    annotation_counts = get_annotation_counts(report.collection,reports=[report])
+    context = {"report":report,
+               "annotation_counts":annotation_counts}
     return render(request, 'reports/report_details.html', context)
 
 # Delete report
@@ -257,7 +259,7 @@ def annotate_report(request,rid,report=None):
         report = get_report(rid,request)
 
     # Get the concise annotations
-    annotations = get_user_annotations(user=request.user, report=report)
+    annotations = get_annotations(user=request.user, report=report)
     annotations = summarize_annotations(annotations)
 
     # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
@@ -266,7 +268,6 @@ def annotate_report(request,rid,report=None):
 
     # Format markup
     markup = ["%s" %(x) for x in report.collection.markup.split(",")]  
-
 
     context = {"report":report,
                "annotations":annotations['labels'],
@@ -350,6 +351,3 @@ def annotate_curated(request,cid):
 @login_required
 def annotate_custom(request,cid):
     return render(request, "annotate/annotate_custom.html", context)
-
-
-
