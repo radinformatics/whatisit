@@ -13,10 +13,12 @@ urlpatterns = [
     url(r'^reports/(?P<cid>.+?)/save$',report_views.upload_report,name='save_reports'),
 
     # Report Collections
-    url(r'^collections/reports/new$',report_views.edit_report_collection,name='new_report_collection'),
-    url(r'^collections/reports/(?P<cid>.+?)/$',report_views.view_report_collection,name='report_collection_details'),
-    url(r'^collections/reports/(?P<cid>.+?)/edit$',report_views.edit_report_collection,name='edit_report_collection'),
-    url(r'^collections/reports/my$',report_views.my_report_collections,name='my_report_collections'),
+    url(r'^collections/new$',report_views.edit_report_collection,name='new_report_collection'),
+    url(r'^collections/(?P<cid>.+?)/$',report_views.view_report_collection,name='report_collection_details'),
+    url(r'^collections/(?P<cid>.+?)/count$',report_views.summarize_reports,name='report_collection_summary'),
+    url(r'^collections/(?P<cid>.+?)/markup$',report_views.save_collection_markup,name='save_collection_markup'),
+    url(r'^collections/(?P<cid>.+?)/edit$',report_views.edit_report_collection,name='edit_report_collection'),
+    url(r'^collections/my$',report_views.my_report_collections,name='my_report_collections'),
 
     # Do annotations
     url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),       # getrandom

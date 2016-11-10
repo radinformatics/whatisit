@@ -53,6 +53,7 @@ RUN pip install django-oauth-toolkit
 RUN pip install simplejson
 RUN pip install django-gravatar2
 RUN pip install pygments
+RUN pip install django-lockdown
 
 RUN mkdir /code
 WORKDIR /code

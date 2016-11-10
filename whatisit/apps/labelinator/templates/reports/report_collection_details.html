@@ -3,6 +3,10 @@
 {% load staticfiles %}
 {% load humanize %}
 
+{% block css %}
+<link href="{% static "css/bootstrap-tagsinput.css"%}" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
 {% block content %}
 {% include 'main/message.html' %}
 <div class="row">
@@ -18,13 +22,13 @@
             <div class="content">
                 <div data-background-color="white" data-active-color="danger">
                      <p>Total Reports: {{ report_count|intcomma }}</p>
-                     <p>Annotations: {{ annotation_counts.total|intcomma }}</p>
+                     <!--<p>Annotations: {{ annotation_counts.total|intcomma }}</p>-->
                 </div>
             </div>
         </div>    
     </div>
 
-    <div class="col-md-4" style="padding-bottom:50px">
+    <div class="col-md-8" style="padding-bottom:50px">
 
         <div class="card card-block" style="padding:30px;min-height:326px">
             <h2>Annotate</h2>
@@ -33,6 +37,16 @@
             <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Random Selection</button></a>
             <button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>
             <button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Custom</button>
+
+            <!-- Here is where we select default tags-->
+            <div style="padding-top:20px">
+            <label for="markup">Highlight Helpers</label>
+            <form method="POST" action="{% url 'save_collection_markup' collection.id %}">
+                {% csrf_token %}
+                <input name="markup" id="markup"  value="{{ collection.markup }}"></input>
+                <button type="submit" class="save btn btn-default btn-sm">Save</button>
+            </form>
+            </div>
 
         </div>
     </div>
@@ -53,93 +67,37 @@
 <!-- Nav tabs -->
 <div class="row">
 
-<ul role="tablist" style='padding-bottom:20px'>
-    <li class="nav-item">
-        <button type="button" class="btn btn-lg btn-default waves-effect waves-light button-choice" id="summary"> Summary</button>
-    </li>
-    <!--<li class="nav-item">
-        <a class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate</a>
-    </li>-->
-</ul>
+    {% if report_count > 0 %}
+    <ul role="tablist" style='padding-bottom:20px'>
+        <li class="nav-item">
+            <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Counts</button></a>
+        </li>
+        <!--<li class="nav-item">
+            <a class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate</a>
+        </li>-->
+    </ul>
+{% else %}
 
-<!--Annotate-->
-<div class="row panel-choice" id="summaryPanel">
-
-    <div class="col-md-12">
-        <br>
-
-        {% if report_count > 0 %}
-                   <table class="table">
-                       <thead class="thead-inverse">
-                           <tr>
-                               <th>Name of Label</th>
-                               <th>Annotation</th>
-                               <th>Count</th>
-                           </tr>
-                       </thead>
-                       <form method="POST" action="#" id="container-table">
-                           {% csrf_token %}
-                           <tbody>
-                           {% for mainlabel,counts in annotation_counts.items %}
-                           {% if counts %}
-                           {% if mainlabel != "total" %}
-                           <tr>
-
-                               <!-- Iterate through label options and counts -->
-                               <th scope="row">{{ mainlabel }}</th>
-                               <th scope="row">
-                                   {% for label,labelcount in counts.items %}
-                                   <tr>
-                                       <th></th>
-                                       <th scope="row">{{ label }}</th>
-                                       <th scope="row">{{ labelcount }}</th>
-                                   </tr>
-                                   {% endfor %}
-                                </th>
-                           </tr>
-                           {% endif %}
-                           {% endif %}
-                           {% endfor %}
-                           </tbody>
-                       </form>    
-                    </table>
-                </div>
-            {% else %}
-            
-            <!-- No containers! Tell the user to add one -->
-            <div>
-                   <!-- Add a new container -->
-                   <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
-                   <div class="mdl-tooltip" for="new-container">
-                      <p>
-                      Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.
-                      </p>
-                   </div>
-            </div>
-            {% endif %}
-    </div>
+     <!-- No containers! Tell the user to add one -->
+     <p>You don't have any reports in this collection!</p>
+     <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
+     <div class="mdl-tooltip" for="new-container">
+         <p>Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.</p>
+     </div>
 </div>
-<!--/Annotate-->
-
-<!--Summary-->
-<div class="row panel-choice" id="annotatePanel" style="display:none">
-
-    <div class="col-md-12">
-        <br>
-
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil odit magnam minima, soluta doloribus reiciendis molestiae placeat unde eos molestias. Quisquam aperiam, pariatur. Tempora, placeat ratione porro voluptate
-            odit minima.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nihil odit magnam minima, soluta doloribus reiciendis molestiae placeat unde eos molestias. Quisquam aperiam, pariatur. Tempora, placeat ratione porro voluptate
-            odit minima.</p>
-    </div>
-</div>
-    <!--/.Panel 2-->
-</div>
+{% endif %}
 
 {% endblock %}
 {% block scripts %}
+<script src="{% static 'js/bootstrap-tagsinput.min.js'%}"></script>
 <script>
 $(document).ready(function(){
+
+   // Tags for markup
+   $('#markup').tagsinput({
+     tagClass: 'btn btn-sm btn-primary'
+   });
+
    //$(".panel-choice").hide();
    $('.button-choice').click(function(){
       $(".panel-choice").hide();

@@ -86,13 +86,38 @@ def my_report_collections(request):
 @login_required
 def view_report_collection(request,cid):
     collection = get_report_collection(cid,request)
+    report_count = Report.objects.filter(collection=collection).count()
+    context = {"collection":collection,
+               "report_count":report_count}
+    return render(request, 'reports/report_collection_details.html', context)
+
+
+@login_required
+def save_collection_markup(request,cid):
+    collection = get_report_collection(cid,request)
+    if request.method == "POST":
+        if request.user == collection.owner:
+            markup = request.POST.get('markup',None)
+            if markup:
+                collection.markup = markup
+                collection.save()
+                messages.success(request, 'Collection markup saved.')
+
+    return view_report_collection(request,cid)
+
+
+# View report collection
+@login_required
+def summarize_reports(request,cid):
+    collection = get_report_collection(cid,request)
     # Get a count of annotations by label in the collection
     annotation_counts = get_annotation_counts(collection)
     report_count = Report.objects.filter(collection=collection).count()
     context = {"collection":collection,
                "annotation_counts":annotation_counts,
                "report_count":report_count}
-    return render(request, 'reports/report_collection_details.html', context)
+    return render(request, 'reports/report_collection_summary.html', context)
+
 
 # View report
 #TODO: this will be the file/guts of the report, not done yet
@@ -239,10 +264,15 @@ def annotate_report(request,rid,report=None):
     allowed_annotations = report.collection.allowed_annotations.all()
     allowed_annotations = group_allowed_annotations(allowed_annotations)
 
+    # Format markup
+    markup = ["%s" %(x) for x in report.collection.markup.split(",")]  
+
+
     context = {"report":report,
                "annotations":annotations['labels'],
                "counts":annotations['counts'],
                "collection":report.collection,
+               "markup":markup,
                "allowed_annotations":allowed_annotations}
 
     return render(request, "annotate/annotate_random.html", context)
@@ -298,7 +328,7 @@ def annotate_random(request,cid,rid=None):
     :param rid: a report id, if provided, to annotate
     '''
     collection = get_report_collection(cid,request)
-  
+
     # Get a random report
     while rid == None:
         count = Report.objects.filter(collection=collection).aggregate(count=Count('id'))['count']

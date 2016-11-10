@@ -29,6 +29,7 @@ cython
 h5py
 Pillow
 python-openid
+django-lockdown
 django-sendfile
 django-polymorphic
 celery[redis]

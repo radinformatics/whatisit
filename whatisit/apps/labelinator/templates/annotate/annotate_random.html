@@ -78,11 +78,16 @@
     </div>     
 
 </div>
+
+{% include "annotate/controls.html" %}
+
 {% endblock %}
 {% block scripts %}
 <script src="{% static "js/cookie-token.js" %}"></script>
 <script src="{% static "js/jquery.sticky.js" %}"></script>
+<script src="{% static 'js/bootstrap-tagsinput.min.js'%}"></script>
 <script src="{% static "js/jquery.mark.min.js" %}"></script>
+
 {% include "annotate/highlight.html" %}
 
 <script>
@@ -93,6 +98,22 @@ $(document).ready(function(){
     $("#last-one").click(function(){
         history.back();
     })
+
+    // If we have tags saved for local storage, use for markup
+    var tags = localStorage.getItem('markup-{{ collection.id }}')
+    if (tags != null) {
+        $("#markup").val(tags)
+    }
+
+    // Allow the user to reset tags
+    $("#reset_markup").click(function(){
+        localStorage.removeItem('markup-{{ collection.id }}');
+        $("#markup").val("{{ collection.markup }}");
+    })
+    
+    $('#markup').tagsinput({
+      tagClass: 'btn btn-sm btn-primary'
+    });
 
     // The annotations move down the page when we scroll
     $("#annots").sticky({topSpacing:0,
@@ -160,6 +181,16 @@ $(document).ready(function(){
         },500)
     });
 
+    // Annotation tools
+    $("#tool-toggle").click(function(){
+        $("#tools").toggle();
+    })
+
+    // Save markup when the user clicks save
+    $("#savemarkup").click(function(){
+       markup = $("#markup").val();
+       localStorage.setItem('markup-{{ collection.id }}', markup);
+    })
 
 });
 </script>

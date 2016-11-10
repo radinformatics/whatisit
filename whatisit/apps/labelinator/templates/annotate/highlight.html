@@ -10,7 +10,8 @@ mark{
 $(document).ready(function(){
 
     // Mark stuff up
-    $("#markme").mark(['no','evidence','diagnosis','rx','positive','negative','PE','pulmonary','embolism']);
-
+    {% if markup %}
+    $("#markme").mark({{ markup | safe }});
+    {% endif %}
 });
 </script>

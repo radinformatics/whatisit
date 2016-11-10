@@ -82,6 +82,9 @@ class ReportCollection(models.Model):
     add_date = models.DateTimeField('date published', auto_now_add=True)
     modify_date = models.DateTimeField('date modified', auto_now=True)
     allowed_annotations = models.ManyToManyField(AllowedAnnotation,related_name="reports_allowed_annotation",related_query_name="annotations_allowed_collection", blank=True,verbose_name="Annotations allowed for Report Collection")
+    markup = models.CharField(max_length=1000, null=True, blank=True, 
+                                  default="no,evidence,diagnosis,rx,positive,negative",
+                                  verbose_name="Default tags to highlight.")
     
     # Users
     owner = models.ForeignKey(User)

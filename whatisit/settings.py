@@ -15,8 +15,8 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DOMAIN_NAME = "https://whatisit.org" # MUST BE HTTPS FOR MECHANICAL TURK
-DOMAIN_NAME_HTTP = "http://whatisit.org" # MUST BE HTTPS FOR MECHANICAL TURK
+DOMAIN_NAME = "https://word.fish"
+DOMAIN_NAME_HTTP = "http://whatisit.org"
 ADMINS = (('vsochat', 'vsochat@gmail.com'),)
 MANAGERS = ADMINS
 
@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
     'rest_framework.authtoken',
     'guardian',
     'django_gravatar',
+    'lockdown',
     'taggit',
 ]
 
@@ -63,6 +64,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lockdown.middleware.LockdownMiddleware',
 ]
 
 ROOT_URLCONF = 'whatisit.urls'
@@ -145,6 +147,10 @@ AUTHENTICATION_BACKENDS = (
 #SOCIAL_AUTH_NEW_ASSOCIATION_REDIRECT_URL = '/new-association-redirect-url/'
 #SOCIAL_AUTH_DISCONNECT_REDIRECT_URL = '/account-disconnected-redirect-url/'
 #SOCIAL_AUTH_INACTIVE_USER_URL = '/inactive-user/'
+
+# Django Lockdown
+LOCKDOWN_ENABLED=True
+
 
 # Api
 API_VERSION = "v1"

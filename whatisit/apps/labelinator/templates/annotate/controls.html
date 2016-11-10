@@ -1,0 +1,23 @@
+<style>
+#tools {
+  min-height:180px;
+  margin-top:20px;
+  background-color:white;
+  padding:20px;
+}
+</style>
+
+<!-- Bottom bar to hint that tools are there... -->
+<nav class="navbar navbar-fixed-bottom navbar-dark bg-faded" style="background-color:#0275d8;margin-left:25%;margin-right:25%">
+  <a class="navbar-brand" id="tool-toggle" href="#">Annotation Tools</a>
+  <br>
+  <div id="tools" style='display:none'>
+
+       <!-- TODO: save should be for local storage-->
+       <label for="markup">Highlight Words</label>
+       <input name="markup" id="markup" value="{{ collection.markup }}"></input>
+       <button id="savemarkup" type="submit" class="save btn btn-default btn-sm">Save</button>
+       <button id="reset_markup" class="save btn btn-default btn-sm">Reset</button>
+
+  </div>
+</nav>

@@ -1,0 +1,84 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block css %}
+<link href="{% static "css/bootstrap.datatables.css"%}" media="screen" rel="stylesheet" type="text/css" />
+<!--https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css-->
+{% endblock %}
+
+{% block content %}
+{% include 'main/message.html' %}
+<div class="row">
+
+    <!-- Container collection meta -->
+    <div class="header" style="padding-bottom:50px">
+        <h3 class="title" style="padding-bottom:20px">
+        <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
+        <a href="{% url 'report_collection_details' collection.id %}">{{ collection.name }}</a></h3>
+    </div>
+
+    <div class="col-md-4" style="padding-bottom:50px">
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <br>
+
+        {% if report_count > 0 %}
+                   <table id="reports" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                       <thead class="thead-inverse">
+                           <tr>
+                               <th>Name of Label</th>
+                               <th>Annotation</th>
+                               <th>Count</th>
+                           </tr>
+                       </thead>
+                           <tbody>
+                           {% for mainlabel,counts in annotation_counts.items %}
+                               {% if counts %}
+                                   {% if mainlabel != "total" %}
+                                       {% for label,labelcount in counts.items %}
+                                       <tr>
+                                           <!-- Iterate through label options and counts -->
+                                           <td>{{ mainlabel }}</td>
+                                           <td>{{ label }}</td>
+                                           <td>{{ labelcount }}</td>
+                                       </tr>
+                                       {% endfor %}
+                                    {% endif %}
+                               {% endif %}
+                           {% endfor %}
+                           </tbody>
+                       </form>    
+                    </table>
+                </div>
+            {% else %}
+            
+            <!-- No containers! Tell the user to add one -->
+            <div>
+                   <!-- Add a new container -->
+                   <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
+                   <div class="mdl-tooltip" for="new-container">
+                      <p>
+                      Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.
+                      </p>
+                   </div>
+            </div>
+            {% endif %}
+    </div>
+</div>
+<!--/Annotate-->
+
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script>
+$(document).ready(function(){
+   $('#reports').DataTable();
+})
+</script>
+{% endblock %}
