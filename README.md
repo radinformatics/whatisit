@@ -33,16 +33,12 @@ Then (not in the Docker image, but on the instance), start up nginx:
 
      sudo service nginx start
 
-When you go to your instance URL, you should now see that nginx is running:
-
-![img/welcome-nginx.png](img/welcome-nginx.png)
-
 Now we are ready to ping to get credentials! Basically, follow the commands, one at a time, [here](scripts/generate_cred.sh).
 
 I think (eventually) this can be done automatically, or better yet, with Google Cloud, but this should work in the meantime. Eg, something like:
 
       sudo apt-get install letsencrypt
-      sudo letsencrypt certonly --webroot -w /etc/ssl/certs -d singularity-hub.org -d www.singularity-hub.org
+      sudo letsencrypt certonly --webroot -w /etc/ssl/certs -d word.fish -d www.word.fish
       sudo letsencrypt renew 
 
 or something like that!
