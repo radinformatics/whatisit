@@ -12,12 +12,17 @@
 {% include 'main/message.html' %}
 <div class="row">
 
-    <div class="header" style="padding-bottom:50px">
+    <div class="header" style="padding-bottom:20px">
         <h3 class="title" style="padding-bottom:20px">
         collection: <a href="{% url 'report_collection_details' report.collection.id %}">{{ report.collection.name }}</a></h3>
     </div>
 
-    <div class="col-md-4" style="padding-bottom:50px">
+</div>
+
+<div class="row">
+    <div class="col-md-12" style="padding-bottom:50px">
+        <a href="{% url 'annotate_report' report.id %}"><button class="btn btn-lg btn-primary">Annotate</button></a>
+    </div>
 </div>
 
 <div class="row">
