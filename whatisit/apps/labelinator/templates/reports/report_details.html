@@ -1,80 +1,77 @@
-{% extends "containers/base.html" %}
+{% extends "main/base.html" %}
 {% load crispy_forms_tags %}
 {% load staticfiles %}
+{% load humanize %}
 
-{% block image_content %}
-<div class="row">
-
-    <!-- Meta data about container-->
-    <div class="col-md-12">
-        <div class="card" style="padding:20px">
-            <div class="header" style="padding-bottom:50px">
-                <h2 class="title">{{ container.collection.owner }}/{{ container.name }}</h2>
-                <p>Part of the <a href="{% url 'container_collection_details' container.collection.id %}">{{ container.collection.name }}</a> collection</p>
-                <h3>
-                     <span class="icon-controls" style="position:relative;top:-70px">
-
-                         <!-- TODO: download here should be function to zip up, or clone-->
-                         {% if container.image %}
-                         <a href="{{ container.image.url }}"><i class="fa fa-download"></i></a>
-                         {% endif %}
-                         <a href=""><i class="fa fa-eye"></i></a>
-                         <a href=""><i class="fa fa-share"></i></a>
-                     </span>
-                </h3>
-            </div>
-        </div>
-    </div>
-
-    <!-- controls, etc-->
-    <div class="row" style="margin-bottom:0px">
-        <div class="col-md-12">
-            <div class="card">
-            <!-- TODO: this spec needs to be somekind of "draft" with a build button, so the user knows how to create versions-->
-            <a href="{% url 'edit_container_spec' container.collection.id container.id %}"><button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">Edit Container Spec</button></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="content">
-                <div data-background-color="white" data-active-color="danger">
-                     <p style="padding-left:30px">{{ collection.description }}</p>
-                </div>
-
-                        <div class="card">
-                            <div class="header">
-                                <h4 class="title">Statistics</h4>
-                                <p class="category">24 hour usage</p>
-                            </div>
-                            <div class="content">
-                                <div id="chartHours" class="ct-chart"></div>
-                                <div class="footer">
-                                    <div class="chart-legend" style="margin-left:20px">
-                                        <i class="fa fa-circle text-success"></i> Optimal
-                                        <i class="fa fa-circle text-danger"></i> Error
-                                        <i class="fa fa-circle text-warning"></i> Warning
-                                    </div>
-                                    <hr>
-                                    <div class="stats" style="margin-left:20px">
-                                        <i class="ti-reload"></i> Updated 3 minutes ago
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer">
-                <hr>
-            </div>
-        </div>
-    </div>
-</div>
+{% block css %}
+<link href="{% static "css/bootstrap-tagsinput.css"%}" media="screen" rel="stylesheet" type="text/css" />
+<link href="{% static "css/bootstrap.datatables.css"%}" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
-{% block scripts %}
-<script>
+{% block content %}
+{% include 'main/message.html' %}
+<div class="row">
 
+    <div class="header" style="padding-bottom:50px">
+        <h3 class="title" style="padding-bottom:20px">
+        collection: <a href="{% url 'report_collection_details' report.collection.id %}">{{ report.collection.name }}</a></h3>
+    </div>
+
+    <div class="col-md-4" style="padding-bottom:50px">
+</div>
+
+<div class="row">
+
+    <div class="col-md-12">
+        <br>
+
+        {% if annotation_counts.total > 0 %}
+                   <table id="reports" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                       <thead class="thead-inverse">
+                           <tr>
+                               <th>Name of Label</th>
+                               <th>Annotation</th>
+                               <th>Count</th>
+                           </tr>
+                       </thead>
+                           <tbody>
+                           {% for mainlabel,counts in annotation_counts.items %}
+                               {% if counts %}
+                                   {% if mainlabel != "total" %}
+                                       {% for label,labelcount in counts.items %}
+                                       <tr>
+                                           <!-- Iterate through label options and counts -->
+                                           <td>{{ mainlabel }}</td>
+                                           <td>{{ label }}</td>
+                                           <td>{{ labelcount }}</td>
+                                       </tr>
+                                       {% endfor %}
+                                    {% endif %}
+                               {% endif %}
+                           {% endfor %}
+                           </tbody>
+                       </form>    
+                    </table>
+                </div>
+            {% else %}
+            
+            <!-- No containers! Tell the user to add one -->
+            <div>
+                   <!-- Add a new container -->
+                   <p>This report does not have any annotations.</p>
+            </div>
+            {% endif %}
+    </div>
+</div>
+<!--/Annotate-->
+
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script>
+$(document).ready(function(){
+   $('#reports').DataTable();
+})
 </script>
 {% endblock %}

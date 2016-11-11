@@ -19,7 +19,6 @@
 
 <div class="login-box">
         <a class="social-button" id="twitter-connect" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">Login with Twitter</a>
-        <!-- Note, Google isn't currently set up -->
         <a class="social-button" id="google-connect" href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
         <!--<a class="social-button" id="github-connect" href="{% url 'social:begin' 'github' %}?next={{ request.path }}">Login with Github</a>-->
     {% endif %}
