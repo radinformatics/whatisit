@@ -138,6 +138,22 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Python-social-auth
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'whatisit.apps.users.views.social_user',
+    'whatisit.apps.users.views.redirect_if_no_refresh_token',
+    'social.pipeline.user.get_username',
+    'social.pipeline.social_auth.associate_by_email',  # <--- must share same email
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details',
+)
+
+
 # http://psa.matiasaguirre.net/docs/configuration/settings.html#urls-options
 #SOCIAL_AUTH_USER_MODEL = 'django.contrib.auth.models.User'
 #SOCIAL_AUTH_STORAGE = 'social.apps.django_app.me.models.DjangoStorage'
