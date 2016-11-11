@@ -66,13 +66,14 @@ def get_report_collection(cid,request):
 # reportS ##################################################################################
 ###############################################################################################
 
-# All reports
-def all_reports(request):
+# View all collections
+def view_report_collections(request):
     has_collections = False
     collections = ReportCollection.objects.filter(private=False)
     context = {"collections":collections,
                "page_title":"Report Collections"}
     return render(request, 'reports/all_reports.html', context)
+
 
 # Personal collections
 @login_required
@@ -128,6 +129,7 @@ def view_report(request,rid):
     context = {"report":report,
                "annotation_counts":annotation_counts}
     return render(request, 'reports/report_details.html', context)
+
 
 # Delete report
 @login_required
@@ -344,10 +346,10 @@ def annotate_random(request,cid,rid=None):
     
 
 @login_required
-def annotate_curated(request,cid):
-    return render(request, "annotate/annotate_curated.html", context)
+def annotate_custom(request,cid):
+    return render(request, "annotate/annotate_custom.html", context)
 
 
 @login_required
-def annotate_custom(request,cid):
-    return render(request, "annotate/annotate_custom.html", context)
+def annotate_curated(request,cid):
+    return render(request, "annotate/annotate_curated.html", context)

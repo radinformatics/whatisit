@@ -5,10 +5,8 @@ import whatisit.apps.labelinator.views as report_views
 urlpatterns = [
 
     # Reports
-    url(r'^reports$', report_views.all_reports, name="report_collections"),
+    url(r'^collections/reports$', report_views.view_report_collections, name="report_collections"),
     url(r'^reports/(?P<coid>.+?)/new$', report_views.edit_report, name="upload_reports"),
-
-    # Upload reports to a collection
     url(r'^reports/(?P<rid>.+?)/$',report_views.view_report,name='report_details'),
     url(r'^reports/(?P<cid>.+?)/save$',report_views.upload_report,name='save_reports'),
 
@@ -20,7 +18,7 @@ urlpatterns = [
     url(r'^collections/(?P<cid>.+?)/edit$',report_views.edit_report_collection,name='edit_report_collection'),
     url(r'^collections/my$',report_views.my_report_collections,name='my_report_collections'),
 
-    # Do annotations
+    # Annotations
     url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),   # getrandom
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
     url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),

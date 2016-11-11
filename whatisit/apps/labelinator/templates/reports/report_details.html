@@ -44,12 +44,14 @@
                                {% if counts %}
                                    {% if mainlabel != "total" %}
                                        {% for label,labelcount in counts.items %}
+                                       {% if labelcount != 0 %}
                                        <tr>
                                            <!-- Iterate through label options and counts -->
                                            <td>{{ mainlabel }}</td>
                                            <td>{{ label }}</td>
                                            <td>{{ labelcount }}</td>
                                        </tr>
+                                       {% endif %}
                                        {% endfor %}
                                     {% endif %}
                                {% endif %}

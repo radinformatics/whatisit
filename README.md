@@ -24,6 +24,33 @@ Then start the application:
 It's up to you to buy a domain from a registrar, and then go into your hosting account to add the A and CNAME records, and then update the DNS servers. Since every host is a little different, I'll leave this up to you, but [here is how I did it on Google Cloud](https://cloud.google.com/dns/quickstart).
 
 
+### SSL
+You will need to use letsencrypt (following [these instructions](scripts/generate_cred.md)) to get your initial certificate. You will need to install nginx on the server (not in the Docker image) and then start it:
+
+      sudo apt-get install -y nginx
+
+Then (not in the Docker image, but on the instance), start up nginx:
+
+     sudo service nginx start
+
+When you go to your instance URL, you should now see that nginx is running:
+
+![img/welcome-nginx.png](img/welcome-nginx.png)
+
+Now we are ready to ping to get credentials! Basically, follow the commands, one at a time, [here](scripts/generate_cred.sh).
+
+I think (eventually) this can be done automatically, or better yet, with Google Cloud, but this should work in the meantime. Eg, something like:
+
+      sudo apt-get install letsencrypt
+      sudo letsencrypt certonly --webroot -w /etc/ssl/certs -d singularity-hub.org -d www.singularity-hub.org
+      sudo letsencrypt renew 
+
+or something like that!
+
+The server isn't by default ready for ssl, you should rename [nginx.conf.https](nginx.conf.https) to [nginx.conf](nginx.conf) to make it so. This is to ensure that it works smoothly for development, with a little extra work to get it into production.
+
+
+
 ### Server Errors
 The current application is setup to use [opbeat](http://www.opbeat.com) to log errors. The installed applications and middleware are configured in settings.py, and you will need to register an application and add the `OPBEAT` variable (with your application ID) to the `secrets.py`. Speaking of...
 
