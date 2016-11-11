@@ -290,7 +290,7 @@ def update_annotation(request,rid,report=None):
     if request.user == report.collection.owner:
 
         # Get the concise annotations (not sure if I need these, actually)        
-        annotations = get_user_annotations(user=request.user, report=report)
+        annotations = get_annotations(user=request.user, report=report)
 
         if request.method == 'POST':
             try:
