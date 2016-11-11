@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'social.apps.django_app.default',
     'crispy_forms',
+    'opbeat.contrib.django',
     #'djcelery',
     'rest_framework',
     'rest_framework.authtoken',
@@ -60,6 +61,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'opbeat.contrib.django.middleware.OpbeatAPMMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
