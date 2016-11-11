@@ -20,6 +20,9 @@ Then start the application:
       docker-compose up -d
 
 
+### Domain Name
+It's up to you to buy a domain from a registrar, and then go into your hosting account to add the A and CNAME records, and then update the DNS servers. Since every host is a little different, I'll leave this up to you, but [here is how I did it on Google Cloud](https://cloud.google.com/dns/quickstart).
+
 
 ### Server Errors
 The current application is setup to use [opbeat](http://www.opbeat.com) to log errors. The installed applications and middleware are configured in settings.py, and you will need to register an application and add the `OPBEAT` variable (with your application ID) to the `secrets.py`. Speaking of...
