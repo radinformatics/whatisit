@@ -118,6 +118,7 @@ class ReportCollection(models.Model):
         permissions = (
             ('del_report_collection', 'Delete container collection'),
             ('edit_report_collection', 'Edit container collection')
+            ('annotate_report_collection', 'Annotate container collection')
         )
 
 
@@ -194,10 +195,10 @@ def contributors_changed(sender, instance, action, **kwargs):
 
         for contributor in list(new_contributors - current_contributors):
             contributor = User.objects.get(pk=contributor)
-            assign_perm('annotator', contributor, instance)
+            assign_perm('annotate_report_collection', contributor, instance)
 
         for contributor in (current_contributors - new_contributors):
             contributor = User.objects.get(pk=contributor)
-            remove_perm('annotator', contributor, instance)
+            remove_perm('annotate_report_collection', contributor, instance)
 
 m2m_changed.connect(contributors_changed, sender=ReportCollection.contributors.through)
