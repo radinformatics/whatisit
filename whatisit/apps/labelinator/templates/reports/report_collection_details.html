@@ -133,6 +133,7 @@
                     <td><a href="{% url 'approve_annotator' collection.id requester.user.id %}"><button class="btn btn-success btn-sm">Approve</button></a><a href="{% url 'deny_annotator' collection.id requester.user.id %}"><button class="btn btn-danger btn-sm">Deny</button></a>
                     </td>
                 </tr>
+                {% endif %}
             {% endfor %}
         </tbody>
     </table>
