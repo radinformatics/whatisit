@@ -50,7 +50,7 @@ def has_collection_edit_permission(request,collection):
 def has_collection_annotate_permission(request,collection):
     if has_collection_edit_permission(request,collection):
         return True
-    if request.user in collection.contributors:
+    if request.user in collection.contributors.all():
         return True
     return False
 
