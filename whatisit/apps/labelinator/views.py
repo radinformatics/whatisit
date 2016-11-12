@@ -3,9 +3,11 @@ from whatisit.apps.labelinator.models import Report, ReportCollection, Annotatio
 from whatisit.apps.labelinator.utils import get_annotation_counts, add_message, group_allowed_annotations, \
    summarize_annotations, get_annotations, update_user_annotation
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
+from whatisit.apps.users.models import RequestMembership
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models.aggregates import Count
 from django.forms.models import model_to_dict
@@ -38,7 +40,66 @@ media_dir = os.path.join(BASE_DIR,MEDIA_ROOT)
 
 ### AUTHENTICATION ####################################################
 
-# need functions here to check permissions of things, after add users
+# Does a user have permissions to see a collection?
+
+def has_collection_edit_permission(request,collection):
+    if request.user == collection.owner:
+        return True
+    return False
+
+def has_collection_annotate_permission(request,collection):
+    if has_collection_edit_permission(request,collection):
+        return True
+    if request.user in collection.contributors:
+        return True
+    return False
+
+@login_required
+def request_annotate_permission(request,cid):    
+    '''request_annotate_permission will allow a user to request addition to
+    a collection (as an annotator) via a RequestMembership object
+    '''
+    collection = get_report_collection(cid,request)
+    previous_request,created = RequestMembership.objects.get_or_create(requester=request.user,
+                                                                       collection=collection)
+    if created == True:
+        previous_request.save()
+
+    # redirect back to collection with message
+    messages.success(request, 'Request sent.')
+    return view_report_collection(request,cid)
+
+
+@login_required
+def deny_annotate_permission(request,cid,uid):
+    collection = get_report_collection(cid,request)
+    if has_collection_edit_permission(request,collection):
+        requester = User.objects.get(id=uid)
+        permission_request = RequestMembership.objects.get(collection=collection,
+                                                           requester=requester)
+        if permission_request.status not in ["APPROVED","DENIED"]:
+            permission_request.status = "DENIED"
+            permission_request.save()
+            messages.success(request, 'Contributors updated.')    
+    return view_report_collection(request,cid)
+
+
+@login_required
+def approve_annotate_permission(request,cid,uid):
+    collection = get_report_collection(cid,request)
+    if has_collection_edit_permission(request,collection):
+        requester = User.objects.get(id=uid)
+        permission_request = RequestMembership.objects.get(collection=collection,
+                                                           requester=requester)
+        if permission_request.status not in ["APPROVED","DENIED"]:
+            collection.contributors.add(requester)
+            collection.save()
+            permission_request.status = "APPROVED"
+            permission_request.save()
+            messages.success(request, 'Contributors approved.')
+    
+    return view_report_collection(request,cid)
+
 
 #### GETS #############################################################
 
@@ -80,8 +141,9 @@ def view_report_collections(request):
 def my_report_collections(request):
     collections = ReportCollection.objects.filter(owner=request.user)
     context = {"collections":collections,
-               "page_title":"My report Collections"}
+               "page_title":"My Collections"}
     return render(request, 'reports/all_reports.html', context)
+
 
 # View report collection
 @login_required
@@ -90,6 +152,21 @@ def view_report_collection(request,cid):
     report_count = Report.objects.filter(collection=collection).count()
     context = {"collection":collection,
                "report_count":report_count}
+
+    # Edit and annotate permissions?
+    context["edit_permission"] = has_collection_edit_permission(request,collection)
+    context["annotate_permission"] = has_collection_annotate_permission(request,collection)
+    
+    # If no annotate permission, get their request
+    if context["annotate_permission"] == False:
+        try:
+            context['membership'] = RequestMembership.objects.get(requester=request.user,
+                                                                  collection=collection)
+        except:
+            pass
+
+    # If the user has edit_permissions, we want to show him/her users that can be added
+    context["requesters"] = RequestMembership.objects.filter(collection=collection)
     return render(request, 'reports/report_collection_details.html', context)
 
 

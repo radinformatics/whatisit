@@ -46,7 +46,6 @@ or something like that!
 The server isn't by default ready for ssl, you should rename [nginx.conf.https](nginx.conf.https) to [nginx.conf](nginx.conf) to make it so. This is to ensure that it works smoothly for development, with a little extra work to get it into production.
 
 
-
 ### Server Errors
 The current application is setup to use [opbeat](http://www.opbeat.com) to log errors. The installed applications and middleware are configured in settings.py, and you will need to register an application and add the `OPBEAT` variable (with your application ID) to the `secrets.py`. Speaking of...
 

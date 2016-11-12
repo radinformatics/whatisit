@@ -4,6 +4,7 @@
 {% load humanize %}
 
 {% block css %}
+<link href="{% static "css/bootstrap.datatables.css"%}" media="screen" rel="stylesheet" type="text/css" />
 <link href="{% static "css/bootstrap-tagsinput.css"%}" media="screen" rel="stylesheet" type="text/css" />
 {% endblock %}
 
@@ -33,19 +34,36 @@
         <div class="card card-block" style="padding:30px;min-height:326px">
             <h2>Annotate</h2>
             <hr>
-            <!-- Annotate Random -->
-            <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Random Selection</button></a>
-            <!--<button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>-->
-            <a href="{% url 'annotate_custom' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Custom Selection</button></a>
+   
+            {% if annotate_permission %}
+                <!-- Annotate Random -->
+                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Random Selection</button></a>
+                <!--<button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>-->
+                <a href="{% url 'annotate_custom' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Custom Selection</button></a>
 
-            <!-- Here is where we select default tags-->
-            <div style="padding-top:20px">
-            <label for="markup">Highlight Helpers</label>
-            <form method="POST" action="{% url 'save_collection_markup' collection.id %}">
-                {% csrf_token %}
-                <input name="markup" id="markup"  value="{{ collection.markup }}"></input>
-                <button type="submit" class="save btn btn-default btn-sm">Save</button>
-            </form>
+                <!-- Here is where we select default tags-->
+                <div style="padding-top:20px">
+                <label for="markup">Highlight Helpers</label>
+
+                {% if edit_permission %}
+                <form method="POST" action="{% url 'save_collection_markup' collection.id %}">
+                    {% csrf_token %}
+                    <input name="markup" id="markup"  value="{{ collection.markup }}"></input>
+                    <button type="submit" class="save btn btn-default btn-sm">Save</button>
+                </form>
+                {% else %}
+                    <input name="markup" id="markup"  value="{{ collection.markup }}" disabled></input>
+                {% endif %}
+
+            <!--  The user does not have permission to annotate the collection!-->
+            {% else %}
+
+                {% if membership %}
+                <p class="alert alert-info">Your request for annotate permissions submit on {{ membership.created_at }} has status {{ membership.status }}.</p>
+                {% else %}
+                You don't have permission to annotate this collection. Please <a href="{% url 'request_annotate_permission' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light">request permission</button></a>
+                {% endif %}
+            {% endif %}
             </div>
 
         </div>
@@ -64,10 +82,10 @@
 
  </div>
 
-<!-- Nav tabs -->
-<div class="row">
 
-    {% if report_count > 0 %}
+<!-- Report Counting -->
+{% if report_count > 0 %}
+<div class="row">
     <ul role="tablist" style='padding-bottom:20px'>
         <li class="nav-item">
             <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Counts</button></a>
@@ -79,17 +97,56 @@
 {% else %}
 
      <!-- No containers! Tell the user to add one -->
-     <p>You don't have any reports in this collection!</p>
+     <p>There are no reports in this collection!</p>
+
+     {% if edit_permission %}
      <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
      <div class="mdl-tooltip" for="new-container">
          <p>Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.</p>
      </div>
+     {% endif %}
 </div>
 {% endif %}
+
+<!-- Membership requests -->
+{% if requesters %}
+<div class="row">
+    <div class="col-md-12">
+
+
+    <table id="requests" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead class="thead-inverse">
+            <tr>
+                <th>Username</th>
+                <th>Request Date</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for requester in requesters %}
+                {% if requester.status == "PENDING" %}
+                <tr>
+                    <td>{{ requester.user }}</td>
+                    <td>{{ requester.created_at }}</td>
+                    <td>{{ requester.status }}</td>
+                    <td><a href="{% url 'approve_annotator' collection.id requester.user.id %}"><button class="btn btn-success btn-sm">Approve</button></a><a href="{% url 'deny_annotator' collection.id requester.user.id %}"><button class="btn btn-danger btn-sm">Deny</button></a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    </div>
+</div>
+{% endif %}
+
 
 {% endblock %}
 {% block scripts %}
 <script src="{% static 'js/bootstrap-tagsinput.min.js'%}"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
 
@@ -97,6 +154,8 @@ $(document).ready(function(){
    $('#markup').tagsinput({
      tagClass: 'btn btn-sm btn-primary'
    });
+
+   $('#requesters').DataTable();
 
    //$(".panel-choice").hide();
    $('.button-choice').click(function(){

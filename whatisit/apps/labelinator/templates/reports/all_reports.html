@@ -76,12 +76,16 @@
             <div class="container-fluid">
                 <div class="row" style="padding-bottom:50px;">
 
+                     <h3 class="title" style='padding-bottom:50px;'>{{ page_title }}</h3>
+
                     {% if not collections %}
-                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you  <a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default btn-huge btn-big">Create A Collection</button></a><p>
+                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you: <br><a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default btn-huge btn-big">Create A Collection</button></a>
+                   {% if page_title == "My Collections" %}
+                   or <a href="{% url 'report_collections' %}"><button class="btn btn-lg btn-default btn-huge btn-big">See All Collections</button></a>
+                   {% endif %}
+                   <p>
 
                     {% else %}
-                        <h3 class="title" style='padding-bottom:50px;'>{{ page_title }}</h3>
-
                         <div id="pattern" class="pattern">
                            <ul class="g">
 
