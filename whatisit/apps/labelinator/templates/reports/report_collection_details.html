@@ -127,7 +127,7 @@
             {% for requester in requesters %}
                 {% if requester.status == "PENDING" %}
                 <tr>
-                    <td>{{ requester.user }}</td>
+                    <td>{{ requester.requester.username }}</td>
                     <td>{{ requester.created_at }}</td>
                     <td>{{ requester.status }}</td>
                     <td><a href="{% url 'approve_annotator' collection.id requester.requester.id %}"><button class="btn btn-success btn-sm">Approve</button></a><a href="{% url 'deny_annotator' collection.id requester.requester.id %}"><button class="btn btn-danger btn-sm">Deny</button></a>
