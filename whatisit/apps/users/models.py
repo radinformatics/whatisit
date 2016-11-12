@@ -31,7 +31,6 @@ class RequestMembership(models.Model):
     requester = models.ForeignKey(User,related_name="sender")
     collection = models.ForeignKey(ReportCollection,related_name="requested collection to have contributor status")
     created_at = models.DateTimeField('date of request', auto_now_add=True)
-    private = models.BooleanField(choices=PRIVACY_CHOICES, default=False,verbose_name="Is the collection private?")
     status = models.CharField(max_length=200, null=False, verbose_name="Status of request", default="PENDING",choices=REQUEST_CHOICES)
     
     def __str__(self):
