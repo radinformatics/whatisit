@@ -29,7 +29,7 @@ REQUEST_CHOICES = (("PENDING","PENDING"),
 
 class RequestMembership(models.Model):
     requester = models.ForeignKey(User,related_name="sender")
-    collection = models.ForeignKey(ReportCollection,related_name="requested collection to have contributor status")
+    collection = models.ForeignKey(ReportCollection,related_name="requested_membership_collection")
     created_at = models.DateTimeField('date of request', auto_now_add=True)
     status = models.CharField(max_length=200, null=False, verbose_name="Status of request", default="PENDING",choices=REQUEST_CHOICES)
     
