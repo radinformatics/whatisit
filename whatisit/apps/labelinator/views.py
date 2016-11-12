@@ -180,7 +180,8 @@ def view_report_collection(request,cid):
     # If the user has edit_permissions, we want to show him/her users that can be added
     if context["edit_permission"] == True:
         context["requesters"] = RequestMembership.objects.filter(collection=collection)
-        context["requesters_pending"] = len([x for x in context["requesters"] if x.status == "PENDING"]
+        context["requesters_pending"] = len([x for x in context["requesters"] if x.status == "PENDING"])
+
     return render(request, 'reports/report_collection_details.html', context)
 
 
