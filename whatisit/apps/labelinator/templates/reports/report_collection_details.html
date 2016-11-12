@@ -110,8 +110,8 @@
 
 <!-- Membership requests -->
 {% if edit_permission %}
-{% if requesters %}
 {% if requesters_pending > 0 %}
+{% if requesters %}
 <div class="row">
     <div class="col-md-12">
 
@@ -145,6 +145,8 @@
 </div>
 {% endif %}
 {% endif %}
+{% else %}
+<p class="alert alert-info">There are no pending requests for annotation.</p>
 {% endif %}
 
 {% endblock %}
