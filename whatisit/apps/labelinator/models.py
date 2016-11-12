@@ -1,4 +1,3 @@
-
 from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
 from polymorphic.models import PolymorphicModel
 from taggit.managers import TaggableManager
@@ -139,9 +138,8 @@ class Report(models.Model):
     def __unicode__(self):
         return "<Report:%s|%s>" %(self.collection,self.report_id)
  
-
     def get_label(self):
-        return "labelinator"
+        return "report"
 
     class Meta:
         ordering = ['report_id']
@@ -196,10 +194,10 @@ def contributors_changed(sender, instance, action, **kwargs):
 
         for contributor in list(new_contributors - current_contributors):
             contributor = User.objects.get(pk=contributor)
-            assign_perm('edit_%s' %(sender.get_label()), contributor, instance)
+            assign_perm('annotator', contributor, instance)
 
         for contributor in (current_contributors - new_contributors):
             contributor = User.objects.get(pk=contributor)
-            remove_perm('edit_%s' %(sender.get_label()), contributor, instance)
+            remove_perm('annotator', contributor, instance)
 
 m2m_changed.connect(contributors_changed, sender=ReportCollection.contributors.through)
