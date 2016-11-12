@@ -188,8 +188,9 @@ def view_report_collection(request,cid):
 @login_required
 def save_collection_markup(request,cid):
     collection = get_report_collection(cid,request)
+    edit_permission = has_collection_edit_permission(request,collection)
     if request.method == "POST":
-        if request.user == collection.owner:
+        if edit_permission:
             markup = request.POST.get('markup',None)
             if markup:
                 collection.markup = markup
@@ -233,7 +234,8 @@ def view_report(request,rid):
 def delete_report(request,cid):
     report = get_report(cid,request)
     collection = report.collection
-    if request.user == collection.owner:
+    edit_permission = has_collection_edit_permission(request,collection)
+    if edit_permission:
         if report.image.file != None:
             file_path = report.image.file.name
             if os.path.exists(file_path):
@@ -252,7 +254,8 @@ def edit_report(request,coid,cid=None):
 
     # TODO: Add collaborators checking
     collection = get_report_collection(coid,request)
-    if collection.owner == request.user:
+    edit_permission = has_collection_edit_permission(request,collection)
+    if edit_permission:
 
         # Has the user provided a report?
         #TODO: make report file/upload view here, we shouldn't
@@ -389,7 +392,8 @@ def update_annotation(request,rid,report=None):
         report = get_report(rid,request)
 
     # Right now, only owners allowed to contribute
-    if request.user == report.collection.owner:
+    annotate_permission = has_collection_annotate_permission(request,report.collection)
+    if annotate_permission:
 
         # Get the concise annotations (not sure if I need these, actually)        
         annotations = get_annotations(user=request.user, report=report)
@@ -420,6 +424,7 @@ def update_annotation(request,rid,report=None):
             return JsonResponse({"have you ever seen...": "a radiologist ravioli?"})
 
     else:
+        context = {"message":"You are not authorized to annotate this collection."}
         return render(request, "messages/not_authorized.html", context)
 
 
