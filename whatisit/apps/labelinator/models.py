@@ -117,7 +117,7 @@ class ReportCollection(models.Model):
         app_label = 'labelinator'
         permissions = (
             ('del_report_collection', 'Delete container collection'),
-            ('edit_report_collection', 'Edit container collection')
+            ('edit_report_collection', 'Edit container collection'),
             ('annotate_report_collection', 'Annotate container collection')
         )
 
