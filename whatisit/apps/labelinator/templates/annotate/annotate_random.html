@@ -62,6 +62,8 @@
         </div>
     </div>
     </div>
+
+    {% if annotate_permission %}
     <div class="row">
         <div class="col-md-12">
             <a href="{% url 'report_details' report.id %}"><h2 style="margin-bottom:50px">{{ collection.name }}/{{ report.report_id }}</h2></a>
@@ -76,7 +78,20 @@
             <a id="next-one" href="{% url 'annotate_random' collection.id %}"><div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div></a>
         </div>
     </div>     
+    {% else %}
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'report_details' report.id %}"><h2 style="margin-bottom:50px">{{ collection.name }}/{{ report.report_id }}</h2></a>
 
+        {% if membership %}
+        <p class="alert alert-info">Your annotator request submit on {{ membership.created_at }} has status {{ membership.status }}.</p>
+        {% else %}
+        You don't have permission to annotate this collection. Please <a href="{% url 'request_annotate_permission' report.collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light">request permission</button></a>
+        {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 {% include "annotate/controls.html" %}

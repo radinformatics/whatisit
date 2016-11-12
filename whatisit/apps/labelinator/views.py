@@ -40,6 +40,27 @@ media_dir = os.path.join(BASE_DIR,MEDIA_ROOT)
 
 ### AUTHENTICATION ####################################################
 
+@login_required
+def get_permissions(request,context):
+    '''get_permissions returns an updated context with edit_permission and annotate_permission
+    for a user. The key "collection" must be in the context
+    '''
+    collection = context["collection"]
+
+    # Edit and annotate permissions?
+    context["edit_permission"] = has_collection_edit_permission(request,collection)
+    context["annotate_permission"] = has_collection_annotate_permission(request,collection)
+    
+    # If no annotate permission, get their request
+    if context["annotate_permission"] == False:
+        try:
+            context['membership'] = RequestMembership.objects.get(requester=request.user,
+                                                                  collection=collection)
+        except:
+            pass
+    return context
+
+
 # Does a user have permissions to see a collection?
 
 def has_collection_edit_permission(request,collection):
@@ -153,17 +174,8 @@ def view_report_collection(request,cid):
     context = {"collection":collection,
                "report_count":report_count}
 
-    # Edit and annotate permissions?
-    context["edit_permission"] = has_collection_edit_permission(request,collection)
-    context["annotate_permission"] = has_collection_annotate_permission(request,collection)
-    
-    # If no annotate permission, get their request
-    if context["annotate_permission"] == False:
-        try:
-            context['membership'] = RequestMembership.objects.get(requester=request.user,
-                                                                  collection=collection)
-        except:
-            pass
+    # Get all permissions, context must have collection as key
+    context = get_permissions(request,context)
 
     # If the user has edit_permissions, we want to show him/her users that can be added
     if context["edit_permission"] == True:
@@ -206,7 +218,12 @@ def view_report(request,rid):
     #TODO: In the future if we ever want to allow counting across collection, this needs to change
     annotation_counts = get_annotation_counts(report.collection,reports=[report])
     context = {"report":report,
-               "annotation_counts":annotation_counts}
+               "annotation_counts":annotation_counts,
+               "collection":report.collection}
+
+    # Get all permissions, context must have collection as key
+    context = get_permissions(request,context)
+
     return render(request, 'reports/report_details.html', context)
 
 
@@ -356,6 +373,9 @@ def annotate_report(request,rid,report=None):
                "collection":report.collection,
                "markup":markup,
                "allowed_annotations":allowed_annotations}
+
+    # Get all permissions, context must have collection as key
+    context = get_permissions(request,context)
 
     return render(request, "annotate/annotate_random.html", context)
 

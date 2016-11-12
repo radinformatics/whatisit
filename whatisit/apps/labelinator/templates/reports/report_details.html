@@ -21,7 +21,17 @@
 
 <div class="row">
     <div class="col-md-12" style="padding-bottom:50px">
+    {% if annotate_permission %}
         <a href="{% url 'annotate_report' report.id %}"><button class="btn btn-lg btn-primary">Annotate</button></a>
+    {% else %}
+
+        {% if membership %}
+        <p class="alert alert-info">Your annotator request submit on {{ membership.created_at }} has status {{ membership.status }}.</p>
+        {% else %}
+        You don't have permission to annotate this collection. Please <a href="{% url 'request_annotate_permission' report.collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light">request permission</button></a>
+        {% endif %}
+
+    {% endif %}
     </div>
 </div>
 
@@ -62,9 +72,7 @@
                 </div>
             {% else %}
             
-            <!-- No containers! Tell the user to add one -->
             <div>
-                   <!-- Add a new container -->
                    <p>This report does not have any annotations.</p>
             </div>
             {% endif %}
