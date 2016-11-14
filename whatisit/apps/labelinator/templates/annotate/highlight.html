@@ -35,9 +35,17 @@ $(document).ready(function(){
 
     // Initialize the markup    
     $('#markup').tagsinput({
-        tagClass: 'btn btn-sm btn-primary'
+        tagClass: 'btn btn-sm btn-primary term-tag'
     });
  
+
+    // On click, remove term
+    $('.term-tag').click(function() {
+        var tag = $(this).text();
+        $("#markup").tagsinput('remove',tag)
+    });
+
+
     // On change, update the markup
     $("#markup").on('change',function(){
         console.log("Markup updated.")
