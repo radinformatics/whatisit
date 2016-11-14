@@ -65,8 +65,8 @@ def update_user_annotation(user,annotation_object,report):
     # If the annotation was just created, save it, and add report
     if created == True:
         annotation.save()
-        annotation.reports.add(report)
-        annotation.save()
+    annotation.reports.add(report)
+    annotation.save()
     
     # Finally, delete other annotation objects 
     [x.delete() for x in previous_annotations if x.id != annotation.id]

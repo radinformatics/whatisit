@@ -452,9 +452,11 @@ def annotate_random(request,cid,rid=None):
 
 @login_required
 def annotate_custom(request,cid):
-    return render(request, "annotate/annotate_custom.html", context)
+    return annotate_random(request,cid)
+    #return render(request, "annotate/annotate_custom.html", context)
 
 
 @login_required
 def annotate_curated(request,cid):
-    return render(request, "annotate/annotate_curated.html", context)
+    return annotate_random(request,cid)
+    #return render(request, "annotate/annotate_curated.html", context)
