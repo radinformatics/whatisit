@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from whatisit.apps.api.views import getToken
 from django.template.context import RequestContext
 
-import httplib2
 import logging
 import os
 import pickle

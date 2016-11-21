@@ -18,11 +18,15 @@ urlpatterns = [
     url(r'^collections/(?P<cid>.+?)/edit$',report_views.edit_report_collection,name='edit_report_collection'),
     url(r'^collections/my$',report_views.my_report_collections,name='my_report_collections'),
 
+    # Annotation sets
+    url(r'^filter/(?P<cid>.+?)/create$',report_views.create_annotation_set,name='create_annotation_set'),
+    url(r'^filter/(?P<cid>.+?)/save$',report_views.save_annotation_set,name='save_annotation_set'),
+
     # Annotations
     url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),   # getrandom
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
     url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),
-    url(r'^annotate/reports/(?P<cid>.+?)/custom$',report_views.annotate_custom,name='annotate_custom'),
+    url(r'^annotate/reports/(?P<cid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
 
     # Requests
     url(r'^request/annotate/(?P<cid>.+?)$',report_views.request_annotate_permission,name='request_annotate_permission'),

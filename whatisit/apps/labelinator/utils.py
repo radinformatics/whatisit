@@ -2,11 +2,23 @@ from django.core.files.uploadedfile import UploadedFile, InMemoryUploadedFile
 from django.core.files.base import ContentFile
 from django.core.files import File
 from django.db.models.aggregates import Count
+from itertools import chain
 from whatisit.apps.labelinator.models import Report, AllowedAnnotation, Annotation
 from whatisit.settings import MEDIA_ROOT
 import shutil
 import os
 import re
+
+
+def get_collection_users(collection):
+    '''get_collection_users will return a list of all owners and contributors for
+    a collection
+    :param collection: the collection object to use
+    '''
+    contributors = collection.contributors.all()
+    owner = collection.owner
+    return list(chain(contributors,[owner]))
+
 
 def get_annotation_counts(collection,reports=None):
     '''get_annotation_counts will return a dictionary with annotation labels, values,
@@ -15,7 +27,7 @@ def get_annotation_counts(collection,reports=None):
     :param reports: if defined, return counts for only that set. Otherwise, count all.
     '''
     # What annotations are allowed across the report collection?
-    annotations_allowed =  AllowedAnnotation.objects.filter(annotation__reports__collection=collection)
+    annotations_allowed = get_allowed_annotations(collection)
 
     # Take a count
     counts = dict()
@@ -103,6 +115,17 @@ def summarize_annotations(annotations):
     result = {"labels":summary,
               "counts":counts}
     return result
+
+
+def get_allowed_annotations(collection,return_objects=True):
+    '''get_allowed_annotations will return allowed annotations for a collection
+    :param collection: the collection to select
+    :param return_objects: if False, returns dictionary of objects
+    '''
+    allowed = AllowedAnnotation.objects.filter(annotation__reports__collection=collection)
+    if return_objects == False:
+        allowed = group_allowed_annotations(allowed)
+    return allowed
 
 
 #TODO: edit these to upload reports 
@@ -212,5 +235,3 @@ def format_report_name(name,special_characters=None):
     if special_characters == None:
         special_characters = []
     return ''.join(e.lower() for e in name if e.isalnum() or e in special_characters)
-
-

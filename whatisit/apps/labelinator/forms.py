@@ -6,13 +6,20 @@ from crispy_forms.helper import FormHelper
 from django.forms import ModelForm, Form
 from django import forms
 
-from whatisit.apps.labelinator.utils import format_report_name
-
 from glob import glob
 import os
 
-from whatisit.apps.labelinator.models import (Report, ReportCollection)
+from whatisit.apps.labelinator.models import (
+    Report, 
+    ReportCollection, 
+    Annotation, 
+    AllowedAnnotation
+)
 
+from whatisit.apps.labelinator.utils import (
+    format_report_name, 
+    get_allowed_annotations
+)
 
 class ReportForm(ModelForm):
 

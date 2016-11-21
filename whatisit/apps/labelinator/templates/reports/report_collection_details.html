@@ -36,10 +36,14 @@
             <hr>
    
             {% if annotate_permission %}
+                <!-- Continue Set -->
+                {% if request.session.reports %}
+                <a href="{% url 'annotate_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
+                {% endif %}
                 <!-- Annotate Random -->
-                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Random Selection</button></a>
+                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Random Selection</button></a>
                 <!--<button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>-->
-                <a href="{% url 'annotate_custom' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light" disabled> Custom Selection</button></a>
+                <a href="{% url 'annotate_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Custom Selection</button></a>
 
                 <!-- Here is where we select default tags-->
                 <div style="padding-top:20px">

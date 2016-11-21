@@ -23,6 +23,9 @@
     <div class="col-md-12" style="padding-bottom:50px">
     {% if annotate_permission %}
         <a href="{% url 'annotate_report' report.id %}"><button class="btn btn-lg btn-primary">Annotate</button></a>
+        {% if request.session.reports %}
+        <a href="{% url 'annotate_set' collection.id %}"><button class="btn btn-lg btn-primary">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
+        {% endif %}
     {% else %}
 
         {% if membership %}

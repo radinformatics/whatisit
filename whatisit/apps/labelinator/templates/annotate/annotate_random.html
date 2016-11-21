@@ -37,6 +37,14 @@
     <div class="row" style="padding-bottom:50px;" id="annots-row">
         <div class="col-md-12">
 
+        <!-- If user annotating a set-->
+        {% if next == "set" %}
+            {% if request.session.reports %}
+            <p style="border-radius:5px;" class="alert alert-info">You have {{ request.session.reports|length }} reports remaining in this set.
+</p>
+            {% endif %}
+        {% endif %}
+
         <!-- Form to send updates to server-->
         <form action="{% url 'update_annotation' report.id %}" method="POST" id="update_annotation">
 
@@ -75,7 +83,7 @@
     <div class="row" style='padding-top:25px'>
         <div class="col-md-12">
             <div id="last-one" class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>
-            <a id="next-one" href="{% url 'annotate_random' collection.id %}"><div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div></a>
+            <a id="next-one" href="/annotate/reports/{{ collection.id }}/{{ next }}"><div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div></a>
         </div>
     </div>     
     {% else %}
@@ -128,14 +136,15 @@ $(document).ready(function(){
 
     // Left and right arrow keys navigate as well
     $(document).keydown(function(e) {
+
         if (e.which == 37) { 
             history.back();
             e.preventDefault();
             return false;
          }
-
+        
         if (e.which == 39) { 
-           document.location = "{% url 'annotate_random' collection.id %}"
+           document.location = "/annotate/reports/{{ collection.id }}/{{ next }}"
            e.preventDefault();
            return false;
         }
