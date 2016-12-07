@@ -14,7 +14,11 @@ from whatisit.settings import BASE_DIR
 from django.contrib.auth.models import User
 from whatisit.apps.wordfish.models import ReportCollection, Report, Annotation, AllowedAnnotation
 
-input_file = "%s/scripts/data.tsv" %(BASE_DIR)
+# Command to produce input data:
+# singularity run -B $PWD:/data pefinder.img --reports /data/pefinder/data/ stanford_data.csv --delim ,  --output /data/stanford_pe.tsv
+# from: https://github.com/vsoch/pe-predictive
+
+input_file = "%s/scripts/stanford_pe.tsv" %(BASE_DIR)
 
 if os.path.exists(input_file):
     data = pandas.read_csv(input_file,sep="\t")
