@@ -9,14 +9,14 @@ from django import forms
 from glob import glob
 import os
 
-from whatisit.apps.labelinator.models import (
+from whatisit.apps.wordfish.models import (
     Report, 
     ReportCollection, 
     Annotation, 
     AllowedAnnotation
 )
 
-from whatisit.apps.labelinator.utils import (
+from whatisit.apps.wordfish.utils import (
     format_report_name, 
     get_allowed_annotations
 )

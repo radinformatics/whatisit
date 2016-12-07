@@ -76,10 +76,12 @@
             <div class="container-fluid">
                 <div class="row" style="padding-bottom:50px;">
 
+                     {% if collections %}
                      <h3 class="title" style='padding-bottom:50px;'>{{ page_title }}</h3>
+                     {% endif %}
 
                     {% if not collections %}
-                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you: <br><a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default btn-huge btn-big">Create A Collection</button></a>
+                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you: <br><a href="{% url 'new_report_collection' %}" data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance."><button class="btn btn-lg btn-default btn-huge btn-big" disabled>Create A Collection</button></a>
                    {% if page_title == "My Collections" %}
                    or <a href="{% url 'report_collections' %}"><button class="btn btn-lg btn-default btn-huge btn-big">See All Collections</button></a>
                    {% endif %}
@@ -100,7 +102,7 @@
             </div>
             <div class="button-box">
                     {% if collections %}
-                    <a href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default" disabled>New Report Collection</button></a>
+                    <a data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance." href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default" disabled>New Report Collection</button></a>
                     {% endif %}
             </div>
         </div>
@@ -155,6 +157,10 @@ function() {
 }();
 
 $(document).ready(function() {
+
+    // Enable tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
     $(".report-collection").click(function() {
         console.log('clicked')
         window.location = $(this).find("a").attr("href"); 

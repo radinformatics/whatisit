@@ -1,16 +1,17 @@
-from whatisit.apps.labelinator.forms import (
+from whatisit.apps.wordfish.forms import (
     ReportForm, 
     ReportCollectionForm,
 )
 
-from whatisit.apps.labelinator.models import (
+from whatisit.apps.wordfish.models import (
     Annotation, 
     AllowedAnnotation,
     Report, 
-    ReportCollection
+    ReportCollection,
+    ReportSet
 )
 
-from whatisit.apps.labelinator.utils import (
+from whatisit.apps.wordfish.utils import (
     add_message, 
     get_allowed_annotations,
     get_annotation_counts, 
@@ -94,6 +95,7 @@ def has_collection_annotate_permission(request,collection):
     if request.user in collection.contributors.all():
         return True
     return False
+
 
 @login_required
 def request_annotate_permission(request,cid):    
@@ -201,6 +203,9 @@ def view_report_collection(request,cid):
     if context["edit_permission"] == True:
         context["requesters"] = RequestMembership.objects.filter(collection=collection)
         context["requesters_pending"] = len([x for x in context["requesters"] if x.status == "PENDING"])
+
+    # Show report Sets allowed to annotate
+    context["report_sets"] = ReportSet.objects.filter(annotators_contains=request.user)
 
     return render(request, 'reports/report_collection_details.html', context)
 

@@ -2,7 +2,7 @@ from guardian.shortcuts import assign_perm, get_users_with_perms, remove_perm
 from polymorphic.models import PolymorphicModel
 from taggit.managers import TaggableManager
 
-from whatisit.apps.labelinator.storage import ImageStorage
+from whatisit.apps.wordfish.storage import ImageStorage
 from whatisit.settings import MEDIA_ROOT
 
 from django.contrib.auth.models import User
@@ -55,11 +55,11 @@ class AllowedAnnotation(models.Model):
         return "<%s>" %(self.name)
 
     def get_label(self):
-        return "labelinator"
+        return "wordfish"
 
     class Meta:
         ordering = ['name']
-        app_label = 'labelinator'
+        app_label = 'wordfish'
 
         # A specific annotator can only give one label for some annotation label
         unique_together =  (("name", "label"),)
@@ -114,11 +114,11 @@ class ReportCollection(models.Model):
 
     class Meta:
         ordering = ["name"]
-        app_label = 'labelinator'
+        app_label = 'wordfish'
         permissions = (
-            ('del_report_collection', 'Delete container collection'),
-            ('edit_report_collection', 'Edit container collection'),
-            ('annotate_report_collection', 'Annotate container collection')
+            ('del_report_collection', 'Delete report collection'),
+            ('edit_report_collection', 'Edit report collection'),
+            ('annotate_report_collection', 'Annotate report collection')
         )
 
 
@@ -144,7 +144,7 @@ class Report(models.Model):
 
     class Meta:
         ordering = ['report_id']
-        app_label = 'labelinator'
+        app_label = 'wordfish'
  
         # Container names in a collection must be unique
         unique_together =  (("report_id", "collection"),)
@@ -153,6 +153,39 @@ class Report(models.Model):
     def get_absolute_url(self):
         return_cid = self.id
         return reverse('report_details', args=[str(return_cid)])
+
+
+class ReportSet(models.Model):
+    '''A report set is a particular subset of reports with permissions for users to annotate
+    '''
+    add_date = models.DateTimeField('date published', auto_now_add=True)
+    modify_date = models.DateTimeField('date modified', auto_now=True)
+    annotators = models.ManyToManyField(User,related_name="users_allowed_annotation",related_query_name="users_allowed_collection", blank=True,verbose_name="Users allowed to annotate report set.")    
+    collection = models.ForeignKey(ReportCollection)
+    number_tests = models.PositiveIntegerField(blank=False,null=False,verbose_name="total number of randomly selected high confidence reports to test", default=20)
+    passing_tests = models.PositiveIntegerField(blank=False,null=False,verbose_name="number of correct responses at which a user is given credit", default=15)
+    reports = models.ManyToManyField(Report,related_name="reports_in_set",related_query_name="reports_in_set", blank=True,verbose_name="Reports in report set.")  
+
+    def __str__(self):
+        return "%s-%s" %(self.id,self.collection)
+
+    def __unicode__(self):
+        return "%s-%s" %(self.id,self.collection)
+
+    def get_label(self):
+        return "report_set"
+
+    def save(self, *args, **kwargs):
+        super(ReportSet, self).save(*args, **kwargs)
+        assign_perm('del_report_set', self.collection.owner, self)
+        assign_perm('edit_report_set', self.collection.owner, self)
+
+    class Meta:
+        app_label = 'wordfish'
+        permissions = (
+            ('del_report_set', 'Delete report set'),
+            ('edit_report_set', 'Edit report set')
+        )
 
 
 #######################################################################################################
@@ -178,11 +211,11 @@ class Annotation(models.Model):
         return "<annotation:%s>" %(self.id)
 
     def get_label(self):
-        return "labelinator"
+        return "wordfish"
 
     class Meta:
         ordering = ['annotator','id']
-        app_label = 'labelinator'
+        app_label = 'wordfish'
  
         # A specific annotator can only give one label for some annotation label
         unique_together =  (("id", "annotation","annotator"),)

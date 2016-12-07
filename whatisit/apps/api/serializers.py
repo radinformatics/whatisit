@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from whatisit.apps.labelinator.models import Report, ReportCollection
+from whatisit.apps.wordfish.models import Report, ReportCollection
 from rest_framework import serializers
 
 

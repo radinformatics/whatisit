@@ -28,7 +28,7 @@
             {% csrf_token %}
 
             <!-- User-->
-            <label for="user">Annotator</label>
+            <label for="user">Annotators</label>
             <select id="user" name="user" class="form-control">
                 {% for user in users %}
                 <option value="{{ user.id }}">{{ user }}</option>

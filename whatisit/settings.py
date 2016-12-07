@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_user_agents',
-    'whatisit.apps.labelinator',
+    'whatisit.apps.wordfish',
     'whatisit.apps.main',
     'whatisit.apps.api',
     'whatisit.apps.users',

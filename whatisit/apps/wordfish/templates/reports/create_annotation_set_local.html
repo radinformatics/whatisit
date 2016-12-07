@@ -1,0 +1,57 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+
+{% block header %}
+{% include 'main/mega_dropdown.html' %}
+{% endblock %}
+
+{% block content %}
+
+{% if request.session.reports %}
+    {% if request.session.reports|length > 0 %}
+    <p style="border-radius:5px;" class="alert alert-info">You have {{ request.session.reports|length }} reports remaining in the current set. A new selection will override that set.</p>
+    {% endif %}
+{% endif %}
+
+<div class="card">
+    <div class="card-block">
+
+        <!--Header-->
+        <div class="text-xs-center">
+            <h3>Filter Annotation Set</h3>
+            <hr class="mt-2 mb-2">
+        </div>
+
+        <form action="{% url 'save_annotation_set' collection.id %}" method="POST">
+
+            {% csrf_token %}
+
+            <!-- User-->
+            <label for="user">Annotators</label>
+            <select id="user" name="user" class="form-control">
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Annotations -->
+            {% for name,allowed in allowed_annotations.items %}
+               <h4 style="color:#d9534f">{{ name }}</h4>
+               {% for allowed_annotation in allowed %}
+               <fieldset class="form-group">
+                   <input type="checkbox"  class="filled-in" name="whatisit||{{ name }}||{{ allowed_annotation }}" id="whatisit||{{ name }}||{{ allowed_annotation }}">
+                   <label for="whatisit||{{ name }}||{{ allowed_annotation }}">{{ allowed_annotation }}</label>
+               </fieldset>
+               {% endfor %}
+            {% endfor %}
+        
+            <div class="text-xs-center">
+                <button type="submit" class="btn btn-primary">Generate Set</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

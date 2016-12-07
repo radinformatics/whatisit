@@ -4,7 +4,7 @@ from django.shortcuts import render, render_to_response
 import hashlib
 
 from whatisit.settings import API_VERSION as APIVERSION
-from whatisit.apps.labelinator.models import Report, ReportCollection
+from whatisit.apps.wordfish.models import Report, ReportCollection
 
 from rest_framework import viewsets, generics
 from rest_framework.response import Response

@@ -3,7 +3,7 @@ from django.core.files.base import ContentFile
 from django.core.files import File
 from django.db.models.aggregates import Count
 from itertools import chain
-from whatisit.apps.labelinator.models import Report, AllowedAnnotation, Annotation
+from whatisit.apps.wordfish.models import Report, AllowedAnnotation, Annotation
 from whatisit.settings import MEDIA_ROOT
 import shutil
 import os

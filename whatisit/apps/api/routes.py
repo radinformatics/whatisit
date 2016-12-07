@@ -9,14 +9,14 @@ from rest_framework.decorators import parser_classes, authentication_classes, pe
 from rest_framework.parsers import JSONParser, FileUploadParser
 from rest_framework.response import Response
 
-from whatisit.apps.labelinator.models import Report, ReportCollection
-from whatisit.apps.labelinator.utils import get_annotation_counts
-from whatisit.apps.labelinator.views import get_report_collection
+from whatisit.apps.wordfish.models import Report, ReportCollection
+from whatisit.apps.wordfish.utils import get_annotation_counts
+from whatisit.apps.wordfish.views import get_report_collection
 
 @api_view(['GET'])
 def get_annotation_counts(request,cid):
     '''get_annotation_counts serves the get_annotation_counts function
-    from labelinator.utils as an API endpoint
+    from wordfish.utils as an API endpoint
     :param cid: should be the collection id
     '''
     collection = get_report_collection(cid,request)

@@ -34,16 +34,17 @@
         <div class="card card-block" style="padding:30px;min-height:286px">
             <h2>Annotate</h2>
             <hr>
-   
+            {% if edit_permission %}
+                <a href="{% url 'annotate_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
+            {% endif %}
             {% if annotate_permission %}
                 <!-- Continue Set -->
                 {% if request.session.reports %}
                 <a href="{% url 'annotate_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
                 {% endif %}
-                <!-- Annotate Random -->
-                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Random Selection</button></a>
+                <!-- Annotate Random 
+                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Random Selection</button></a>-->
                 <!--<button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>-->
-                <a href="{% url 'annotate_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Custom Selection</button></a>
 
                 <!-- Here is where we select default tags-->
                 <div style="padding-top:20px">
@@ -72,18 +73,6 @@
 
         </div>
     </div>
-    <!-- Buttons
-    <div class="col-md-1">
-            <div class="card">
-                <h3>
-                     <span class="icon-controls" style="position:relative;top:-10px">
-                         <a href=""><i class="fa fa-download"></i></a><br>
-                         <a href=""><i class="fa fa-share"></i></a>
-                     </span>
-                </h3>
-            </div>
-    </div>-->
-
  </div>
 
 
@@ -91,12 +80,16 @@
 {% if report_count > 0 %}
 <div class="row">
     <ul role="tablist" style='padding-bottom:20px'>
+        {% if edit_permission %}
         <li class="nav-item">
             <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Counts</button></a>
         </li>
-        <!--<li class="nav-item">
-            <a class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate</a>
-        </li>-->
+        {% endif %}
+        {% for report_set in report_sets %}
+        <li class="nav-item">
+            <a class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate {{ report_set.id }}</a>
+        </li>
+        {% endfor %}
     </ul>
 {% else %}
 

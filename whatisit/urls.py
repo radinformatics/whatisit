@@ -5,7 +5,7 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 """
 from django.conf.urls import include, url
 from whatisit.apps.main import urls as main_urls
-from whatisit.apps.labelinator import urls as labelinator_urls
+from whatisit.apps.wordfish import urls as wordfish_urls
 from whatisit.apps.users import urls as user_urls
 from whatisit.apps.api import urls as api_urls
 
@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include(main_urls)),
     url(r'^api/', include(api_urls)),
-    url(r'^', include(labelinator_urls)),
+    url(r'^', include(wordfish_urls)),
     url(r'^', include(user_urls)),
 #    url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}, name="sitemap"),
 #    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},

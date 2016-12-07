@@ -12,7 +12,7 @@ import numpy
 from whatisit.settings import BASE_DIR
 
 from django.contrib.auth.models import User
-from whatisit.apps.labelinator.models import ReportCollection, Report, Annotation, AllowedAnnotation
+from whatisit.apps.wordfish.models import ReportCollection, Report, Annotation, AllowedAnnotation
 
 input_file = "%s/scripts/data.tsv" %(BASE_DIR)
 

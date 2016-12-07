@@ -1,5 +1,5 @@
 from django.contrib.sitemaps import Sitemap
-from whatisit.apps.labelinator.models import Report, ReportCollection
+from whatisit.apps.wordfish.models import Report, ReportCollection
 
 class BaseSitemap(Sitemap):
     priority = 0.5
