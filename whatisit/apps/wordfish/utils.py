@@ -20,6 +20,19 @@ def get_collection_users(collection):
     return list(chain(contributors,[owner]))
 
 
+def get_collection_annotators(collection):
+    '''get_collection_annotators will return a list of those who have annotated
+    the collection
+    :param collection: the collection object to use
+    '''
+    annotations = get_allowed_annotations(collection) #all annotations in collection
+    # STOPPED HERE - need to write this query to go from
+    # Allowed Annotations for a collection filtered to Annotations, then get unique users
+
+    owner = collection.owner
+    return list(chain(contributors,[owner]))
+
+
 def get_annotation_counts(collection,reports=None):
     '''get_annotation_counts will return a dictionary with annotation labels, values,
     and counts for all allowed_annotations for a given collection

@@ -26,7 +26,7 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),   # getrandom
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
     url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),
-    url(r'^annotate/reports/(?P<cid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
+    url(r'^annotate/reports/(?P<cid>.+?)/(?P<sid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
 
     # Requests
     url(r'^request/annotate/(?P<cid>.+?)$',report_views.request_annotate_permission,name='request_annotate_permission'),

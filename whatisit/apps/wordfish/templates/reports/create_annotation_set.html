@@ -27,10 +27,17 @@
 
             {% csrf_token %}
 
+            <!-- Name of set -->
+            <div class="md-form">
+                <input type="text" id="setname" name="setname" class="form-control">
+                <label for="setname">Name of Report Set</label>
+            </div>
+
             <!-- User-->
-            <label for="user">Annotators</label>
+            <label for="user">Annotated By</label>
             <select id="user" name="user" class="form-control">
                 {% for user in users %}
+                <option value="all">all users in collection</option>
                 <option value="{{ user.id }}">{{ user }}</option>
                 {% endfor %}
             </select>
@@ -45,6 +52,20 @@
                </fieldset>
                {% endfor %}
             {% endfor %}
+
+            <!-- Requested Count -->
+            <div class="md-form">
+                <input type="number" id="N" name="N" min="0" class="form-control">
+                <label for="N">Requested N</label>
+                <p style="border-radius:5px;" class="alert alert-info">Each report can only be allowed to one set, and this cannot be undone.</p>
+            </div>
+
+            <!-- Testing Set -->
+            <div class="md-form">
+                <input type="number" id="testing_set" name="testing_set" min="0" class="form-control">
+                <label for="N">Testing Set N</label>
+                <p style="border-radius:5px;" class="alert alert-info">This number of reports will be randomly selected for testing.</p>
+            </div>
         
             <div class="text-xs-center">
                 <button type="submit" class="btn btn-primary">Generate Set</button>

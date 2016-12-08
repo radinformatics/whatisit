@@ -17,6 +17,7 @@ from whatisit.apps.wordfish.utils import (
     get_annotation_counts, 
     get_annotations, 
     get_collection_users,
+    get_collection_annotators,
     group_allowed_annotations,
     summarize_annotations, 
     update_user_annotation
@@ -205,7 +206,7 @@ def view_report_collection(request,cid):
         context["requesters_pending"] = len([x for x in context["requesters"] if x.status == "PENDING"])
 
     # Show report Sets allowed to annotate
-    context["report_sets"] = ReportSet.objects.filter(annotators_contains=request.user)
+    context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
 
     return render(request, 'reports/report_collection_details.html', context)
 
@@ -373,13 +374,13 @@ def upload_report(request,cid):
 
 
 ###############################################################################################
-# Filter Sets #################################################################################
+# Filter Sessions #############################################################################
 ###############################################################################################
 
 @login_required
-def create_annotation_set(request,cid):
-    '''create_annotation_set will allow the user to create a custom annotation set
-    (stored in a session) for making annotations.
+def create_annotation_session(request,cid):
+    '''create_annotation_session will allow the user to create a custom annotation set
+    (stored in a session) for making annotations. (not currently in use)
     :param cid: the collection id to use
     '''
     collection = get_report_collection(request,cid)
@@ -388,19 +389,21 @@ def create_annotation_set(request,cid):
         if report_set != None:
             if len(report_set) != 0:
                 messages.warning(request, 'You have an annotation session in progress. Creating a new set will override it.')
-        users = get_collection_users(collection)
+
+        # Get collection annotators
+        users = get_collection_annotators(collection)
+
         allowed_annotations = get_allowed_annotations(collection,return_objects=False)
         context = {"users": users,
                    "collection": collection,
                    "allowed_annotations": allowed_annotations}
-        return render(request, "reports/create_annotation_set.html", context)
+        return render(request, "reports/create_annotation_set_local.html", context)
     return view_report_collection(request,cid)
 
-
 @login_required
-def save_annotation_set(request,cid):
-    '''save_annotation_set will save the annotation set, meaning creation of 
-    a session with the queryset.
+def save_annotation_session(request,cid):
+    '''save_annotation_session will save the annotation set, meaning creation of 
+    a session with the queryset. (not in use)
     :param cid: the collection id to use
     '''
     collection = get_report_collection(request,cid)
@@ -430,13 +433,12 @@ def save_annotation_set(request,cid):
                         seen_annotations.append(annotation)
 
             request.session['reports'] = selections
-            return annotate_set(request,cid)
+            return annotate_session(request,cid)
 
     return view_report_collection(request,cid)
 
-
 @login_required
-def annotate_set(request,cid):
+def annotate_session(request,cid):
     '''annotate_custom will allow the user to annotate a custom selected set (saved in a session)
     if not defined, the user is redirected to create one, with a message
     '''
@@ -463,6 +465,118 @@ def annotate_set(request,cid):
                                    next="set")
 
     return view_report_collection(request,cid)
+
+
+
+###############################################################################################
+# Filter Sets #################################################################################
+###############################################################################################
+
+@login_required
+def create_annotation_set(request,cid):
+    '''create_annotation_set will allow the user to create a custom annotation set
+    (stored as ReportSet) for making annotations.
+    :param cid: the collection id to use
+    '''
+    collection = get_report_collection(request,cid)
+    if has_collection_edit_permission(request,collection):
+        users = get_collection_users(collection)
+        allowed_annotations = get_allowed_annotations(collection,return_objects=False)
+        context = {"users": users,
+                   "collection": collection,
+                   "allowed_annotations": allowed_annotations}
+        return render(request, "reports/create_annotation_set.html", context)
+    return view_report_collection(request,cid)
+
+
+@login_required
+def save_annotation_set(request,cid):
+    '''save_annotation_set will save the annotation set, meaning creation of 
+    a ReportSet with the queryset.
+    :param cid: the collection id to use
+    '''
+    collection = get_report_collection(request,cid)
+    if has_collection_edit_permission(request,collection):
+        if request.method == "POST":
+            
+            # What does the user want to name the set?
+            set_name = request.POST.get('setname').lower().replace(" ","_")
+
+            # How many reports in the set?
+            N = int(request.POST.get('N'))
+
+            # How many tests should be passing?
+            testing_set = int(request.POST.get('testing_set'))
+ 
+            # What users does the request want to see annotations by?
+            user_id = request.POST.get('user')
+            if user_id == 'all':
+                user = get_collection_users(collection)
+            else:
+                user = [User.objects.get(id=user_id)]
+
+            # What annotation (name and label) do we filter to?
+            selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
+            selections = []
+            seen_annotations = []
+            for selection_key in selection_keys:
+                name,label = selection_key.replace("whatisit||","").split("||")
+                annotation_object = AllowedAnnotation.objects.get(name=name,
+                                                                  label=label)
+
+                # Query to select the reports of interest
+                selection = Annotation.objects.filter(annotator__in=user,
+                                                      annotation=annotation_object,
+                                                      reports__collection=collection)
+                for annotation in selection:
+                    if annotation not in seen_annotations:
+                        selections = list(chain(selections,annotation.reports.all()))
+                        seen_annotations.append(annotation)
+
+            # Remove reports that are already in sets
+            existing = []
+            existing_sets = ReportSet.objects.all()
+            for existing_set in existing_sets:
+                existing = list(chain(existing,existing_set.reports.all()))
+
+            selections = [report for report in selections if report not in existing]
+
+            # If we have fewer selections left than options, no go
+            if len(selections) < N:
+                messages.info(request,"There are %s reports (not in a set) that match this criteria, cannot create new set." %(len(selections)))
+                return create_annotation_set(request,collection.id)
+
+            # Otherwise, save the new report set
+            report_set = ReportSet.objects.create(collection=collection,
+                                                  number_tests=N,
+                                                  passing_tests=testing_set,
+                                                  reports=selections)
+            report_set.save()
+
+            # Set creator should be allowed to see it
+            report_set.annotators.add(request.user)            
+
+    return view_report_collection(request,cid)
+
+
+@login_required
+def annotate_set(request,cid,sid):
+    '''annotate_set will allow the user to annotate a custom selected set
+    '''
+    try:
+        report_set = ReportSet.objects.get(id=sid)
+    except:
+        messages.error(request,"Annotation set not found.")
+        return view_report_collection(request,cid)
+
+    collection = report_set.collection
+    if has_collection_annotate_permission(request,collection):
+        reports = report_set.reports.all()
+        return annotate_random(request,cid,rid=None,reports=None)
+        #TODO: add session variable here to move user through set based on id
+        return annotate_random(request,
+                               cid=collection.id,
+                               reports=reports)
 
 
 ###############################################################################################
@@ -551,17 +665,20 @@ def update_annotation(request,rid,report=None):
 
 
 @login_required
-def annotate_random(request,cid,rid=None):
+def annotate_random(request,cid,rid=None,reports=None):
     '''annotate_random will select a random record from a collection, and render a page for
     the user to annotate
     :param cid: the collection id to select from
     :param rid: a report id, if provided, to annotate
+    :param reports: a pre selected subset to select randomly from
     '''
     collection = get_report_collection(request,cid)
+    if reports == None:
+        reports = Report.objects.filter(collection=collection)
 
     # Get a random report
     while rid == None:
-        count = Report.objects.filter(collection=collection).aggregate(count=Count('id'))['count']
+        count = reports.aggregate(count=Count('id'))['count']
         rid = randint(0, count - 1)
         try:
             record = Report.objects.get(id=rid)
@@ -571,7 +688,6 @@ def annotate_random(request,cid,rid=None):
     # Ensure url returned is for report
     return HttpResponseRedirect(reverse('annotate_report', args=(rid,)))
     
-
 
 @login_required
 def annotate_curated(request,cid):
