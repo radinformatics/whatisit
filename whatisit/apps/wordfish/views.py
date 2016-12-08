@@ -391,7 +391,7 @@ def create_annotation_session(request,cid):
                 messages.warning(request, 'You have an annotation session in progress. Creating a new set will override it.')
 
         # Get collection annotators
-        users = get_collection_annotators(collection)
+        users = get_collection_users(collection)
 
         allowed_annotations = get_allowed_annotations(collection,return_objects=False)
         context = {"users": users,
@@ -480,7 +480,7 @@ def create_annotation_set(request,cid):
     '''
     collection = get_report_collection(request,cid)
     if has_collection_edit_permission(request,collection):
-        users = get_collection_users(collection)
+        users = get_collection_annotators(collection)
         allowed_annotations = get_allowed_annotations(collection,return_objects=False)
         context = {"users": users,
                    "collection": collection,
@@ -549,12 +549,14 @@ def save_annotation_set(request,cid):
             # Otherwise, save the new report set
             report_set = ReportSet.objects.create(collection=collection,
                                                   number_tests=N,
-                                                  passing_tests=testing_set,
-                                                  reports=selections)
+                                                  name=set_name,
+                                                  passing_tests=testing_set)
             report_set.save()
 
             # Set creator should be allowed to see it
             report_set.annotators.add(request.user)            
+            report_set.reports = selections
+            report_set.save()   
 
     return view_report_collection(request,cid)
 

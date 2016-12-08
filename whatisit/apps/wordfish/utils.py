@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.files.uploadedfile import UploadedFile, InMemoryUploadedFile
 from django.core.files.base import ContentFile
 from django.core.files import File
@@ -5,6 +6,7 @@ from django.db.models.aggregates import Count
 from itertools import chain
 from whatisit.apps.wordfish.models import Report, AllowedAnnotation, Annotation
 from whatisit.settings import MEDIA_ROOT
+import numpy
 import shutil
 import os
 import re
@@ -25,12 +27,11 @@ def get_collection_annotators(collection):
     the collection
     :param collection: the collection object to use
     '''
-    annotations = get_allowed_annotations(collection) #all annotations in collection
-    # STOPPED HERE - need to write this query to go from
-    # Allowed Annotations for a collection filtered to Annotations, then get unique users
-
-    owner = collection.owner
-    return list(chain(contributors,[owner]))
+    annotators = Annotation.objects.filter(reports__collection=collection).values('annotator').distinct()
+    unique_annotators = [x['annotator'] for x in list(annotators)] 
+    unique_annotators = numpy.unique(unique_annotators).tolist()
+    annotators = User.objects.filter(id__in=unique_annotators)
+    return annotators
 
 
 def get_annotation_counts(collection,reports=None):

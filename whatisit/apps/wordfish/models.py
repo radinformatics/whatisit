@@ -158,6 +158,7 @@ class Report(models.Model):
 class ReportSet(models.Model):
     '''A report set is a particular subset of reports with permissions for users to annotate
     '''
+    name = models.CharField(max_length=250, null=False, blank=False)
     add_date = models.DateTimeField('date published', auto_now_add=True)
     modify_date = models.DateTimeField('date modified', auto_now=True)
     annotators = models.ManyToManyField(User,related_name="users_allowed_annotation",related_query_name="users_allowed_collection", blank=True,verbose_name="Users allowed to annotate report set.")    

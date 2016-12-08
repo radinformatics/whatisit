@@ -36,6 +36,7 @@
             <hr>
             {% if edit_permission %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
+            <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
             {% endif %}
             {% if annotate_permission %}
                 <!-- Continue Set -->
@@ -82,19 +83,16 @@
 
 <div class="row">
     <ul role="tablist" style='padding-bottom:20px'>
-        {% if edit_permission %}
-        <li class="nav-item">
-            <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Counts</button></a>
-        </li>
-        {% endif %}
       
         <!-- Report Sets -->
+        {% if report_sets %}
+        <h3 style='padding-top:10px'>Annotation Sets</h3>
         {% for report_set in report_sets %}
-            <li class="nav-item">
-                <a href="{% url 'annotate_set' collection.id report_set.id %}" class="nav-link button-choice" data-toggle="tab" id="annotate" role="tab"> Annotate {{ report_set.id }}</a>
+            <li>
+                <a href="{% url 'annotate_set' collection.id report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
             </li>
         {% endfor %}
-
+        {% endif %}
     </ul>
 {% else %}
 
