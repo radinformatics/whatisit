@@ -24,7 +24,8 @@ from whatisit.apps.wordfish.utils import (
 )
 
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
-from whatisit.apps.users.models import RequestMembership
+from whatisit.apps.users.models import RequestMembership, Credential
+from whatisit.apps.users.utils import has_credentials, get_credential_contenders
 
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
@@ -33,7 +34,11 @@ from django.contrib import messages
 from django.db.models.aggregates import Count
 from django.forms.models import model_to_dict
 from django.http import HttpResponse, JsonResponse
-from django.http.response import HttpResponseRedirect, HttpResponseForbidden, Http404
+from django.http.response import (
+    HttpResponseRedirect, 
+    HttpResponseForbidden, 
+    Http404
+)
 from django.shortcuts import get_object_or_404, render_to_response, render, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils import timezone
@@ -60,7 +65,11 @@ import zipfile
 
 media_dir = os.path.join(BASE_DIR,MEDIA_ROOT)
 
-### AUTHENTICATION ####################################################
+
+###############################################################################################
+# Authentication and Collection View Permissions###############################################
+###############################################################################################
+
 
 @login_required
 def get_permissions(request,context):
@@ -101,7 +110,8 @@ def has_collection_annotate_permission(request,collection):
 @login_required
 def request_annotate_permission(request,cid):    
     '''request_annotate_permission will allow a user to request addition to
-    a collection (as an annotator) via a RequestMembership object
+    a collection (as an annotator) via a RequestMembership object. This does not
+    give full access to annotate, they must then be added to specific annotation sets
     '''
     collection = get_report_collection(request,cid)
     previous_request,created = RequestMembership.objects.get_or_create(requester=request.user,
@@ -116,6 +126,9 @@ def request_annotate_permission(request,cid):
 
 @login_required
 def deny_annotate_permission(request,cid,uid):
+    '''a user can be denied annotate permission at the onset (being asked) or
+    have it taken away, given asking --> pending --> does not pass test
+    '''
     collection = get_report_collection(request,cid)
     if has_collection_edit_permission(request,collection):
         requester = User.objects.get(id=uid)
@@ -130,6 +143,9 @@ def deny_annotate_permission(request,cid,uid):
 
 @login_required
 def approve_annotate_permission(request,cid,uid):
+    '''a user must first get approved for annotate permission before being
+    added to an annotation set
+    '''
     collection = get_report_collection(request,cid)
     if has_collection_edit_permission(request,collection):
         requester = User.objects.get(id=uid)
@@ -143,6 +159,38 @@ def approve_annotate_permission(request,cid,uid):
             messages.success(request, 'Contributors approved.')
     
     return view_report_collection(request,cid)
+
+
+###############################################################################################
+# Set Annotation Permission ###################################################################
+###############################################################################################
+
+@login_required
+def add_set_annotator(request,sid):
+    '''add_set_annotator allows a collection owner to add a user to an annotation set
+    this means that the user 
+    :param sid: the report set id
+    '''
+    report_set = get_report_set(request,sid)
+    collection = report_set.collection
+    if has_collection_edit_permission(request,collection):
+        requester = User.objects.get(id=uid)
+
+        # Get list of allowed annotators for set, not in set (to add)
+        has_credentials = get_has_credentials(report_set)
+
+        # Get list of allowed annotators for set, allowed in set (if want to remove)
+        contenders = get_credential_contenders(report_set)
+
+        if permission_request.status not in ["APPROVED","DENIED"]:
+            collection.contributors.add(requester)
+            collection.save()
+            permission_request.status = "APPROVED"
+            permission_request.save()
+            messages.success(request, 'Contributors approved.')
+    
+    return view_report_collection(request,cid)
+
 
 
 #### GETS #############################################################
@@ -166,6 +214,17 @@ def get_report_collection(request,cid):
         raise Http404
     else:
         return collection
+
+# get report set
+def get_report_set(request,sid):
+    keyargs = {'id':sid}
+    try:
+        report_set = ReportSet.objects.get(**keyargs)
+    except ReportSet.DoesNotExist:
+        raise Http404
+    else:
+        return report_set
+
 
 ###############################################################################################
 # reportS ##################################################################################

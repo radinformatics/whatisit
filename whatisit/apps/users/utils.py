@@ -1,32 +1,42 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
-from django.core.urlresolvers import reverse
-from django.db import models
-
 from whatisit.apps.wordfish.models import (
     ReportCollection,
     ReportSet
 )
-
-# STOPPED HERE:
-# copy file to create custom annotation set, make new view for owner 
-
+from whatisit.apps.users.models import (
+    Credential,
+    RequestPermission
+)
 import collections
 import operator
 import os
 
 
-# Create a token for the user when the user is created (with oAuth2)
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def create_auth_token(sender, instance=None, created=False, **kwargs):
-    if created:
-        Token.objects.create(user=instance)
+def get_has_credentials(report_set,return_users=True):
+    '''get a list of users that have credentials (either status is TESTING or PASSED) for
+    a report set.
+    :param return_users: return list of users (not credentials) default is True
+    '''
+    has_credential = Credential.objects.filter(report_set=report_set,
+                                               status__in=["TESTING","PASSED"])
+    if return_users == True:
+        has_credential = [x.user for x in has_credential]
+    return has_credential
+
+
+def get_credential_contenders(report_set,return_users=True):
+    '''get a list of users that have permission to annotate a collection, but have
+    not had a credential created.
+    :param return_users: return list of users (not credentials) default is True
+    '''
+    # Get list of allowed annotators for set, not in set (to add)
+    all_annotators = RequestMembership.objects.filter(collection=report_set.collection)
+    all_annotators = [x.requester for x in all_annotators]
+    has_credential = get_has_credential(report_set)
+    contenders = [user for user in all_annotators if user not in has_credentials]
+    return contenders
 
 
 REQUEST_CHOICES = (("PENDING","PENDING"),
