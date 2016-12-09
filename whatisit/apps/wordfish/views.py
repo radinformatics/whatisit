@@ -574,10 +574,10 @@ def annotate_set(request,cid,sid):
     collection = report_set.collection
     if has_collection_annotate_permission(request,collection):
         reports = report_set.reports.all()
-        return annotate_random(request,cid,rid=None,reports=None)
         #TODO: add session variable here to move user through set based on id
         return annotate_random(request,
                                cid=collection.id,
+                               sid=sid,
                                reports=reports)
 
 
@@ -586,15 +586,20 @@ def annotate_set(request,cid,sid):
 ###############################################################################################
 
 @login_required
-def annotate_report(request,rid,report=None,next=None):
+def annotate_report(request,rid,sid=None,report=None,next=None):
     '''annotate_report is the view to return a report annotation interface for a particular report id
     :param rid: report id to annotate
+    :param sid: a report set id, if coming from annotate_random with a report set
+    :param report_set: a report set. If 
     :param next: the next page to show (annotate/reports/{{ collection.id }}/{{ next }}
     '''
     if report == None:
         report = get_report(request,rid)
 
-    if next == None:
+    if sid != None:
+        next = "%s/set" %(sid)
+
+    elif next == None:
         next = "random"
 
     # Get the concise annotations
@@ -667,11 +672,12 @@ def update_annotation(request,rid,report=None):
 
 
 @login_required
-def annotate_random(request,cid,rid=None,reports=None):
+def annotate_random(request,cid,rid=None,sid=None,reports=None):
     '''annotate_random will select a random record from a collection, and render a page for
     the user to annotate
     :param cid: the collection id to select from
     :param rid: a report id, if provided, to annotate
+    :param sid: the set id of a report, if provided, will be sent in with the next url param
     :param reports: a pre selected subset to select randomly from
     '''
     collection = get_report_collection(request,cid)
@@ -688,7 +694,7 @@ def annotate_random(request,cid,rid=None,reports=None):
             rid = None
 
     # Ensure url returned is for report
-    return HttpResponseRedirect(reverse('annotate_report', args=(rid,)))
+    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': rid, 'sid': sid}))
     
 
 @login_required
