@@ -26,6 +26,14 @@ def get_has_credentials(report_set,return_users=True):
     return has_credential
 
 
+def get_credentials(users,report_set):
+    '''get a list of credential objects for a group of users for a report_set
+    '''
+    credentials = Credential.objects.filter(report_set=report_set,
+                                            user__in=users)
+    return credentials
+
+
 def get_credential_contenders(report_set,return_users=True):
     '''get a list of users that have permission to annotate a collection, but have
     not had a credential created.

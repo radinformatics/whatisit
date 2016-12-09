@@ -87,11 +87,28 @@
         <!-- Report Sets -->
         {% if report_sets %}
         <h3 style='padding-top:10px'>Annotation Sets</h3>
-        {% for report_set in report_sets %}
-            <li>
-                <a href="{% url 'annotate_set' collection.id report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
-            </li>
+        <table id="annotators" class="table table-striped table-bordered" cellspacing="0" width="100%">     
+           <thead class="thead-inverse">
+               <tr>
+                   <td>Set Name</td>
+                   {% if edit_permission %}
+                   <td>Edit</td>
+                   {% endif %}
+               </tr>
+           </thead>
+           <tbody>
+           {% for report_set in report_sets %}
+               <tr>
+                   <td>
+<a href="{% url 'annotate_set' collection.id report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
+                   </td>
+                   {% if edit_permission %}
+                   <td><a href="{% url 'edit_set_annotators' report_set.id %}"><button class="btn-sm btn btn-default">Edit Annotators</button></a></td>
+                   {% endif %}
+               </tr>
         {% endfor %}
+            </tbody>
+           </table>
         {% endif %}
     </ul>
 {% else %}

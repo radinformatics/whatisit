@@ -25,8 +25,11 @@ from whatisit.apps.wordfish.utils import (
 
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 from whatisit.apps.users.models import RequestMembership, Credential
-from whatisit.apps.users.utils import has_credentials, get_credential_contenders
-
+from whatisit.apps.users.utils import (
+    has_credentials, 
+    get_credential_contenders, 
+    get_credentials
+)
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -131,7 +134,7 @@ def deny_annotate_permission(request,cid,uid):
     '''
     collection = get_report_collection(request,cid)
     if has_collection_edit_permission(request,collection):
-        requester = User.objects.get(id=uid)
+        requester = get_user(request,uid)
         permission_request = RequestMembership.objects.get(collection=collection,
                                                            requester=requester)
         if permission_request.status not in ["APPROVED","DENIED"]:
@@ -148,7 +151,7 @@ def approve_annotate_permission(request,cid,uid):
     '''
     collection = get_report_collection(request,cid)
     if has_collection_edit_permission(request,collection):
-        requester = User.objects.get(id=uid)
+        requester = get_user(request,uid)
         permission_request = RequestMembership.objects.get(collection=collection,
                                                            requester=requester)
         if permission_request.status not in ["APPROVED","DENIED"]:
@@ -166,15 +169,14 @@ def approve_annotate_permission(request,cid,uid):
 ###############################################################################################
 
 @login_required
-def add_set_annotator(request,sid):
-    '''add_set_annotator allows a collection owner to add a user to an annotation set
-    this means that the user 
+def edit_set_annotators(request,sid):
+    '''edit_set_annotators allows a collection owner to add/remove users to an annotation set
+    this means that the user has asked for and been given permission to annotate the collection.
     :param sid: the report set id
     '''
     report_set = get_report_set(request,sid)
     collection = report_set.collection
     if has_collection_edit_permission(request,collection):
-        requester = User.objects.get(id=uid)
 
         # Get list of allowed annotators for set, not in set (to add)
         has_credentials = get_has_credentials(report_set)
@@ -182,15 +184,79 @@ def add_set_annotator(request,sid):
         # Get list of allowed annotators for set, allowed in set (if want to remove)
         contenders = get_credential_contenders(report_set)
 
-        if permission_request.status not in ["APPROVED","DENIED"]:
-            collection.contributors.add(requester)
-            collection.save()
-            permission_request.status = "APPROVED"
-            permission_request.save()
-            messages.success(request, 'Contributors approved.')
-    
+        # Collapse into a set of users...
+        users = list(chain(contenders,has_credentials))
+
+        # And a credential for each associated user
+
+        credentials = get_credentials(users,report_set)
+
+        context = {'annotators':credentials,
+                   'collection':collection,
+                   'report_set':report_set}
+
+        # STOPPED HERE - need to render view that shows list of users with/without
+        # with options/form to add or delete
+        # 1) make view
+        # 2) add buttons to add users to owner view of collection
+        # 3) add backend views to change credentials for each
+        
+        return render(request, 'reports/report_collection_annotators.html', context)
+
+    # Does not have permission, return to collection
+    messages.info("You do not have permission to edit annotators for this collection.")
     return view_report_collection(request,cid)
 
+
+@login_required
+def change_set_annotator(request,sid,uid,status):
+    '''change the status of a set annotator to one of 
+    APPROVED,DENIED,TESTING
+    :param sid: the report_set id
+    :param uid: the user id
+    '''
+    report_set = get_report_set(request,sid)
+    collection = report_set.collection
+    if has_collection_edit_permission(request,collection):
+        annotator = get_user(request,uid)
+        credential = Credential.objects.get(user=annotator,
+                                            report_set=report_set)
+        credential.status = status
+        credential.save()
+        message.info("User %s status changed to %s" %(annotator,status.lower()))
+        return render(request, 'reports/report_collection_annotators.html', context)
+
+    # Does not have permission, return to collection
+    messages.info("You do not have permission to edit annotators for this collection.")
+    return view_report_collection(request,cid)
+
+
+
+@login_required
+def approve_set_annotator(request,sid,uid):
+    '''give the user APPROVED status for a report_set
+    :param sid: the report_set id
+    :param uid: the user id
+    '''
+    return change_set_annotator(request,sid,uid,"APPROVE")
+
+
+@login_required
+def deny_set_annotator(request,sid,uid):
+    '''deny the user (DENIED status) permission to annotate a report_set
+    :param sid: the report_set id
+    :param uid: the user id
+    '''
+    return change_set_annotator(request,sid,uid,"DENIED")
+
+
+@login_required
+def test_set_annotator(request,sid,uid):
+    '''force the user to retest (TESTING status) to annotate a report_set
+    :param sid: the report_set id
+    :param uid: the user id
+    '''
+    return change_set_annotator(request,sid,uid,"TESTING")
 
 
 #### GETS #############################################################
@@ -204,6 +270,17 @@ def get_report(request,cid):
         raise Http404
     else:
         return report
+
+# get report
+def get_user(request,uid):
+    keyargs = {'id':uid}
+    try:
+        user = User.objects.get(**keyargs)
+    except User.DoesNotExist:
+        raise Http404
+    else:
+        return user
+
 
 # get report collection
 def get_report_collection(request,cid):
@@ -471,7 +548,7 @@ def save_annotation_session(request,cid):
 
             # What user does the request want to see annotations by?
             user_id = request.POST.get('user')
-            user = User.objects.get(id=user_id)
+            user = get_user(request,user_id)
 
             # What annotation (name and label) do we filter to?
             selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
@@ -572,7 +649,7 @@ def save_annotation_set(request,cid):
             if user_id == 'all':
                 user = get_collection_users(collection)
             else:
-                user = [User.objects.get(id=user_id)]
+                user = [get_user(request,user_id)]
 
             # What annotation (name and label) do we filter to?
             selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
@@ -631,6 +708,11 @@ def annotate_set(request,cid,sid):
         return view_report_collection(request,cid)
 
     collection = report_set.collection
+
+    # Only continue annotation if the user is approved (and not expired)
+    user_status = get annotation status: # should look at date for testing, change to testing if needed
+
+    if APPROVED:
     if has_collection_annotate_permission(request,collection):
         reports = report_set.reports.all()
         #TODO: add session variable here to move user through set based on id
@@ -638,7 +720,11 @@ def annotate_set(request,cid,sid):
                                cid=collection.id,
                                sid=sid,
                                reports=reports)
+    if TESTING:
 
+    else #denied or other
+    
+    
 
 ###############################################################################################
 # annotations #################################################################################
