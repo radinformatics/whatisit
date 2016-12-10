@@ -24,8 +24,36 @@
 
 <div class="row">
 
-    <div class="col-md-12">
+    {% if contenders %}
+    <div class="col-md-12 card">
         <br>
+        <h2>Add Annotator</h2>
+        <p class="alert alert-info" style="padding:5px">The users in this list have been given permission to join the collection, but are not added to this set. Adding them here will allow them to test to become part of the set annotators, and this testing will expire in {{ report_set.expire }}.</p>
+
+        <!-- Here the user has the option to add an annotator -->
+        <form action="{% url 'new_set_annotator' report_set.id %}" method="POST">
+
+            {% csrf_token %}
+
+            <label for="user">Contenders</label>
+            <select id="user" name="user" class="form-control">
+                {% for contender in contenders %}
+                <option value="{{ contender.id }}">{{ contender }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="text-xs-center">
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+
+
+<div class="row">
+
+    <div class="col-md-12">
 
         {% if annotators %}
                 <h2>Collection Annotators</h2>
@@ -51,28 +79,30 @@
                                    <td>{% if annotator.status == "TESTING" %}
                                        <!-- Testing status means we can't retest -->
                                        <a href="{% url 'approve_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success">APPROVE</button></a>
-                                       <a href="{% url 'deny_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger">DENY</button></a>
                                        <a href="{% url 'test_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info" disabled>TRIGGER RETEST</button><a>
+                                       <a href="{% url 'deny_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger">DENY</button></a>
+                                       <button type="button" href="{% url 'remove_set_annotator' report_set.id annotator.user.id %}" class="btn btn-danger remove_annotator">REMOVE</button>
                                        {% endif %}
 
                                        <!-- Passing status means we can't pass -->
                                        {% if annotator.status == "PASSED" %}
-                                       <a href="{% url 'approve_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success" disabled>APPROVE</button></a>
-                                       <a href="{% url 'deny_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger">DENY</button></a>
-                                       <a href="{% url 'test_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info">TRIGGER RETEST</button><a>
+                                       <a href="{% url 'approve_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success" disabled>APPROVE</button></a>
+                                       <a href="{% url 'test_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info">TRIGGER RETEST</button><a>
+                                       <a href="{% url 'deny_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger">DENY</button></a>
+                                       <button type="button" href="{% url 'remove_set_annotator' report_set.id annotator.user.id %}" class="btn btn-danger remove_annotator">REMOVE</button>
                                        {% endif %}
 
                                        <!-- Denied means we must retest -->
                                        {% if annotator.status == "DENIED" %}
-                                       <a href="{% url 'approve_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success" disabled>APPROVE</button></a>
-                                       <a href="{% url 'deny_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger" disabled>DENY</button></a>
-                                       <a href="{% url 'test_report_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info">TRIGGER RETEST</button><a>
+                                       <a href="{% url 'approve_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success" disabled>APPROVE</button></a>
+                                       <a href="{% url 'test_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info">TRIGGER RETEST</button><a>
+                                       <a href="{% url 'deny_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-danger" disabled>DENY</button></a>
+                                       <button type="button" href="{% url 'remove_set_annotator' report_set.id annotator.user.id %}" class="btn btn-danger remove_annotator">REMOVE</button>
                                        {% endif %}
                                    </td>
                                </tr>
                            {% endfor %}
                            </tbody>
-                       </form>    
                     </table>
                 </div>
             {% else %}
@@ -93,7 +123,10 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
-   $('#reports').DataTable();
+   $('#annotators').DataTable();
+   $(".remove_annotator").click(function(){
+      return confirm("Are you sure you want to remove this annotator? Annotations will not be lost, but the annotator will no longer be a part of the collection.");
+   })
 })
 </script>
 {% endblock %}

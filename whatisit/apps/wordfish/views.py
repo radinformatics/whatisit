@@ -28,7 +28,8 @@ from whatisit.apps.users.models import RequestMembership, Credential
 from whatisit.apps.users.utils import (
     has_credentials, 
     get_credential_contenders, 
-    get_credentials
+    get_credentials,
+    get_annotation_status
 )
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
@@ -42,7 +43,12 @@ from django.http.response import (
     HttpResponseForbidden, 
     Http404
 )
-from django.shortcuts import get_object_or_404, render_to_response, render, redirect
+from django.shortcuts import (
+    get_object_or_404, 
+    render_to_response, 
+    render, 
+    redirect
+)
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils import timezone
 from django.urls import reverse
@@ -84,6 +90,7 @@ def get_permissions(request,context):
     # Edit and annotate permissions?
     context["edit_permission"] = has_collection_edit_permission(request,collection)
     context["annotate_permission"] = has_collection_annotate_permission(request,collection)
+    context["delete_permission"] = request.user == collection.owner
     
     # If no annotate permission, get their request
     if context["annotate_permission"] == False:
@@ -97,15 +104,25 @@ def get_permissions(request,context):
 
 # Does a user have permissions to see a collection?
 
-def has_collection_edit_permission(request,collection):
+def has_delete_permission(request,collection):
+    '''collection owners have delete permission'''
     if request.user == collection.owner:
         return True
     return False
 
-def has_collection_annotate_permission(request,collection):
-    if has_collection_edit_permission(request,collection):
+
+def has_collection_edit_permission(request,collection):
+    '''owners and contributors have edit permission'''
+    if request.user == collection.owner or request.user in collection.contributors.all():
         return True
-    if request.user in collection.contributors.all():
+    return False
+
+
+def has_collection_annotate_permission(request,collection):
+    '''owner and annotators have annotate permission (not contributors)'''
+    if request.user == collection.owner:
+        return True
+    elif request.user in collection.annotators.all():
         return True
     return False
 
@@ -140,7 +157,7 @@ def deny_annotate_permission(request,cid,uid):
         if permission_request.status not in ["APPROVED","DENIED"]:
             permission_request.status = "DENIED"
             permission_request.save()
-            messages.success(request, 'Contributors updated.')    
+            messages.success(request, 'Annotators updated.')    
     return view_report_collection(request,cid)
 
 
@@ -155,13 +172,68 @@ def approve_annotate_permission(request,cid,uid):
         permission_request = RequestMembership.objects.get(collection=collection,
                                                            requester=requester)
         if permission_request.status not in ["APPROVED","DENIED"]:
-            collection.contributors.add(requester)
+
+            # Update the collection
+            collection.annotators.add(requester)
             collection.save()
+
+            # Update the permission request
             permission_request.status = "APPROVED"
             permission_request.save()
-            messages.success(request, 'Contributors approved.')
+
+            # Create a credential for the user with TESTING status
+            credential = Credential.objects.create(report_set=)
+
+            messages.success(request, 'Annotators approved.')
     
     return view_report_collection(request,cid)
+
+###############################################################################################
+# Contributors ################################################################################
+###############################################################################################
+
+@login_required
+def edit_contributors(request,cid):
+    '''edit_contributors is the view to see, add, and delete contributors for a set.
+    '''
+    collection = get_report_collection(request,cid)
+    if request.user == collection.owner
+
+        # Who are current contributors?
+        contributors = collection.contributors.all()
+
+        # Any user that isn't the owner or already a contributor can be added
+        invalid_users = [x.id for x in contributors] + [request.user.id]
+        contenders = User.objects.all()
+        contenders = [x for x in contenders if x.id not in invalid_users]
+
+        context = {'contributors':contributors,
+                   'collection':collection,
+                   'contenders':contenders}
+        
+        return render(request, 'reports/edit_contributors.html', context)
+
+    # Does not have permission, return to collection
+    messages.info(request, "You do not have permission to perform this action.")
+    return view_report_collection(request,cid)
+
+
+@login_required
+def add_contributor(request,cid):
+    '''add a new contributor to a collection
+    :param sid: the report_set id
+    '''
+    collection = get_report_collection(request,cid)
+    if request.user == collection.owner:
+        if request.method == "POST":
+            user_id = request.POST.get('user',None)
+            if user_id:
+                user = get_user(request,user_id)
+                collection.contributors.add(user)
+                collection.save()
+                messages.success(request, 'User %s added as contributor to collection.' %(user))
+
+    return edit_contributors(request,sid)
 
 
 ###############################################################################################
@@ -184,28 +256,20 @@ def edit_set_annotators(request,sid):
         # Get list of allowed annotators for set, allowed in set (if want to remove)
         contenders = get_credential_contenders(report_set)
 
-        # Collapse into a set of users...
-        users = list(chain(contenders,has_credentials))
-
         # And a credential for each associated user
-
-        credentials = get_credentials(users,report_set)
+        credentials = get_credentials(has_credentials,report_set)
 
         context = {'annotators':credentials,
                    'collection':collection,
+                   'contenders':contenders,
                    'report_set':report_set}
-
-        # STOPPED HERE - need to render view that shows list of users with/without
-        # with options/form to add or delete
-        # 1) make view
-        # 2) add buttons to add users to owner view of collection
-        # 3) add backend views to change credentials for each
         
         return render(request, 'reports/report_collection_annotators.html', context)
 
     # Does not have permission, return to collection
-    messages.info("You do not have permission to edit annotators for this collection.")
+    messages.info(request, "You do not have permission to edit annotators for this collection.")
     return view_report_collection(request,cid)
+
 
 
 @login_required
@@ -223,12 +287,35 @@ def change_set_annotator(request,sid,uid,status):
                                             report_set=report_set)
         credential.status = status
         credential.save()
-        message.info("User %s status changed to %s" %(annotator,status.lower()))
+        messages.info(request,"User %s status changed to %s" %(annotator,status.lower()))
         return render(request, 'reports/report_collection_annotators.html', context)
 
     # Does not have permission, return to collection
-    messages.info("You do not have permission to edit annotators for this collection.")
+    messages.info(request, "You do not have permission to edit annotators for this collection.")
     return view_report_collection(request,cid)
+
+
+
+@login_required
+def new_set_annotator(request,sid):
+    '''creates a new Credential for a user and a particular 
+    collection, with default state TESTING to ensure tests first.
+    :param sid: the report_set id
+    '''
+    report_set = get_report_set(request,sid)
+    collection = report_set.collection
+    if has_collection_edit_permission(request,collection):
+        if request.method == "POST":
+            user_id = request.POST.get('user',None)
+            if user_id:
+                user = get_user(request,user_id)
+                credential = Credential.objects.create(user=user,
+                                                       report_set=report_set)
+                credential.save()
+                messages.success(request, 'Credential for user %s added, user will need to test before annotating.' %(user))
+
+    return edit_set_annotators(request,sid)
+
 
 
 
@@ -257,6 +344,27 @@ def test_set_annotator(request,sid,uid):
     :param uid: the user id
     '''
     return change_set_annotator(request,sid,uid,"TESTING")
+
+
+@login_required
+def remove_set_annotator(request,sid,uid):
+    '''completely remove a user from an annotation set.
+    :param sid: the report_set id
+    :param uid: the user id
+    '''
+    report_set = get_report_set(request,sid)
+    collection = report_set.collection
+    if has_collection_edit_permission(request,collection):
+        annotator = get_user(request,uid)
+        credential = Credential.objects.get(user=annotator,
+                                            report_set=report_set)
+        credential.delete()
+        messages.info(request, "User %s has been removed from set annotators." %(annotator))
+        return render(request, 'reports/report_collection_annotators.html', context)
+
+    # Does not have permission, return to collection
+    messages.info(request, "You do not have permission to edit annotators for this collection.")
+    return view_report_collection(request,cid)
 
 
 #### GETS #############################################################
@@ -396,48 +504,21 @@ def view_report(request,rid):
 def delete_report(request,cid):
     report = get_report(request,cid)
     collection = report.collection
-    edit_permission = has_collection_edit_permission(request,collection)
-    if edit_permission:
-        if report.image.file != None:
-            file_path = report.image.file.name
-            if os.path.exists(file_path):
-                os.remove(file_path)
+    if request.user == collection.owner:
         report.delete()
     else:
-        # If not authorizer, alert!
-        msg = "You are not authorized to perform this operation."
-        messages.warning(request, msg)
+        messages.warning(request, "You are not authorized to perform this operation.")
     return HttpResponseRedirect(collection.get_absolute_url())
     
 
-# Edit report
+# Upload reports
 @login_required
-def edit_report(request,coid,cid=None):
-
-    collection = get_report_collection(request,coid)
-    edit_permission = has_collection_edit_permission(request,collection)
-    if edit_permission:
-
-        # Has the user provided a report?
-        #TODO: make report file/upload view here, we shouldn't
-        # be able to edit an individual report!
-        if cid != None:
-            report = get_report(request,cid)
-        else:
-            report = Report()
-
-        if request.method == "POST":
-            form = ReportForm(request.POST,instance=report)
-            if form.is_valid():
-                report = form.save(commit=False)
-                report.save()
-                return HttpResponseRedirect(report.get_absolute_url())
-        else:
-            form = reportForm(instance=report)
-            context = {"form": form,
-                       "collection": collection}
-            return render(request, "reports/edit_report.html", context)
-    return redirect("report_collections")
+def upload_reports(request,cid):
+    '''upload_reports to a collection (currently not implemented)
+    '''
+    collection = get_report_collection(request,cid)
+    messages.info(request,"Upload of reports in the interface is not currently supported.")    
+    return view_report_collection(request,cid)
 
 
 # Edit report collection
@@ -446,67 +527,40 @@ def edit_report_collection(request, cid=None):
 
     if cid:
         collection = get_report_collection(request,cid)
-        is_owner = collection.owner == request.user
     else:
-        is_owner = True
         collection = ReportCollection(owner=request.user)
-        if request.method == "POST":
-            form = ReportCollectionForm(request.POST,instance=collection)
-            if form.is_valid():
-                previous_contribs = set()
-                if form.instance.id is not None:
-                    previous_contribs = set(form.instance.contributors.all())
-                collection = form.save(commit=False)
-                collection.save()
+        if has_collection_edit_permission(request,collection):
 
-                if is_owner:
+            if request.method == "POST":
+                form = ReportCollectionForm(request.POST,instance=collection)
+                if form.is_valid():
+ 
+                    # Update annotators and contributors
+                    previous_contribs = set()
+                    previous_annots = set()
+                    if form.instance.id is not None:
+                        previous_contribs = set(form.instance.contributors.all())
+                        previous_annots = set(form.instance.annotators.all())
+
+                    collection = form.save(commit=False)
+                    collection.save()
+
                     form.save_m2m()  # save contributors
-                    current_contribs = set(collection.contributors.all())
-                    new_contribs = list(current_contribs.difference(previous_contribs))
 
                 return HttpResponseRedirect(collection.get_absolute_url())
         else:
             form = ReportCollectionForm(instance=collection)
 
+        edit_permission = has_collection_edit_permission(request,collection)
         context = {"form": form,
-                   "is_owner": is_owner}
+                   "edit_oermission": edit_permission}
 
         return render(request, "reports/edit_report_collection.html", context)
+
+    # If user makes it down here, does not have permission
+    messages.info(request, "You don't have permission to edit this collection.")
     return redirect("report_collections")
 
-
-# Upload reports
-@login_required
-def upload_report(request,cid):
-    collection = get_report_collection(request,cid)
-    is_owner = collection.owner == request.user
-    if is_owner:
-        if request.method == 'POST':
-            form = reportForm(request.POST, request.FILES)
-            if form.is_valid():
-                try:
-                    if 'image' in request.FILES:
-                        image_name = request.FILES["image"].name
-                        # DO PARSING OF report META FROM HEADER HERE
-                        # Save image file to server, and to new report model
-                        report = save_image_upload(collection,request.FILES['image'])
-                        # Redirect user to view to specify inputs and outputs (boutiques spec)
-                        message = "Please define input and output specifications to use your report!"
-                        messages.warning(request, message)
-                        return redirect('edit_report_specs', cid=report.id)
-                    else:
-                        raise Exception("Unable to find uploaded files.")
-                except:
-                    error = traceback.format_exc().splitlines()
-                    msg = "An error occurred with this upload: {}".format(error)
-                    messages.warning(request, msg)
-                
-            return HttpResponseRedirect(collection.get_absolute_url())
-        else:
-            form = reportForm()
-            context = {"form": form,
-                       "collection": collection}
-            return render(request, "reports/edit_report.html", context)
 
 
 ###############################################################################################
@@ -698,22 +752,25 @@ def save_annotation_set(request,cid):
 
 
 @login_required
-def annotate_set(request,cid,sid):
+def annotate_set(request,sid):
     '''annotate_set will allow the user to annotate a custom selected set
     '''
-    try:
-        report_set = ReportSet.objects.get(id=sid)
-    except:
-        messages.error(request,"Annotation set not found.")
-        return view_report_collection(request,cid)
-
+    report_set = get_report_set(request,sid)
     collection = report_set.collection
 
     # Only continue annotation if the user is approved (and not expired)
-    user_status = get annotation status: # should look at date for testing, change to testing if needed
+    user_status = get_annotation_status(report_set=report_set,
+                                        user=user) # should look at date for testing, change to testing if needed
 
-    if APPROVED:
-    if has_collection_annotate_permission(request,collection):
+    # No credential exists, for user (this should not happen)
+    if user_status == None:
+        messages.info(request,"You must ask for permission to annotate a collection first.")
+        return view_report_collection(request,report_set.collection.id)
+
+    # Approved means we continue
+    if user_status == "APPROVED":
+        
+        if has_collection_annotate_permission(request,collection):
         reports = report_set.reports.all()
         #TODO: add session variable here to move user through set based on id
         return annotate_random(request,
@@ -841,8 +898,3 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
     # Ensure url returned is for report
     return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': rid, 'sid': sid}))
     
-
-@login_required
-def annotate_curated(request,cid):
-    return annotate_random(request,cid)
-    #return render(request, "annotate/annotate_curated.html", context)

@@ -6,7 +6,7 @@ urlpatterns = [
 
     # Reports
     url(r'^collections/reports$', report_views.view_report_collections, name="report_collections"),
-    url(r'^reports/(?P<coid>.+?)/new$', report_views.edit_report, name="upload_reports"),
+    url(r'^reports/(?P<coid>.+?)/new$', report_views.upload_reports, name="upload_reports"),
     url(r'^reports/(?P<rid>.+?)/details$',report_views.view_report,name='report_details'),
     url(r'^reports/(?P<cid>.+?)/$',report_views.upload_report,name='save_reports'),
 
@@ -27,8 +27,7 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<cid>.+?)/random$',report_views.annotate_random,name='annotate_random'),   # getrandom
     url(r'^annotate/reports/(?P<rid>.+?)/(?P<sid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # set
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
-    url(r'^annotate/reports/(?P<cid>.+?)/curated$',report_views.annotate_curated,name='annotate_curated'),
-    url(r'^annotate/reports/(?P<cid>.+?)/(?P<sid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
+    url(r'^annotate/reports/(?P<sid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
 
     # Request Addition to collection
     url(r'^annotate/(?P<cid>.+?)/request$',report_views.request_annotate_permission,name='request_annotate_permission'),
@@ -41,6 +40,13 @@ urlpatterns = [
     url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/approve$',report_views.approve_set_annotator,name='approve_set_annotator'),
     url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/deny$',report_views.deny_set_annotator,name='deny_set_annotator'),
     url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/test$',report_views.test_set_annotator,name='test_set_annotator'),
+    url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/remove$',report_views.remove_set_annotator,name='remove_set_annotator'),
+    url(r'^annotate/set/(?P<sid>.+?)/test$',report_views.new_set_annotator,name='new_set_annotator'), #same as test, from post
+
+    # Change / add contributors
+    url(r'^collections/(?P<cid>.+?)/(?P<cid>.+?)/contributor/remove$',report_views.remove_contributor,name='remove_contributor'),
+    url(r'^collections/(?P<cid>.+?)/contributor/add$',report_views.add_contributor,name='add_contributor'),
+    url(r'^collections/(?P<cid>.+?)/contributor/edit$',report_views.edit_contributors,name='edit_contributors'),
 
     # Update annotations
     url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'), # getrandom

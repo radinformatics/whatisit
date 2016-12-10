@@ -88,6 +88,7 @@ class ReportCollection(models.Model):
     # Users
     owner = models.ForeignKey(User)
     contributors = models.ManyToManyField(User,related_name="container_collection_contributors",related_query_name="contributor", blank=True,help_text="Select other users to add as contributes to the collection.",verbose_name="Contributors")
+    annotators = models.ManyToManyField(User,related_name="container_collection_annotators",related_query_name="collection_annotator", blank=True,help_text="Other users given permission to annotate sets for the collection.",verbose_name="Collection Annotators")
 
     # Privacy
     private = models.BooleanField(choices=PRIVACY_CHOICES, default=False,verbose_name="Is the collection private?")
@@ -235,4 +236,19 @@ def contributors_changed(sender, instance, action, **kwargs):
             contributor = User.objects.get(pk=contributor)
             remove_perm('annotate_report_collection', contributor, instance)
 
+def annotators_changed(sender, instance, action, **kwargs):
+    if action in ["post_remove", "post_add", "post_clear"]:
+        current_annotators = set([user.pk for user in get_users_with_perms(instance)])
+        new_annotators = set([user.pk for user in [instance.owner, ] + list(instance.annotators.all())])
+
+        for contributor in list(new_annotators - current_annotators):
+            contributor = User.objects.get(pk=contributor)
+            assign_perm('edit_report_collection', contributor, instance)
+
+        for contributor in (current_annotators - new_annotators):
+            contributor = User.objects.get(pk=contributor)
+            remove_perm('edit_report_collection', contributor, instance)
+
+
 m2m_changed.connect(contributors_changed, sender=ReportCollection.contributors.through)
+m2m_changed.connect(annotators_changed, sender=ReportCollection.annotators.through)

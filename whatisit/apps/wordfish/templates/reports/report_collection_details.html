@@ -36,16 +36,15 @@
             <hr>
             {% if edit_permission %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
+                <a href="{% url 'edit_contributors' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Add Contributors</button></a>
             <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
             {% endif %}
             {% if annotate_permission %}
+
                 <!-- Continue Set -->
                 {% if request.session.reports %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
                 {% endif %}
-                <!-- Annotate Random 
-                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Random Selection</button></a>-->
-                <!--<button type="button" class="btn btn-lg btn-default waves-effect waves-light"> Review Curated</button>-->
 
                 <!-- Here is where we select default tags-->
                 <div style="padding-top:20px">
@@ -100,8 +99,13 @@
            {% for report_set in report_sets %}
                <tr>
                    <td>
-<a href="{% url 'annotate_set' collection.id report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
+                   {% if annotate_permission %}
+<a href="{% url 'annotate_set' report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
+                   {% else %}
+                   <p>{{ report_set.id }} : {{ report_set.name }}</a>
+                   {% endif %}
                    </td>
+ 
                    {% if edit_permission %}
                    <td><a href="{% url 'edit_set_annotators' report_set.id %}"><button class="btn-sm btn btn-default">Edit Annotators</button></a></td>
                    {% endif %}
@@ -184,7 +188,7 @@ $(document).ready(function(){
      tagClass: 'btn btn-sm btn-primary'
    });
 
-   $('#requesters').DataTable();
+   $('#requests').DataTable();
 
    //$(".panel-choice").hide();
    $('.button-choice').click(function(){

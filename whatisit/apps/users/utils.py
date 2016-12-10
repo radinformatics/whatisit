@@ -47,62 +47,27 @@ def get_credential_contenders(report_set,return_users=True):
     return contenders
 
 
-REQUEST_CHOICES = (("PENDING","PENDING"),
-                   ("APPROVED","APPROVED"),
-                   ("DENIED","DENIED"))
-
-
-STATUS_CHOICES = (("PASSED","PASSED"),
-                  ("TESTING","TESTING"),
-                  ("DENIED","DENIED"))
-
-
-class RequestMembership(models.Model):
-    '''A request for membership is tied to a collection - a user is granted access if the owner grants him/her permission.
+def get_annotation_status(report_set,user):
+    '''get_annotation_status ensures that a user is approved to annotate, and has been 
+    recently tested (within the time specified by the report set) to continue annotating.
+    If the user is approved and not needs testing, status is APPROVED
+    If the user is testing, status is TESTING
+    If the user is approved and needs testing, status is changed to TESTING.
+    If the user is denied, status is DENIED.
+    :param report_set: the report_set to check
+    :param user: the user to check status for
     '''
-    requester = models.ForeignKey(User,related_name="sender")
-    collection = models.ForeignKey(ReportCollection,related_name="requested_membership_collection")
-    created_at = models.DateTimeField('date of request', auto_now_add=True)
-    status = models.CharField(max_length=200, null=False, verbose_name="Status of request", default="PENDING",choices=REQUEST_CHOICES)
-    
-    def __str__(self):
-        return "<%s:%s>" %(self.requester,self.collection.id)
-
-    def __unicode__(self):
-        return "<%s:%s>" %(self.requester,self.collection.id)
-
-    def get_label(self):
-        return "users"
-
-    class Meta:
-        app_label = 'users'
-
-        # This prevents a single user from spamming multiple requests
-        unique_together =  (("requester", "collection"),)
+    try:
+        Credential.objects.get(report_set=report_set,
+                               user=user)
+    except Credential.DoesNotExist:
+        return None
 
 
-class Credential(models.Model):
-    '''A Credential is used to determine if a particular user has tested successfully to annotation a report set. It has a default
-    expiration time of 2 weeks, unless specified otherwise.
-    '''
     user = models.ForeignKey(User,related_name="user_credential_for")
     report_set = models.ForeignKey(ReportSet,related_name="report_set_credential_for")
     created_at = models.DateTimeField('date of credential creation', auto_now_add=True)
     updated_at = models.DateTimeField('date of updated credential', auto_now=True)
     status = models.CharField(max_length=200, null=False, verbose_name="Status of credential", default="TESTING",choices=STATUS_CHOICES)
     duration_weeks = models.CharField(max_length=100,null=False,default="2",verbose_name="Duration of credential, in weeks")
-    
-    def __str__(self):
-        return "<%s:%s>" %(self.user,self.report_set.id)
 
-    def __unicode__(self):y
-        return "<%s:%s>" %(self.user,self.report_set.id)
-
-    def get_label(self):
-        return "users"
-
-    class Meta:
-        app_label = 'users'
-
-        # This prevents a single user from spamming multiple requests
-        unique_together =  (("user", "report_set"),)
