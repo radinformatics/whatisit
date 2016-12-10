@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from whatisit.apps.wordfish.models import (
     ReportCollection,
-    ReportSet,
+    ReportSet
 )
 from whatisit.apps.users.models import (
     Credential,
