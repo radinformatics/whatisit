@@ -14,12 +14,13 @@ from whatisit.apps.wordfish.models import (
     ReportSet
 )
 
-# STOPPED HERE:
-# copy file to create custom annotation set, make new view for owner 
-
 import collections
 import operator
 import os
+
+#######################################################################################################
+# Supporting Functions and Variables ##################################################################
+#######################################################################################################
 
 
 # Create a token for the user when the user is created (with oAuth2)
@@ -37,6 +38,11 @@ REQUEST_CHOICES = (("PENDING","PENDING"),
 STATUS_CHOICES = (("PASSED","PASSED"),
                   ("TESTING","TESTING"),
                   ("DENIED","DENIED"))
+
+
+#######################################################################################################
+# Membership and Credentials ##########################################################################
+#######################################################################################################
 
 
 class RequestMembership(models.Model):

@@ -4,12 +4,51 @@ from django.core.files.base import ContentFile
 from django.core.files import File
 from django.db.models.aggregates import Count
 from itertools import chain
-from whatisit.apps.wordfish.models import Report, AllowedAnnotation, Annotation
+from whatisit.apps.wordfish.models import (
+    AllowedAnnotation, 
+    Annotation,
+    Report
+)
 from whatisit.settings import MEDIA_ROOT
 import numpy
 import shutil
 import os
 import re
+
+
+#### GETS #############################################################
+
+def get_report(request,cid):
+    '''get a single report, or return 404'''
+    keyargs = {'id':cid}
+    try:
+        report = Report.objects.get(**keyargs)
+    except Report.DoesNotExist:
+        raise Http404
+    else:
+        return report
+
+
+def get_report_collection(request,cid):
+    '''get a single collection, or return 404'''
+    keyargs = {'id':cid}
+    try:
+        collection = ReportCollection.objects.get(**keyargs)
+    except ReportCollection.DoesNotExist:
+        raise Http404
+    else:
+        return collection
+
+
+def get_report_set(request,sid):
+    '''get a report set, or return 404'''
+    keyargs = {'id':sid}
+    try:
+        report_set = ReportSet.objects.get(**keyargs)
+    except ReportSet.DoesNotExist:
+        raise Http404
+    else:
+        return report_set
 
 
 def get_collection_users(collection):
@@ -140,6 +179,42 @@ def get_allowed_annotations(collection,return_objects=True):
     if return_objects == False:
         allowed = group_allowed_annotations(allowed)
     return allowed
+
+
+###########################################################################################
+## SELECTION ALGORITHMS
+###########################################################################################
+
+def select_random_reports(reports,N=1):
+    '''select random reports will select N reports from a provided set.
+    '''
+    # Make sure that enogh reports are provided
+    if len(reports) <= N:
+        report_list = []
+        while len(report_list) < N:
+            new_report = select_random_report(reports)
+            # This double check isn't needed really...
+            if new_report not in report_list:
+                report_list.append(new_report)
+            # As we remove reports from the selection set
+            reports = reports.exclude(id=new_report.id)
+        return report_list
+    # otherwise return everything provided
+    return reports
+
+
+def select_random_report(reports):
+    '''select random report will return one random report
+    '''
+    rid = None
+    while rid == None:
+        count = reports.aggregate(count=Count('id'))['count']
+        rid = randint(0, count - 1)
+        try:
+            record = Report.objects.get(id=rid)
+        except:
+            rid = None
+    return report
 
 
 #TODO: edit these to upload reports 

@@ -30,6 +30,7 @@ def get_upload_folder(instance,filename):
     return os.path.join(str(collection_id), filename)
 
 
+
 PRIVACY_CHOICES = ((False, 'Public (The collection will be accessible by anyone and all the data in it will be distributed under CC0 license)'),
                    (True, 'Private (The collection will be not listed. It will be possible to share it with others at a private URL.)'))
 
@@ -68,7 +69,7 @@ class AllowedAnnotation(models.Model):
 
 
 #######################################################################################################
-# Reports ##########################################################################################
+# Reports #############################################################################################
 #######################################################################################################
 
 class ReportCollection(models.Model):

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from whatisit.apps.wordfish.models import (
     ReportCollection,
-    ReportSet
+    ReportSet,
 )
 from whatisit.apps.users.models import (
     Credential,
@@ -14,6 +14,29 @@ from datetime import datetime
 from datetime import timedelta
 import operator
 import os
+
+from whatisit.apps.wordfish.users.models import Credential
+
+def get_user(request,uid):
+    '''get a single user, or return 404'''
+    keyargs = {'id':uid}
+    try:
+        user = User.objects.get(**keyargs)
+    except User.DoesNotExist:
+        raise Http404
+    else:
+        return user
+
+
+def get_credential(request,cid):
+    '''get a credential, or return 404'''
+    keyargs = {'id':cid}
+    try:
+        cred = Credential.objects.get(**keyargs)
+    except Credential.DoesNotExist:
+        raise Http404
+    else:
+        return cred
 
 
 def has_credentials(report_set,return_users=True):
@@ -47,6 +70,7 @@ def get_credential_contenders(report_set,return_users=True):
     has_credential = get_has_credential(report_set)
     contenders = [user for user in all_annotators if user not in has_credentials]
     return contenders
+
 
 def needs_testing(credential):
     '''compare the time from the users last time to the time now. If it's greater than the

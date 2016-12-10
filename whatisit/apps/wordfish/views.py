@@ -11,6 +11,10 @@ from whatisit.apps.wordfish.models import (
     ReportSet
 )
 
+from whatisit.apps.wordfish.tests import (
+    test_annotator
+)
+
 from whatisit.apps.wordfish.utils import (
     add_message, 
     get_allowed_annotations,
@@ -18,7 +22,11 @@ from whatisit.apps.wordfish.utils import (
     get_annotations, 
     get_collection_users,
     get_collection_annotators,
+    get_report,
+    get_report_collection,
+    get_report_set,
     group_allowed_annotations,
+    select_random_report,
     summarize_annotations, 
     update_user_annotation
 )
@@ -26,10 +34,11 @@ from whatisit.apps.wordfish.utils import (
 from whatisit.settings import BASE_DIR, MEDIA_ROOT
 from whatisit.apps.users.models import RequestMembership, Credential
 from whatisit.apps.users.utils import (
+    get_annotation_status,
     has_credentials, 
     get_credential_contenders, 
     get_credentials,
-    get_annotation_status
+    get_user
 )
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
@@ -385,49 +394,6 @@ def remove_set_annotator(request,sid,uid):
     messages.info(request, "You do not have permission to edit annotators for this collection.")
     return view_report_collection(request,cid)
 
-
-#### GETS #############################################################
-
-# get report
-def get_report(request,cid):
-    keyargs = {'id':cid}
-    try:
-        report = Report.objects.get(**keyargs)
-    except Report.DoesNotExist:
-        raise Http404
-    else:
-        return report
-
-# get report
-def get_user(request,uid):
-    keyargs = {'id':uid}
-    try:
-        user = User.objects.get(**keyargs)
-    except User.DoesNotExist:
-        raise Http404
-    else:
-        return user
-
-
-# get report collection
-def get_report_collection(request,cid):
-    keyargs = {'id':cid}
-    try:
-        collection = ReportCollection.objects.get(**keyargs)
-    except ReportCollection.DoesNotExist:
-        raise Http404
-    else:
-        return collection
-
-# get report set
-def get_report_set(request,sid):
-    keyargs = {'id':sid}
-    try:
-        report_set = ReportSet.objects.get(**keyargs)
-    except ReportSet.DoesNotExist:
-        raise Http404
-    else:
-        return report_set
 
 
 ###############################################################################################
@@ -799,12 +765,9 @@ def annotate_set(request,sid):
 
 
     elif user_status == "TESTING":
-        # Send the user to the testing view, should store correct/wrong in session
-        # STOPPED HERE: need to write this function / url / view, should
-        # use session variable to store correct/incorrect, and clear/approve clear/deny
-        # when finished. If approved, should send to real annotation after.
-        return test_annotator(request,report_set=report_set,
-                              user=user)
+        # Send the user to the testing view, will grant permission/deny after test
+        return test_annotator(request,rid=report_set.id,
+                              uid=user.id)
 
     else: #denied or other
         messages.info(request,"You are not allowed to perform this action.")
@@ -916,14 +879,8 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
         reports = Report.objects.filter(collection=collection)
 
     # Get a random report
-    while rid == None:
-        count = reports.aggregate(count=Count('id'))['count']
-        rid = randint(0, count - 1)
-        try:
-            record = Report.objects.get(id=rid)
-        except:
-            rid = None
+    report = select_random_report(reports)
 
     # Ensure url returned is for report
-    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': rid, 'sid': sid}))
+    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 'sid': sid}))
     
