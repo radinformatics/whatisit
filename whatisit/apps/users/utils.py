@@ -7,14 +7,16 @@ from whatisit.apps.wordfish.models import (
 )
 from whatisit.apps.users.models import (
     Credential,
-    RequestPermission
+    RequestMembership
 )
 import collections
+from datetime import datetime
+from datetime import timedelta
 import operator
 import os
 
 
-def get_has_credentials(report_set,return_users=True):
+def has_credentials(report_set,return_users=True):
     '''get a list of users that have credentials (either status is TESTING or PASSED) for
     a report set.
     :param return_users: return list of users (not credentials) default is True
@@ -46,6 +48,24 @@ def get_credential_contenders(report_set,return_users=True):
     contenders = [user for user in all_annotators if user not in has_credentials]
     return contenders
 
+def needs_testing(credential):
+    '''compare the time from the users last time to the time now. If it's greater than the
+    time allowed for the credential, the user must test again.
+    '''
+    if credential.updated_at == None:
+        return True
+
+    # How many weeks between testings?
+    maximum_time = int(credential.duration_weeks)
+    days = maximum_time * 7
+
+    # If the credential was updated less than 2 weeks ago, no testing
+    if credential.updated_at + timedelta(days=days) < datetime.now():
+        return False
+
+    # Otherwise, we need testing
+    return True
+
 
 def get_annotation_status(report_set,user):
     '''get_annotation_status ensures that a user is approved to annotate, and has been 
@@ -58,16 +78,14 @@ def get_annotation_status(report_set,user):
     :param user: the user to check status for
     '''
     try:
-        Credential.objects.get(report_set=report_set,
-                               user=user)
+        credential = Credential.objects.get(report_set=report_set,
+                                            user=user)
     except Credential.DoesNotExist:
         return None
 
+    if credential.status == "APPROVED":
+        if needs_testing(credential):
+            credential.status = "TESTING"
+            credential.save()
 
-    user = models.ForeignKey(User,related_name="user_credential_for")
-    report_set = models.ForeignKey(ReportSet,related_name="report_set_credential_for")
-    created_at = models.DateTimeField('date of credential creation', auto_now_add=True)
-    updated_at = models.DateTimeField('date of updated credential', auto_now=True)
-    status = models.CharField(max_length=200, null=False, verbose_name="Status of credential", default="TESTING",choices=STATUS_CHOICES)
-    duration_weeks = models.CharField(max_length=100,null=False,default="2",verbose_name="Duration of credential, in weeks")
-
+    return credential.status

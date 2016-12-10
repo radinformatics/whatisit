@@ -70,14 +70,14 @@ class Credential(models.Model):
     user = models.ForeignKey(User,related_name="user_credential_for")
     report_set = models.ForeignKey(ReportSet,related_name="report_set_credential_for")
     created_at = models.DateTimeField('date of credential creation', auto_now_add=True)
-    updated_at = models.DateTimeField('date of updated credential', auto_now=True)
+    updated_at = models.DateTimeField('date of updated credential', null=True, blank=True) # Updated when the user tests
     status = models.CharField(max_length=200, null=False, verbose_name="Status of credential", default="TESTING",choices=STATUS_CHOICES)
     duration_weeks = models.CharField(max_length=100,null=False,default="2",verbose_name="Duration of credential, in weeks")
     
     def __str__(self):
         return "<%s:%s>" %(self.user,self.report_set.id)
 
-    def __unicode__(self):y
+    def __unicode__(self):
         return "<%s:%s>" %(self.user,self.report_set.id)
 
     def get_label(self):

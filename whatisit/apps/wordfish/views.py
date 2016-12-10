@@ -182,7 +182,8 @@ def approve_annotate_permission(request,cid,uid):
             permission_request.save()
 
             # Create a credential for the user with TESTING status
-            credential = Credential.objects.create(report_set=)
+            credential = Credential.objects.create(report_set=report_set,
+                                                   user=requester)
 
             messages.success(request, 'Annotators approved.')
     
@@ -197,7 +198,7 @@ def edit_contributors(request,cid):
     '''edit_contributors is the view to see, add, and delete contributors for a set.
     '''
     collection = get_report_collection(request,cid)
-    if request.user == collection.owner
+    if request.user == collection.owner:
 
         # Who are current contributors?
         contributors = collection.contributors.all()
@@ -221,7 +222,7 @@ def edit_contributors(request,cid):
 @login_required
 def add_contributor(request,cid):
     '''add a new contributor to a collection
-    :param sid: the report_set id
+    :param cid: the collection id
     '''
     collection = get_report_collection(request,cid)
     if request.user == collection.owner:
@@ -233,7 +234,25 @@ def add_contributor(request,cid):
                 collection.save()
                 messages.success(request, 'User %s added as contributor to collection.' %(user))
 
-    return edit_contributors(request,sid)
+    return edit_contributors(request,cid)
+
+
+@login_required
+def remove_contributor(request,cid,uid):
+    '''remove a contributor from a collection
+    :param cid: the collection id
+    :param uid: the contributor (user) id
+    '''
+    collection = get_report_collection(request,cid)
+    user = get_user(request,uid)
+    contributors = collection.contributors.all()
+    if request.user == collection.owner:
+        if user in contributors:    
+            collection.contributors = [x for x in contributors if x != user]
+            collection.save()
+            messages.success(request, 'User %s is no longer a contributor to the collection.' %(contributor))
+
+    return edit_contributors(request,cid)
 
 
 ###############################################################################################
@@ -771,15 +790,25 @@ def annotate_set(request,sid):
     if user_status == "APPROVED":
         
         if has_collection_annotate_permission(request,collection):
-        reports = report_set.reports.all()
-        #TODO: add session variable here to move user through set based on id
-        return annotate_random(request,
-                               cid=collection.id,
-                               sid=sid,
-                               reports=reports)
-    if TESTING:
+            reports = report_set.reports.all()
+            #TODO: add session variable here to move user through set based on id
+            return annotate_random(request,
+                                   cid=collection.id,
+                                   sid=sid,
+                                   reports=reports)
 
-    else #denied or other
+
+    elif user_status == "TESTING":
+        # Send the user to the testing view, should store correct/wrong in session
+        # STOPPED HERE: need to write this function / url / view, should
+        # use session variable to store correct/incorrect, and clear/approve clear/deny
+        # when finished. If approved, should send to real annotation after.
+        return test_annotator(request,report_set=report_set,
+                              user=user)
+
+    else: #denied or other
+        messages.info(request,"You are not allowed to perform this action.")
+        return view_report_collection(request,cid)
     
     
 

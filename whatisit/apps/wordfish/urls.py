@@ -8,7 +8,6 @@ urlpatterns = [
     url(r'^collections/reports$', report_views.view_report_collections, name="report_collections"),
     url(r'^reports/(?P<coid>.+?)/new$', report_views.upload_reports, name="upload_reports"),
     url(r'^reports/(?P<rid>.+?)/details$',report_views.view_report,name='report_details'),
-    url(r'^reports/(?P<cid>.+?)/$',report_views.upload_report,name='save_reports'),
 
     # Report Collections
     url(r'^collections/new$',report_views.edit_report_collection,name='new_report_collection'),
@@ -44,7 +43,7 @@ urlpatterns = [
     url(r'^annotate/set/(?P<sid>.+?)/test$',report_views.new_set_annotator,name='new_set_annotator'), #same as test, from post
 
     # Change / add contributors
-    url(r'^collections/(?P<cid>.+?)/(?P<cid>.+?)/contributor/remove$',report_views.remove_contributor,name='remove_contributor'),
+    url(r'^collections/(?P<cid>.+?)/(?P<uid>.+?)/contributor/remove$',report_views.remove_contributor,name='remove_contributor'),
     url(r'^collections/(?P<cid>.+?)/contributor/add$',report_views.add_contributor,name='add_contributor'),
     url(r'^collections/(?P<cid>.+?)/contributor/edit$',report_views.edit_contributors,name='edit_contributors'),
 
