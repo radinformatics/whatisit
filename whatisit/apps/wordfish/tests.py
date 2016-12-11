@@ -24,12 +24,6 @@ from whatisit.apps.wordfish.models import (
     Report
 )
 
-from whatisit.apps.wordfish.views import (
-    annotate_report,
-    get_permissions,
-    view_report_collection
-)
-
 from whatisit.apps.wordfish.utils import (
     get_annotations,
     get_report_set,
@@ -54,6 +48,12 @@ def test_annotator(request,sid,rid=None):
     :param sid: the id of the report set
     :param rid: the report id that was tested
     '''
+    from whatisit.apps.wordfish.views import (
+       annotate_report,
+       get_permissions,
+       view_report_collection
+    )
+
     if rid != None: # scoring is needed
         completed_report = get_report(rid)
     
@@ -130,7 +130,7 @@ def test_annotator(request,sid,rid=None):
                                 correct_answer = answers[selected_name]
 
                                 # The user selected the right answer
-                                if user_selected and correct_answer == selected_label
+                                if user_selected and correct_answer == selected_label:
                                     testing_correct += 1 
 
                                 # The user selected, but not right answer

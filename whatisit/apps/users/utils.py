@@ -15,7 +15,7 @@ from datetime import timedelta
 import operator
 import os
 
-from whatisit.apps.wordfish.users.models import Credential
+from whatisit.apps.users.models import Credential
 
 def get_user(request,uid):
     '''get a single user, or return 404'''
