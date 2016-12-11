@@ -139,10 +139,10 @@ def test_annotator(request,sid,rid=None):
                             
                                 # The user didn't select, is right answer
                                 elif not user_selected and correct_answer == selected_label:
-                                    continue
+                                    testing_incorrect += 1 
 
                                 # The user didn't select, is not right answer
-                                elif not user_selected and correct_answer == selected_label:
+                                elif not user_selected and correct_answer != selected_label:
                                     continue
                 
 
