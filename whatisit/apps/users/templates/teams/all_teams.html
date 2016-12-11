@@ -45,7 +45,11 @@
                    <td><a href="{% url 'team_details' experiment.exp_id %}">{{ team.name }}</a></td>
                    <td>{{ team.members.count }}</td>
                    <td><img src="{{ team.team_image.file.url }}"></td>
-                   <td><a href="{% url 'join_team' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="join_team">Join</button></a></td>
+                   <td>{% if user_team == team %}
+                      <a href="{% url 'team_details' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="team_details">View your Team</button></a>
+                       {% else %}
+                      <a href="{% url 'join_team' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="join_team">Join</button></a>            {% endif %}
+                   </td>
                </tr>
           {% endfor %}
           </tbody>

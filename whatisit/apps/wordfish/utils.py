@@ -112,6 +112,48 @@ def get_annotation_counts(collection,reports=None):
     return counts    
 
 
+#### Teams #############################################################
+
+def count_user_annotations(users):
+    '''return the count of a single user's annotations
+    '''
+    # Return count for a single user
+    if isinstance(users,User):
+        return Annotation.objects.filter(annotator=users).count()
+    # or count across a group of users
+    return Annotation.objects.filter(annotator__in=users).count() 
+   
+
+def summarize_team_annotations(members):
+    '''summarize_team_annotations will return a summary of annotations for a group of users, typically a team
+    :param members: a list or queryset of users
+    '''
+    counts = dict()
+    total = 0
+    for member in members:
+        member_count = count_user_annotations(member)
+        counts[member.username] = member_count
+        total += member_count
+    counts['total'] = total
+    return counts    
+
+
+def summarize_teams_annotations(teams,sort=True):
+    '''summarize_teams_annotations returns a sorted list 
+    :param members: a list or queryset of users
+    :param sort: sort the result (default is True)
+    '''
+    counted = []
+    for team in teams:
+        team.annotate(count=count_user_annotations(team.members))
+        counted.append(team)
+    if sort == True:
+        sorted_teams = sorted(counted, key=lambda t: t.count)
+    else:
+        sorted_teams = counted
+    return sorted_teams
+
+
 def get_annotations(user=None,report=None):
     '''get_user_annotations will return the Annotation objects for a user and report
     :param user: the user to return objects for

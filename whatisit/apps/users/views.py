@@ -17,9 +17,15 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from whatisit.apps.users.forms import TeamForm
 from whatisit.apps.users.models import Team
 from whatisit.apps.users.utils import (
-    get_team
+    get_team,
+    get_user_team,
     has_team_edit_permission,
     remove_user_teams
+)
+
+from whatisit.apps.wordfish.utils import (
+    summarize_team_annotations,
+    summarize_teams_annotations
 )
 
 
@@ -100,9 +106,14 @@ def view_teams(request):
     :parma tid: the team id to edit or create. If none, indicates a new team
     '''
     teams = Team.objects.all()
-    #TODO here need to sort by annotations
-    #TODO also need to get user's team, if authetnicated
+
+    # Sort teams by annotations
+    teams = summarize_teams_annotations(teams)
     context = {"teams": teams}
+
+    user_team = get_user_team(request)
+    context['user_team'] = user_team # returns None if not in team
+
     return render(request, "teams/all_teams.html", context)
 
 
@@ -113,11 +124,16 @@ def view_team(request, tid):
     '''
     team = get_team(request,tid)
 
-    # Only the owner is allowed to edit a team
+    # Need to create annotation counts with "total" for all members
+    annotation_counts = summarize_team_annotations(team.members)
+
+    # Only team members are allowed to edit their team
     edit_permission = has_team_edit_permission(request,team)
 
     context = {"team": team,
-               "edit_permission":edit_permission}
+               "edit_permission":edit_permission,
+               "annotation_counts":annotation_counts}
+
     return render(request, "teams/team_details.html", context)
 
 

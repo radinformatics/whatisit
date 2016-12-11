@@ -60,13 +60,6 @@ def get_credential(request,cid):
         return cred
 
 
-def has_team_edit_permission(request,team):
-    '''only the owner of a team can edit it.
-    '''
-    if request.user in team.members:
-        return True
-    return False
-
 
 def has_credentials(report_set,return_users=True):
     '''get a list of users that have credentials (either status is TESTING or PASSED) for
@@ -144,6 +137,21 @@ def get_annotation_status(report_set,user):
     return credential.status
 
 
+####################################################################################
+# TEAM FUNCTIONS ###################################################################
+####################################################################################
+
+
+def get_user_team(request):
+    ''' get the team of the authenticated user
+    '''
+    if request.user is_authenticated:
+        user_team = Team.objects.filter(members__contains=request.user)
+    if len(user_team) > 0:
+        return user_team[0]
+    return None
+
+
 def remove_user_teams(remove_teams=users_team,user=user):
     '''removes a user from one or more teams
     :param remove_teams: the list of teams to remove the user from
@@ -159,3 +167,11 @@ def remove_user_teams(remove_teams=users_team,user=user):
             remove_team.members = [x for x in remove_team.members if x != user]
             remove_team.save()
     return previous_team
+
+
+def has_team_edit_permission(request,team):
+    '''only the owner of a team can edit it.
+    '''
+    if request.user in team.members:
+        return True
+    return False
