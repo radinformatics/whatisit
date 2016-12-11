@@ -187,8 +187,6 @@ def test_annotator(request,sid,rid=None):
             request = clear_testing_session(request) # Sets all to None
             return view_report_collection(request,report_set.collection.id)
            
-        # TODO: make this view: return render(request, "testing/testing_report_set.html", context)
-        # TODO: need to add POST here in case user has submit testing view to move on to next, and update session
 
     # User does not have permission to annotate, return to collection view
     else:
