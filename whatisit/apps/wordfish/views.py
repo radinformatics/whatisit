@@ -214,14 +214,14 @@ def edit_contributors(request,cid):
 
         # Any user that isn't the owner or already a contributor can be added
         invalid_users = [x.id for x in contributors] + [request.user.id]
-        contenders = User.objects.all()
+        contenders = [x for x in User.objects.all() if x.username != 'AnonymousUser']
         contenders = [x for x in contenders if x.id not in invalid_users]
 
         context = {'contributors':contributors,
                    'collection':collection,
                    'contenders':contenders}
         
-        return render(request, 'reports/edit_contributors.html', context)
+        return render(request, 'reports/edit_collection_contributors.html', context)
 
     # Does not have permission, return to collection
     messages.info(request, "You do not have permission to perform this action.")
@@ -279,13 +279,13 @@ def edit_set_annotators(request,sid):
     if has_collection_edit_permission(request,collection):
 
         # Get list of allowed annotators for set, not in set (to add)
-        has_credentials = get_has_credentials(report_set)
+        has_credential = has_credentials(report_set)
 
         # Get list of allowed annotators for set, allowed in set (if want to remove)
         contenders = get_credential_contenders(report_set)
 
         # And a credential for each associated user
-        credentials = get_credentials(has_credentials,report_set)
+        credentials = get_credentials(has_credential,report_set)
 
         context = {'annotators':credentials,
                    'collection':collection,
@@ -752,6 +752,7 @@ def annotate_set(request,sid):
     '''
     report_set = get_report_set(request,sid)
     collection = report_set.collection
+    user = request.user
 
     # Only continue annotation if the user is approved (and not expired)
     user_status = get_annotation_status(report_set=report_set,

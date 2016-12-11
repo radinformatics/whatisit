@@ -44,9 +44,9 @@ urlpatterns = [
     url(r'^annotate/set/(?P<sid>.+?)/test$',report_views.new_set_annotator,name='new_set_annotator'), #same as test, from post
 
     # Change / add contributors
-    url(r'^collections/(?P<cid>.+?)/(?P<uid>.+?)/contributor/remove$',report_views.remove_contributor,name='remove_contributor'),
-    url(r'^collections/(?P<cid>.+?)/contributor/add$',report_views.add_contributor,name='add_contributor'),
-    url(r'^collections/(?P<cid>.+?)/contributor/edit$',report_views.edit_contributors,name='edit_contributors'),
+    url(r'^contributors/(?P<cid>.+?)/(?P<uid>.+?)/remove$',report_views.remove_contributor,name='remove_contributor'),
+    url(r'^contributors/(?P<cid>.+?)/add$',report_views.add_contributor,name='add_contributor'),
+    url(r'^contributors/(?P<cid>.+?)/edit$',report_views.edit_contributors,name='edit_contributors'),
 
     # Update annotations
     url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'), # getrandom

@@ -8,7 +8,8 @@ from whatisit.apps.wordfish.models import (
     AllowedAnnotation, 
     Annotation,
     Report,
-    ReportCollection
+    ReportCollection,
+    ReportSet
 )
 from whatisit.settings import MEDIA_ROOT
 import numpy
