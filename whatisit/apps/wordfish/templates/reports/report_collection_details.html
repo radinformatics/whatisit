@@ -10,6 +10,7 @@
 
 {% block content %}
 {% include 'main/message.html' %}
+{% include 'main/loader.html' %}
 <div class="row">
 
     <!-- Container collection meta -->
@@ -37,7 +38,7 @@
             {% if edit_permission %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
                 <a href="{% url 'edit_contributors' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Add Contributors</button></a>
-            <a href="{% url 'report_collection_summary' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
+            <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
             {% endif %}
             {% if annotate_permission %}
 
@@ -182,6 +183,13 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
+
+   // Show wordfish when clicks time intensive action
+   $('#count_button').click(function() {
+      $("#fade").show();
+      $('#loadfish').show();
+      return true;
+   });
 
    // Tags for markup
    $('#markup').tagsinput({
