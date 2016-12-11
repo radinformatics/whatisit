@@ -1,6 +1,11 @@
 {% extends "main/base.html" %}
 {% load staticfiles %}
 {% block head %}
+<style>
+.card {
+  cursor: pointer;
+}
+</style>
 {% endblock %}
 {% block content %}
 
@@ -11,38 +16,40 @@
                             <h1>Developer Team</h1>
                             <h3>Hello! Please reach out if you have questions or would like to contribute.</h3>
 
-			<div class="card-group" style="margin-top:50px">
+			<div style="margin-top:50px">
 
-			    <div class="card">
+			    <div class="card" id="vcard">
 				<div class="card-block">
 				    <h4 class="card-title">Vanessa Sochat</h4>
 				    <p class="card-text">Research Software Engineer for Stanford Medicine</p>
                       		    <p class="card-text">
-		                            <a href="https://vsoch.github.io/"><i class="fa fa-home"></i></a>
-		                            <a href="http://www.twitter.com/vsoch"><i class="fa fa-twitter"></i></a>
-		                            <a href="http://www.github.com/vsoch"><i class="fa fa-github"></i></a>
+		                            <a target="_blank" href="https://vsoch.github.io/"><i class="fa fa-home"></i></a>
+		                            <a target="_blank" href="http://www.twitter.com/vsoch"><i class="fa fa-twitter"></i></a>
+		                            <a target="_blank" href="http://www.github.com/vsoch"><i class="fa fa-github"></i></a>
                                     </p>
 				</div>
 			    </div>
 
 
-			    <div class="card">
+			    <div class="card" id="ccard">
 				<div class="card-block">
 				    <h4 class="card-title">Curt Langlotz</h4>
 				    <p class="card-text">Radiologist in Stanford Medicine</p>
                       		    <p class="card-text">
-		                            <a href="https://langlotzlab.stanford.edu"><i class="fa fa-home"></i></a>
+		                            <a target="_blank" href="https://langlotzlab.stanford.edu"><i class="fa fa-home"></i></a>
+                                            <a target="_blank" href="http://www.twitter.com/curtlanglotz"><i class="fa fa-twitter"></i></a>
                                     </p>
 				</div>
 			    </div>
 
 
-			    <div class="card">
+			    <div class="card" id="mcard">
 				<div class="card-block">
 				    <h4 class="card-title">Matt Lungren</h4>
 				    <p class="card-text">Radiologist in Stanford Medicine</p>
                       		    <p class="card-text">
-		                            <a href="https://langlotzlab.stanford.edu"><i class="fa fa-home"></i></a>
+		                            <a target="_blank" href="https://langlotzlab.stanford.edu"><i class="fa fa-home"></i></a>
+                                            <a target="_blank" href="https://twitter.com/mattlungrenMD"><i class="fa fa-twitter"></i></a>
                                     </p>
 				</div>
 			    </div>
@@ -56,4 +63,19 @@
                 </div>
             </div>
 
+{% endblock %}
+{% block scripts %}
+<script>
+$(document).ready(function(){
+    $("#vcard").click(function(){
+        document.location = 'https://vsoch.github.io'
+    })
+    $("#ccard").click(function(){
+        document.location = 'https://langlotzlab.stanford.edu'
+    })
+    $("#mcard").click(function(){
+        document.location = 'https://langlotzlab.stanford.edu'
+    })
+})
+</script>
 {% endblock %}

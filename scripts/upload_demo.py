@@ -12,7 +12,12 @@ import numpy
 from whatisit.settings import BASE_DIR
 
 from django.contrib.auth.models import User
-from whatisit.apps.wordfish.models import ReportCollection, Report, Annotation, AllowedAnnotation
+from whatisit.apps.wordfish.models import (
+    ReportCollection, 
+    Report, 
+    Annotation, 
+    AllowedAnnotation
+)
 
 # Command to produce input data:
 # singularity run -B $PWD:/data pefinder.img --reports /data/pefinder/data/ stanford_data.csv --delim ,  --output /data/stanford_pe.tsv --verbose
@@ -29,11 +34,9 @@ if os.path.exists(input_file):
                                                                 owner=user)
     if created == True:
         collection.save()
-
     # Add the creator as an annotator
     collection.annotators.add(user)
     collection.save()
-
     # For each data label, get possible annotations, create objects
     # Matches capital letters and _ followed by "_label"
     # ['PE_PRESENT_label', 'CERTAINTY_label', 'ACUITY_label', 'LOOKING_FOR_PE_label', 'QUALITY_label']
@@ -52,18 +55,17 @@ if os.path.exists(input_file):
             allowed_annotations.append(allowed_annotation)
     # If all labels are NULL, the user will (normally) need to add them manually, here we will
     # do it manually (and programatically :P)
-    #empty_groups = {"QUALITY_label":["DIAGNOSTIC","NON_DIAGNOSTIC"],
-    #                "LOOKING_FOR_PE_label":["PE_STUDY","NONPESTUDY"]}
-    #for eg_label, label_options in empty_groups.items():
-    #    label_options = [x.replace(" ","_").lower() for x in label_options]
+    empty_groups = {"QUALITY_label":["DIAGNOSTIC","NON_DIAGNOSTIC"],
+                    "LOOKING_FOR_PE_label":["PE_STUDY","NONPESTUDY"]}
+    for eg_label, label_options in empty_groups.items():
+        label_options = [x.replace(" ","_").lower() for x in label_options]
         # Save as AllowedAnnotation
-    #    for label_option in label_options:
-    #        allowed_annotation,created = AllowedAnnotation.objects.get_or_create(name=eg_label,
-    #                                                                             label=label_option)
-    #        if created == True:
-    #            allowed_annotation.save()
-    #        allowed_annotations.append(allowed_annotation)
-
+        for label_option in label_options:
+            allowed_annotation,created = AllowedAnnotation.objects.get_or_create(name=eg_label,
+                                                                                 label=label_option)
+            if created == True:
+                allowed_annotation.save()
+            allowed_annotations.append(allowed_annotation)
     # Add allowed annotations to the collection
     [collection.allowed_annotations.add(x) for x in allowed_annotations]
     collection.save()
@@ -72,6 +74,7 @@ if os.path.exists(input_file):
     labels = numpy.unique(labels).tolist()
     # Create a robot user to associate with the annotations
     robot = User.objects.create(username='pefinder') #password not provided here
+    robot.save()
     # Now upload reports to it!
     for row in data.iterrows():
         print("Parsing %s of %s" %(row[0],data.shape[0]))
@@ -103,7 +106,7 @@ if os.path.exists(input_file):
 #Annotation.objects.count()
 #7
 #AllowedAnnotation.objects.count()
-#13
+#11
 #Report.objects.count()
 #117816
 

@@ -7,7 +7,8 @@ from itertools import chain
 from whatisit.apps.wordfish.models import (
     AllowedAnnotation, 
     Annotation,
-    Report
+    Report,
+    ReportCollection
 )
 from whatisit.settings import MEDIA_ROOT
 import numpy
