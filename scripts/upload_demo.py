@@ -29,6 +29,11 @@ if os.path.exists(input_file):
                                                                 owner=user)
     if created == True:
         collection.save()
+
+    # Add the creator as an annotator
+    collection.annotators.add(user)
+    collection.save()
+
     # For each data label, get possible annotations, create objects
     # Matches capital letters and _ followed by "_label"
     # ['PE_PRESENT_label', 'CERTAINTY_label', 'ACUITY_label', 'LOOKING_FOR_PE_label', 'QUALITY_label']

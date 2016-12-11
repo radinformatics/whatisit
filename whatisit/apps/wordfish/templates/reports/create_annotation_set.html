@@ -42,6 +42,14 @@
                 {% endfor %}
             </select>
 
+            <!-- Gold Standard Annotator-->
+            <label for="gold_standard">Gold Standard Annotator</label>
+            <select id="gold_standard" name="gold_standard" class="form-control">
+                {% for user in users %}
+                <option value="{{ user.id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+
             <!-- Annotations -->
             {% for name,allowed in allowed_annotations.items %}
                <h4 style="color:#d9534f">{{ name }}</h4>

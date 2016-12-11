@@ -677,6 +677,10 @@ def save_annotation_set(request,cid):
             # What does the user want to name the set?
             set_name = request.POST.get('setname').lower().replace(" ","_")
 
+            # What user should be used as gold standard?
+            gold_standard = request.POST.get('gold_standard')
+            gold_standard = get_user(request,gold_standard)
+
             # How many reports in the set?
             N = int(request.POST.get('N'))
 
@@ -694,10 +698,14 @@ def save_annotation_set(request,cid):
             selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
             selections = []
             seen_annotations = []
+            allowed_annotations = []
             for selection_key in selection_keys:
                 name,label = selection_key.replace("whatisit||","").split("||")
                 annotation_object = AllowedAnnotation.objects.get(name=name,
                                                                   label=label)
+
+                # We save the allowed annotation as a label to use for testing
+                allowed_annotations.append(annotation_object)
 
                 # Query to select the reports of interest
                 selection = Annotation.objects.filter(annotator__in=user,
@@ -731,6 +739,8 @@ def save_annotation_set(request,cid):
             # Set creator should be allowed to see it
             report_set.annotators.add(request.user)            
             report_set.reports = selections
+            report_set.testing_annotations = allowed_annotations
+            report_set.gold_standard = gold_standard
             report_set.save()   
 
     return view_report_collection(request,cid)
@@ -766,7 +776,8 @@ def annotate_set(request,sid):
 
     elif user_status == "TESTING":
         # Send the user to the testing view, will grant permission/deny after test
-        return test_annotator(request,rid=report_set.id,
+        return test_annotator(request=request,
+                              sid=report_set.id,
                               uid=user.id)
 
     else: #denied or other
@@ -780,45 +791,51 @@ def annotate_set(request,sid):
 ###############################################################################################
 
 @login_required
-def annotate_report(request,rid,sid=None,report=None,next=None):
+def annotate_report(request,rid,sid=None,report=None,next=None,template=None,allowed_annotations=None):
     '''annotate_report is the view to return a report annotation interface for a particular report id
     :param rid: report id to annotate
     :param sid: a report set id, if coming from annotate_random with a report set
     :param report_set: a report set. If 
     :param next: the next page to show (annotate/reports/{{ collection.id }}/{{ next }}
+    :param template: an optional template, if not provided, default is used
+    :param allowed_annotations: a custom set of allowed annotations to use. If not provided,
+    the entire set of a collection is used.
     '''
     if report == None:
         report = get_report(request,rid)
 
+    if template == None:
+        template = "annotate/annotate_random.html"
+
+    context = {"collection":report.collection,
+               "report":report,
+               "next":next}
+
     if sid != None:
         next = "%s/set" %(sid)
+        context['sid'] = sid
 
     elif next == None:
         next = "random"
 
     # Get the concise annotations
     annotations = get_annotations(user=request.user, report=report)
-    annotations = summarize_annotations(annotations)
+    annotations = summarize_annotations(annotations)['labels']
+    context["annotations"] = annotations['labels']
+    context["counts"] = annotations['counts']
 
     # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
-    allowed_annotations = report.collection.allowed_annotations.all()
-    allowed_annotations = group_allowed_annotations(allowed_annotations)
+    if allowed_annotations == None:
+        allowed_annotations = report.collection.allowed_annotations.all()
+    context["allowed_annotations"] = group_allowed_annotations(allowed_annotations)
 
     # Format markup
-    markup = ["%s" %(x) for x in report.collection.markup.split(",")]  
-
-    context = {"report":report,
-               "annotations":annotations['labels'],
-               "counts":annotations['counts'],
-               "collection":report.collection,
-               "markup":markup,
-               "next":next,
-               "allowed_annotations":allowed_annotations}
+    context["markup"] = ["%s" %(x) for x in report.collection.markup.split(",")]  
 
     # Get all permissions, context must have collection as key
     context = get_permissions(request,context)
 
-    return render(request, "annotate/annotate_random.html", context)
+    return render(request, template, context)
 
 
 @login_required

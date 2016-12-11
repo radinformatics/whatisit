@@ -161,13 +161,39 @@ class ReportSet(models.Model):
     '''A report set is a particular subset of reports with permissions for users to annotate
     '''
     name = models.CharField(max_length=250, null=False, blank=False)
+    gold_standard = models.ForeignKey(User,related_name="gold_standard_annotator",
+                                     related_query_name="gold_standard_annotator",
+                                     blank=False,
+                                     help_text="The annotations of this user will be used to score tests.",
+                                     verbose_name="Gold Standard Annotator, whose annotations will be standard for testing.")
+
     add_date = models.DateTimeField('date published', auto_now_add=True)
     modify_date = models.DateTimeField('date modified', auto_now=True)
-    annotators = models.ManyToManyField(User,related_name="users_allowed_annotation",related_query_name="users_allowed_collection", blank=True,verbose_name="Users allowed to annotate report set.")    
+    annotators = models.ManyToManyField(User,related_name="users_allowed_annotation",
+                                     related_query_name="users_allowed_annotation", 
+                                     blank=True,
+                                     verbose_name="Users allowed to annotate report set.")    
+
     collection = models.ForeignKey(ReportCollection)
-    number_tests = models.PositiveIntegerField(blank=False,null=False,verbose_name="total number of randomly selected high confidence reports to test", default=20)
-    passing_tests = models.PositiveIntegerField(blank=False,null=False,verbose_name="number of correct responses at which a user is given credit", default=15)
-    reports = models.ManyToManyField(Report,related_name="reports_in_set",related_query_name="reports_in_set", blank=True,verbose_name="Reports in report set.")  
+    number_tests = models.PositiveIntegerField(blank=False,null=False,
+                                     verbose_name="total number of randomly selected high confidence reports to test", 
+                                     default=20)
+
+    passing_tests = models.PositiveIntegerField(blank=False,null=False,
+                                     verbose_name="number of correct responses at which a user is given credit",
+                                     default=15)
+
+    testing_annotations = models.ManyToManyField(AllowedAnnotation,  
+                                     related_name="allowed_annotations_testing",
+                                     related_query_name="allowed_annotations_testing", blank=True, 
+                                     help_text="Annotations to test the user with.",
+                                     verbose_name="Select all annotations and labels that must be chosen (when applicable) to give the user a correct point. This means that choosing two labels can give a user two points for one report. Choosing one version of a label (eg, positive X but not negative X) will mean that both negative and positive will be included when testing X.")
+
+    reports = models.ManyToManyField(Report,
+                                     related_name="reports_in_set",
+                                     related_query_name="reports_in_set", 
+                                     blank=True,
+                                     verbose_name="Reports in report set.")  
 
     def __str__(self):
         return "%s-%s" %(self.id,self.collection)

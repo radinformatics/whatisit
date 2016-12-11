@@ -25,15 +25,18 @@ from whatisit.apps.wordfish.models import (
 )
 
 from whatisit.apps.wordfish.views import (
+    annotate_report,
     get_permissions,
     view_report_collection
 )
 
 from whatisit.apps.wordfish.utils import (
+    get_annotations,
     get_report_set,
     get_report_collection,
     get_report,
-    select_random_reports
+    select_random_reports,
+    summarize_annotations
 )
 
 from whatisit.apps.users.utils import (
@@ -43,16 +46,20 @@ from whatisit.apps.users.utils import (
     needs_testing
 )
 
-def test_annotator(request,rid,uid):
+def test_annotator(request,sid,rid=None):
     '''test_annotator will ask an annotator to answer the specified number of
     questions to be granted access to annotate a collection. The data is stored
     in a session, and the session expires (and is reset) when the user has viewed
     the total number of required questions
-    :param rid: the id of the report set
-    :param uid: the user id to be tested
+    :param sid: the id of the report set
+    :param rid: the report id that was tested
     '''
-    user = get_user(uid)
-    report_set = get_report_set(rid)
+    if rid != None: # scoring is needed
+        completed_report = get_report(rid)
+    
+    user = request.user
+
+    report_set = get_report_set(sid)
     permissions = get_permissions(collection=report_set.collection)
 
     # Double check that user has permission to annotate
@@ -97,10 +104,6 @@ def test_annotator(request,rid,uid):
                 testing_report = testing_reports.pop(0)
                 request.session['reports_testing'] = testing_reports
 
-                # Start testing the user
-                context = {"report":testing_report}
-                return render(request, "testing/testing_report_set.html", context)
-
 
             ###########################################################
             # RESUME TESTING SESSION
@@ -109,12 +112,39 @@ def test_annotator(request,rid,uid):
                 # If the testing set session is not empty, get any updated answers
                 if request.method == "POST":
 
-                    #labels = request.POST.get(..)
-                    #number_correct = score_count_correct(labels...)
-                    #number_incorrect = len(labels) - number_correct
+                    # Get the correct annotations from the database
+                    correct_annotations = get_annotations(user=report_set.gold_standard,
+                                                          report=completed_report)
+                    answers = summarize_annotations(correct_annotations)['labels']
 
-                    # Update the number correct
-                    testing_correct = testing_correct + number_correct
+                    post_keys = list(request.POST.keys())
+                    for post_key in post_keys:
+                        # The annotation labels have a '||'
+                        if re.search('[||]',post_key):
+                            new_annotation = request.POST[post_key]
+                            selected_name,selected_label = new_annotation['name'].split('||')
+                            user_selected = new_annotation['value'] == "on"                
+  
+                            # If we have an answer
+                            if selected_name in answers:
+                                correct_answer = answers[selected_name]
+
+                                # The user selected the right answer
+                                if user_selected and correct_answer == selected_label
+                                    testing_correct += 1 
+
+                                # The user selected, but not right answer
+                                elif user_selected and correct_answer != selected_label:
+                                    testing_incorrect += 1 
+                            
+                                # The user didn't select, is right answer
+                                elif not user_selected and correct_answer == selected_label:
+                                    continue
+
+                                # The user didn't select, is not right answer
+                                elif not user_selected and correct_answer == selected_label:
+                                    continue
+                
 
                     # If the testing set has length 0, we finished
                     if len(testing_set) == 0:
@@ -132,19 +162,31 @@ def test_annotator(request,rid,uid):
                         request.session['reports_testing_incorrect'] = testing_incorrect
                         
 
-        # If the user status was approved, either previously or aboved, move on to annotation
-        if user_status == "APPROVED":
-            messages.info(request,"Congratulations, you have passed the testing! You are now annotating the collection set.")
+        # If user status is (still) TESTING, start or continue
+        if user_status == "TESTING":
 
-            # Make sure their testing session is removed
-            request.session['reports_testing_incorrect'] = None
-            request.session['reports_testing_incorrect'] = None
-            request.session['reports_testing'] = None
+            # Get allowed annotations for set
+            testing_annotations = get_testing_annotations(report_set)
+
+            # Start testing the user
+            return annotate_report(request=request,
+                                   rid=testing_report.id,
+                                   sid=report_set.id,
+                                   report=testing_report,
+                                   allowed_annotations=testing_annotations,
+                                   template="annotate/testing_random.html")
+
+        # If the user status was approved, either previously or aboved, move on to annotation
+        elif user_status == "APPROVED":
+            messages.info(request,"Congratulations, you have passed the testing! You are now annotating the collection set.")
+            request = clear_testing_session(request) # Sets all to None
             return annotate_set(request,report_set.id)
 
-
-
-
+        elif user_status == "DENIED":
+            messages.info(request,"You are not qualified to annotate this set.")
+            request = clear_testing_session(request) # Sets all to None
+            return view_report_collection(request,report_set.collection.id)
+           
         # TODO: make this view: return render(request, "testing/testing_report_set.html", context)
         # TODO: need to add POST here in case user has submit testing view to move on to next, and update session
 
@@ -154,3 +196,32 @@ def test_annotator(request,rid,uid):
     
     # Denied, or not annotate permission returns to see collection
     return view_report_collection(request,report_set.collection.id)
+
+def clear_testing_session(request,update_value=None):
+    '''clear_testing_session will return a request with the testing session
+    cleared (value of None). If update_value is specified, this value is used
+    instead 
+   '''
+    # Make sure their testing session is removed
+    request.session['reports_testing_incorrect'] = update_value
+    request.session['reports_testing_incorrect'] = update_value
+    request.session['reports_testing'] = update_value
+    return request
+
+
+def get_testing_annotations(report_set):
+    '''get_testing_annotations will first get the unique label names (eg, diagnosis) that 
+    the user has selected for a report set, but return ALL possible labels (eg, positive/negative)
+    to test the user. This is to ensure that testing scoring is not biased on one label type
+    '''
+    set_annotations = report_set.testing_annotations
+    label_names = []
+    for set_annotation in set_annotations:
+        if set_annotation.name not in label_names:
+            label_names.append(set_annotation.name)
+
+    # Get allowed annotations, note that report set above already filtered to collection
+    allowed_annotations = AllowedAnnotation.objects.filter(name__in=label_names)
+    if len(allowed_annotations) == 0:
+        return None
+    return allowed_annotations

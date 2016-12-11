@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.views.generic.base import TemplateView
 import whatisit.apps.wordfish.views as report_views
+import whatisit.apps.wordfish.tests as test_views
 
 urlpatterns = [
 
@@ -49,4 +50,8 @@ urlpatterns = [
 
     # Update annotations
     url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'), # getrandom
+
+    # Testing
+    url(r'^annotate/reports/(?P<sid>.+?)/(?P<rid>.+?)/test$',test_views.test_annotation,name='test_annotation'),
+
 ]
