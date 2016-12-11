@@ -82,12 +82,17 @@
                      {% endif %}
 
                     {% if not collections %}
-                    <p class="text-center" style="margin-top:100px; margin-bottom:50px; font-size:35px;">We couldn't find any collections! Why don't you: <br><a href="{% url 'new_report_collection' %}" data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance."><button class="btn btn-lg btn-default btn-huge btn-big" disabled>Create A Collection</button></a>
+
+                        <!-- For authenticated users, tell to make collection-->
+                        {% if request.user.is_authenticated %}
+                    <p class="text-center" style="margin-top:50px; margin-bottom:50px; font-size:20px;"><a href="{% url 'new_report_collection' %}" data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance."><button class="btn btn-lg btn-default btn-huge btn-big" disabled>Create A Collection</button></a>
                    {% if page_title == "My Collections" %}
                    or <a href="{% url 'report_collections' %}"><button class="btn btn-lg btn-default btn-huge btn-big">See All Collections</button></a>
                    {% endif %}
-                   <p>
-
+                   </p>
+                       {% else %}
+<a href="{% url 'login' %}" style="margin:auto"><button class="btn btn-lg btn-default btn-huge btn-big">Login</button></a>
+                       {% endif %}
                     {% else %}
                         <div id="pattern" class="pattern">
                            <ul class="g">

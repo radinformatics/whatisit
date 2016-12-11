@@ -9,11 +9,11 @@
 <div id="fh5co-portfolio">
 
     {% if user and not user.is_anonymous %}
-    <h3><a>Hello, {{ user.get_full_name }}!</a></h3>
+    <h3> Hello, {{ user.get_full_name }}!</h3>
     <br>
     <div>
-       <a href="{% url 'my_report_collections' %}"><button class="btn btn-default">My Report Collections</button></a>
-       <a href="{% url 'logout' %}"><button class="btn btn-default">Logout</button></a>
+       <a href="{% url 'my_report_collections' %}"><button class="btn btn-primary">My Report Collections</button></a>
+       <a href="{% url 'logout' %}"><button class="btn btn-primary">Logout</button></a>
     </div>
     {% else %}
 

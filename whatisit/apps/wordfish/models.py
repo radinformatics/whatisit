@@ -163,7 +163,7 @@ class ReportSet(models.Model):
     name = models.CharField(max_length=250, null=False, blank=False)
     gold_standard = models.ForeignKey(User,related_name="gold_standard_annotator",
                                      related_query_name="gold_standard_annotator",
-                                     blank=False,
+                                     null=False,blank=False,
                                      help_text="The annotations of this user will be used to score tests.",
                                      verbose_name="Gold Standard Annotator, whose annotations will be standard for testing.")
 
