@@ -1,0 +1,31 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block content %}
+{% include 'main/message.html' %}
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="title">New Team</h3>
+            <main>
+                <div>
+                     {% crispy form %}
+                </div>
+                <div class="footer">
+            </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+// Submit for on save button push
+$("#submid-id-submit").click(function(){
+    $("form").attr("action","");
+    $("form").submit();
+});
+</script>
+
+{% endblock %}

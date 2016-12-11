@@ -14,6 +14,8 @@ from whatisit.apps.wordfish.models import (
     ReportSet
 )
 
+from whatisit.settings import MEDIA_ROOT
+
 import collections
 import operator
 import os
@@ -28,6 +30,14 @@ import os
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+# Get path to where images are stored for teams
+def get_image_path(instance, filename):
+    team_folder = os.path.join(MEDIA_ROOT,'teams')
+    if not os.path.exists(team_folder):
+        os.mkdir(team_folder)
+    return os.path.join('teams', str(instance.id), filename)
 
 
 REQUEST_CHOICES = (("PENDING","PENDING"),
@@ -94,3 +104,31 @@ class Credential(models.Model):
 
         # This prevents a single user from spamming multiple requests
         unique_together =  (("user", "report_set"),)
+
+
+class Team(models.Model):
+    '''A user team is a group of individuals that are annotating reports together. They can be reports across collections, or 
+    institutions, however each user is only allowed to join one team.
+    '''
+    name = models.CharField(max_length=250, null=False, blank=False,verbose_name="Team Name")
+    created_at = models.DateTimeField('date of request', auto_now_add=True)
+    team_image = ImageField(upload_to=get_image_path, blank=True, null=True)    
+    members = models.ManyToManyField(User, 
+                                     related_name="team members",
+                                     related_query_name="team_members", blank=True, 
+                                     help_text="Members of the team. By default, creator is made member.")
+                                     # would more ideally be implemented with User model, but this will work
+                                     # we will constrain each user to joining one team on view side
+
+    def __str__(self):
+        return "<%s:%s>" %(self.id,self.name)
+
+    def __unicode__(self):
+        return "<%s:%s>" %(self.id,self.name)
+
+    def get_label(self):
+        return "users"
+
+    class Meta:
+        app_label = 'users'
+

@@ -12,11 +12,6 @@
     <h3> Hello, {{ user.get_full_name }}!</h3>
     <br>
     <div>
-       {% if team %}
-       <a href="{% url 'teams' %}"><button class="btn btn-primary">Team Rankings</button></a>
-       {% else %}
-       <a href="{% url 'teams' %}"><button class="btn btn-primary">Join A Team</button></a>
-       {% endif %}
        <a href="{% url 'my_report_collections' %}"><button class="btn btn-primary">My Report Collections</button></a>
        <a href="{% url 'logout' %}"><button class="btn btn-primary">Logout</button></a>
     </div>

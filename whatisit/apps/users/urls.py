@@ -13,4 +13,12 @@ urlpatterns = [
     url(r'^logout/$', user_views.logout, name="logout"),
     url('', include(social_urls, namespace='social'))
 
+    # Teams
+    url(r'^teams$', user_views.view_teams, name="teams"),
+    url(r'^teams/(?P<tid>.+?)/view$', user_views.view_team, name="team_details"),
+    url(r'^teams/(?P<tid>.+?)/edit$', user_views.edit_team, name="edit_team"),
+    url(r'^teams/(?P<tid>.+?)/join$', user_views.join_team, name="join_team"),
+    url(r'^teams/new$',user_views.edit_team,name='new_team'),
+    url(r'^teams/new$',user_views.edit_team,name='new_team'),
+
 ]

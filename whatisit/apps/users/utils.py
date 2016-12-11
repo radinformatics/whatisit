@@ -1,3 +1,14 @@
+from django.http.response import (
+    HttpResponseRedirect, 
+    HttpResponseForbidden, 
+    Http404
+)
+from django.shortcuts import (
+    get_object_or_404, 
+    render_to_response, 
+    render, 
+    redirect
+)
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -15,7 +26,7 @@ from datetime import timedelta
 import operator
 import os
 
-from whatisit.apps.users.models import Credential
+from whatisit.apps.users.models import Credential, Team
 
 def get_user(request,uid):
     '''get a single user, or return 404'''
@@ -27,6 +38,16 @@ def get_user(request,uid):
     else:
         return user
 
+def get_team(request,tid):
+    '''get a single team, or return 404'''
+    keyargs = {'id':tid}
+    try:
+        team = Team.objects.get(**keyargs)
+    except Team.DoesNotExist:
+        raise Http404
+    else:
+        return team
+
 
 def get_credential(request,cid):
     '''get a credential, or return 404'''
@@ -37,6 +58,14 @@ def get_credential(request,cid):
         raise Http404
     else:
         return cred
+
+
+def has_team_edit_permission(request,team):
+    '''only the owner of a team can edit it.
+    '''
+    if request.user in team.members:
+        return True
+    return False
 
 
 def has_credentials(report_set,return_users=True):
@@ -113,3 +142,20 @@ def get_annotation_status(report_set,user):
             credential.save()
 
     return credential.status
+
+
+def remove_user_teams(remove_teams=users_team,user=user):
+    '''removes a user from one or more teams
+    :param remove_teams: the list of teams to remove the user from
+    :param user: the user to remove
+    :returns: previous team removed from (user only allowed one at a time)
+    '''
+    previous_team = None
+    is not isinstance(remove_teams,list):
+        remove_teams = [remove_teams]
+    for remove_team in remove_teams:
+        if user in remove_team.members:
+            previous_team = remove_team
+            remove_team.members = [x for x in remove_team.members if x != user]
+            remove_team.save()
+    return previous_team

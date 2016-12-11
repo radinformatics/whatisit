@@ -1,0 +1,83 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block css %}
+<link href="{% static "css/bootstrap.datatables.css"%}" media="screen" rel="stylesheet" type="text/css" />
+<!--https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css-->
+{% endblock %}
+
+{% block content %}
+{% include 'main/message.html' %}
+<div class="row">
+    <div class="col-md-12 card">
+        <a href="{% url 'new_team' %}"><button class="btn btn-default">Create a Team</button></a>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-md-8">
+
+        <!-- Content -->
+        <article id="content">
+            <header>
+                <h2>Teams <i data-toggle="tooltip" title="These are all public teams on WordFish" class="fa fa-question-circle"></i></h2>
+                {% if not teams %}
+                <p>WordFish does not have any teams! Why don't you <a href="{% url 'new_team' %}">make a team?</p>
+                {% endif %}
+            </header>
+            {% if teams %}
+            <table id="teams_table" class="table table-condensed table-striped table-hover" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Members</th>
+                    <th></th>
+                    <th></th>
+               </tr>
+           </thead>
+           <tbody>
+           {% for team in teams %}
+               <tr>
+                   <td>{{ forloop.counter }}</td>
+                   <td><a href="{% url 'team_details' experiment.exp_id %}">{{ team.name }}</a></td>
+                   <td>{{ team.members.count }}</td>
+                   <td><img src="{{ team.team_image.file.url }}"></td>
+                   <td><a href="{% url 'join_team' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="join_team">Join</button></a></td>
+               </tr>
+          {% endfor %}
+          </tbody>
+          </table>
+         {% endif %}
+        </article>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script>
+$(document).ready(function() {
+
+  $("#join_team").click(function(){
+      confirm("Are you sure you want to do this? You are only allowed one team. Any previous memberships will be removed.");
+  })
+
+  $('#teams_table').dataTable({
+    "columns": [
+      { "width": "10%" },
+      { "width": "30%" },
+      { "width": "10%" },
+      { "width": "50%" },
+    ],
+    "pageLength": 25,
+  });
+
+});
+
+</script>
+{% endblock %}

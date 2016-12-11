@@ -1,5 +1,22 @@
-from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field, Hidden
-from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions, TabHolder, Tab
+from crispy_forms.layout import (
+    Button, 
+    Div, 
+    Field, 
+    Hidden,
+    HTML, 
+    Layout, 
+    Row, 
+    Submit
+)
+
+from crispy_forms.bootstrap import (
+    AppendedText, 
+    FormActions, 
+    PrependedText, 
+    Tab,
+    TabHolder
+)
+
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 
