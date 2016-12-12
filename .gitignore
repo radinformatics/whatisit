@@ -3,6 +3,7 @@
 *.pyc
 .*
 !/.gitignore
+whatisit/secrets.py
 
 # Static #
 ##########

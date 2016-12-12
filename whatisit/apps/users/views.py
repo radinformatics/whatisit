@@ -35,10 +35,10 @@ from whatisit.apps.wordfish.utils import (
 ##################################################################################
 
 def login(request):
-    context = {'request': request, 'user': request.user}
-    context = RequestContext(request,context)
-    return render_to_response('social/login.html', context_instance=context)
-    #return render(request, 'social/login.html')
+    #context = {'request': request, 'user': request.user}
+    #context = RequestContext(request,context)
+    #return render_to_response('social/login.html', context_instance=context)
+    return render(request, 'social/login.html')
 
 
 @login_required(login_url='/')
@@ -105,8 +105,8 @@ def edit_team(request, tid=None):
     messages.info(request, "You don't have permission to edit this team")
     return redirect("teams")
 
-
-def view_teams(request):
+@login_required
+def view_teams(	request):
     '''view all teams (log in not required)
     :parma tid: the team id to edit or create. If none, indicates a new team
     '''
