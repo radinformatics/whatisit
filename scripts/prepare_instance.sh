@@ -20,7 +20,7 @@ wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh
 bash Anaconda3-4.2.0-Linux-x86_64.sh -b
 echo "PATH=\$HOME/anaconda3/bin:\$PATH" >> $HOME/.profile
 echo export PATH >> $HOME/.bashrc
-rm Anaconda2-4.2.0-Linux-x86_64.sh
+rm Anaconda3-4.2.0-Linux-x86_64.sh
 source $HOME/.bashrc
 pip install ipaddress
 
