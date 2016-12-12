@@ -20,6 +20,17 @@ Then start the application:
       docker-compose up -d
 
 
+### Copying Data
+Here is an example of using the `gcloud` util to copy data TO LOCAL:
+
+      gcloud compute copy-files wordfish:$HOME/whatisit/scripts/stanford_pe.tsv $PWD/scripts/stanford_pe.tsv --zone us-west1-b --project='som-xxxxxxxx'
+
+
+or FROM local TO machine:
+
+      gcloud compute copy-files $PWD/scripts/stanford_pe.tsv wordfish:$HOME/whatisit/scripts/stanford_pe.tsv --zone us-west1-b --project='som-xxxxxxxx'
+
+
 ### Domain Name
 It's up to you to buy a domain from a registrar, and then go into your hosting account to add the A and CNAME records, and then update the DNS servers. Since every host is a little different, I'll leave this up to you, but [here is how I did it on Google Cloud](https://cloud.google.com/dns/quickstart).
 
