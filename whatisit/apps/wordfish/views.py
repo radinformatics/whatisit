@@ -729,14 +729,14 @@ def save_annotation_set(request,cid):
             report_set = ReportSet.objects.create(collection=collection,
                                                   number_tests=N,
                                                   name=set_name,
-                                                  passing_tests=testing_set)
+                                                  passing_tests=testing_set,
+                                                  gold_standard=gold_standard)
             report_set.save()
 
             # Set creator should be allowed to see it
             report_set.annotators.add(request.user)            
             report_set.reports = selections
             report_set.testing_annotations = allowed_annotations
-            report_set.gold_standard = gold_standard
             report_set.save()   
 
     return view_report_collection(request,cid)

@@ -42,6 +42,7 @@ if os.path.exists(input_file):
     # ['PE_PRESENT_label', 'CERTAINTY_label', 'ACUITY_label', 'LOOKING_FOR_PE_label', 'QUALITY_label']
     label_columns = [x for x in data.columns if re.search('^[A-Z0-9|_]*_label$',x)]
     allowed_annotations = []
+    data['QUALITY_label'] = None
     for label_column in label_columns:
         label_options = data[label_column][data[label_column].isnull()==False].unique().tolist()
         # We only want lowercase, spaces converted to "_"
