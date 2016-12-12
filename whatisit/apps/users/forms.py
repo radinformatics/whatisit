@@ -46,5 +46,9 @@ class TeamForm(ModelForm):
         super(TeamForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.layout = Layout()
+        #self.helper.layout = Layout(
+        #    'name',
+        #    'team_image',
+        #    HTML("""{% if form.team_image.value %}<img class="img-responsive" src="/images/{{ form.team_image.value }}">{% endif %}""", ))
         tab_holder = TabHolder()
         self.helper.add_input(Submit("submit", "Save"))

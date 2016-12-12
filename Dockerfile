@@ -56,6 +56,7 @@ RUN pip install pygments
 RUN pip install django-lockdown
 
 RUN mkdir /code
+RUN mkdir /var/www/images
 WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt

@@ -111,10 +111,15 @@ class Team(models.Model):
     institutions, however each user is only allowed to join one team.
     '''
     name = models.CharField(max_length=250, null=False, blank=False,verbose_name="Team Name")
-    created_at = models.DateTimeField('date of request', auto_now_add=True)
+    created_at = models.DateTimeField('date of creation', auto_now_add=True)
+    updated_at = models.DateTimeField('date of last update', auto_now=True)
     team_image = models.ImageField(upload_to=get_image_path, blank=True, null=True)    
+    metrics_updated_at = models.DateTimeField('date of last calculation of rank and annotations',blank=True,null=True)
     ranking = models.PositiveIntegerField(blank=True,null=True,
                                           verbose_name="team ranking based on total number of annotations, calculated once daily.")
+    annotation_count = models.IntegerField(blank=False,null=False,
+                                           verbose_name="team annotation count, calculated once daily.",
+                                           default=0)
     members = models.ManyToManyField(User, 
                                      related_name="team_members",
                                      related_query_name="team_members", blank=True, 

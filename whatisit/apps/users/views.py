@@ -85,7 +85,7 @@ def edit_team(request, tid=None):
     if edit_permission:
 
         if request.method == "POST":
-            form = TeamForm(request.POST,instance=team)
+            form = TeamForm(request.POST,request.FILES,instance=team)
             if form.is_valid():
                 team = form.save(commit=False)
                 team.save()

@@ -29,8 +29,8 @@
                     <th>Rank</th>
                     <th>Name</th>
                     <th>Members</th>
-                    <th></th>
-                    <th></th>
+                    <th>Image</th>
+                    <th>Action</th>
                </tr>
            </thead>
            <tbody>
@@ -40,10 +40,11 @@
                    <td><a href="{% url 'team_details' team.id %}">{{ team.name }}</a></td>
                    <td>{{ team.members.count }}</td>
                    <td>{% if team.image_file %}
-                       <img width="50px" src="{{ team.team_image.file.url }}"></td>
+                       <img width="50px" src="{{ team.team_image.file.url }}">
                        {% else %}
-                       <img width="50px" src="{% static 'img/wordfish/wordfish.png' %}"></td>
+                       <img width="50px" src="{% static 'img/wordfish/wordfish.png' %}">
                        {% endif %}
+                   </td>
                    <td>{% if user_team == team %}
                       <a href="{% url 'team_details' team.id %}"><button class="btn btn-primary" type="button" id="team_details">View your Team</button></a>
                        {% else %}
@@ -59,7 +60,9 @@
 </div>
 <div class="row">
     <div class="col-md-12">
+        {% if not user_team %}
         <a href="{% url 'new_team' %}"><button class="btn btn-default">Create a Team</button></a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -79,7 +82,8 @@ $(document).ready(function() {
       { "width": "10%" },
       { "width": "30%" },
       { "width": "10%" },
-      { "width": "50%" },
+      { "width": "10%" },
+      { "width": "40%" },
     ],
     "pageLength": 25,
   });

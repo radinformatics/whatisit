@@ -7,6 +7,7 @@ uwsgi:
   volumes:
     - .:/code
     - ./static:/var/www/static
+    - ./images:/var/www/images
   links:
     - redis
     - db
@@ -14,8 +15,6 @@ uwsgi:
 nginx:
   restart: always
   privileged: true
-  environment:
-    - C_FORCE_ROOT=1
   image: nginx
   ports:
     - "80:80"
