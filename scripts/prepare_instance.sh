@@ -20,9 +20,8 @@ wget https://repo.continuum.io/archive/Anaconda3-4.2.0-Linux-x86_64.sh
 bash Anaconda3-4.2.0-Linux-x86_64.sh -b
 echo "PATH=\$HOME/anaconda3/bin:\$PATH" >> $HOME/.profile
 echo export PATH >> $HOME/.bashrc
-rm Anaconda3-4.2.0-Linux-x86_64.sh
+rm Anaconda3-4.2.0-Linux-x86_64.sh 
 source $HOME/.bashrc
-pip install ipaddress
 
 # Add docker key server
 sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
