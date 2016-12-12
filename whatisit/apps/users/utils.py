@@ -90,7 +90,7 @@ def get_credential_contenders(report_set,return_users=True):
     all_annotators = RequestMembership.objects.filter(collection=report_set.collection)
     all_annotators = [x.requester for x in all_annotators]
     has_credential = has_credentials(report_set)
-    contenders = [user for user in all_annotators if user not in has_credentials]
+    contenders = [user for user in all_annotators if user not in has_credentials(report_set)]
     return contenders
 
 
