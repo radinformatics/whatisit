@@ -147,8 +147,8 @@ def get_user_team(request):
     '''
     if request.user.is_authenticated():
         user_team = Team.objects.filter(members=request.user)
-    if len(user_team) > 0:
-        return user_team[0]
+        if len(user_team) > 0:
+            return user_team[0]
     return None
 
 
