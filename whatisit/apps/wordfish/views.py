@@ -190,10 +190,6 @@ def approve_annotate_permission(request,cid,uid):
             permission_request.status = "APPROVED"
             permission_request.save()
 
-            # Create a credential for the user with TESTING status
-            credential = Credential.objects.create(report_set=report_set,
-                                                   user=requester)
-
             messages.success(request, 'Annotators approved.')
     
     return view_report_collection(request,cid)
