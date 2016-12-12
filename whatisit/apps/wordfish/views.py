@@ -739,6 +739,13 @@ def save_annotation_set(request,cid):
             report_set.testing_annotations = allowed_annotations
             report_set.save()   
 
+            # If we are successful, return a message to tell the admin to add annotators.
+            add_annotators_link = "/collections/%s/sets/annotators" %(report_set.id)
+            messages.info(request,"""Annotation set successfully created! You should now 
+                                  <a href="%s">add annotators</a> to it.</a>
+                                  """ %(add_annotators_link))
+
+
     return view_report_collection(request,cid)
 
 
