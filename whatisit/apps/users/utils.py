@@ -145,21 +145,21 @@ def get_annotation_status(report_set,user):
 def get_user_team(request):
     ''' get the team of the authenticated user
     '''
-    if request.user is_authenticated:
-        user_team = Team.objects.filter(members__contains=request.user)
+    if request.user.is_authenticated():
+        user_team = Team.objects.filter(members=request.user)
     if len(user_team) > 0:
         return user_team[0]
     return None
 
 
-def remove_user_teams(remove_teams=users_team,user=user):
+def remove_user_teams(remove_teams,user):
     '''removes a user from one or more teams
     :param remove_teams: the list of teams to remove the user from
     :param user: the user to remove
     :returns: previous team removed from (user only allowed one at a time)
     '''
     previous_team = None
-    is not isinstance(remove_teams,list):
+    if not isinstance(remove_teams,list):
         remove_teams = [remove_teams]
     for remove_team in remove_teams:
         if user in remove_team.members:
@@ -172,6 +172,6 @@ def remove_user_teams(remove_teams=users_team,user=user):
 def has_team_edit_permission(request,team):
     '''only the owner of a team can edit it.
     '''
-    if request.user in team.members:
+    if request.user in team.members.all():
         return True
     return False

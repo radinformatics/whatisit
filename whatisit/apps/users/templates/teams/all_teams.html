@@ -11,13 +11,8 @@
 {% block content %}
 {% include 'main/message.html' %}
 <div class="row">
-    <div class="col-md-12 card">
-        <a href="{% url 'new_team' %}"><button class="btn btn-default">Create a Team</button></a>
-    </div>
-</div>
-<div class="row">
 
-    <div class="col-md-8">
+    <div class="col-md-12">
 
         <!-- Content -->
         <article id="content">
@@ -41,12 +36,16 @@
            <tbody>
            {% for team in teams %}
                <tr>
-                   <td>{{ forloop.counter }}</td>
-                   <td><a href="{% url 'team_details' experiment.exp_id %}">{{ team.name }}</a></td>
+                   <td>{{ team.ranking }}</td>
+                   <td><a href="{% url 'team_details' team.id %}">{{ team.name }}</a></td>
                    <td>{{ team.members.count }}</td>
-                   <td><img src="{{ team.team_image.file.url }}"></td>
+                   <td>{% if team.image_file %}
+                       <img width="50px" src="{{ team.team_image.file.url }}"></td>
+                       {% else %}
+                       <img width="50px" src="{% static 'img/wordfish/wordfish.png' %}"></td>
+                       {% endif %}
                    <td>{% if user_team == team %}
-                      <a href="{% url 'team_details' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="team_details">View your Team</button></a>
+                      <a href="{% url 'team_details' team.id %}"><button class="btn btn-primary" type="button" id="team_details">View your Team</button></a>
                        {% else %}
                       <a href="{% url 'join_team' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="join_team">Join</button></a>            {% endif %}
                    </td>
@@ -58,7 +57,11 @@
         </article>
     </div>
 </div>
-
+<div class="row">
+    <div class="col-md-12">
+        <a href="{% url 'new_team' %}"><button class="btn btn-default">Create a Team</button></a>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

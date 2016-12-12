@@ -1,9 +1,10 @@
-from django.shortcuts import render_to_response, redirect, render
+from django.core import serializers
 from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from whatisit.apps.api.views import getToken
+from django.shortcuts import render_to_response, redirect, render
 from django.template.context import RequestContext
 
 import logging
@@ -73,11 +74,15 @@ def edit_team(request, tid=None):
     '''
     if tid:
         team = get_team(request,tid)
+        edit_permission = has_team_edit_permission(request,team)
+        title = "Edit Team"
     else:
         team = Team()
+        edit_permission = True
+        title = "New Team"
 
     # Only the owner is allowed to edit a team
-    if has_team_edit_permission(request,team):
+    if edit_permission:
 
         if request.method == "POST":
             form = TeamForm(request.POST,instance=team)
@@ -90,9 +95,9 @@ def edit_team(request, tid=None):
         else:
             form = TeamForm(instance=team)
 
-        edit_permission = has_team_edit_permission(request,team)
         context = {"form": form,
-                   "edit_permission": edit_permission}
+                   "edit_permission": edit_permission,
+                   "title":title}
 
         return render(request, "teams/edit_team.html", context)
 
@@ -107,10 +112,7 @@ def view_teams(request):
     '''
     teams = Team.objects.all()
 
-    # Sort teams by annotations
-    teams = summarize_teams_annotations(teams)
     context = {"teams": teams}
-
     user_team = get_user_team(request)
     context['user_team'] = user_team # returns None if not in team
 
@@ -125,7 +127,7 @@ def view_team(request, tid):
     team = get_team(request,tid)
 
     # Need to create annotation counts with "total" for all members
-    annotation_counts = summarize_team_annotations(team.members)
+    annotation_counts = summarize_team_annotations(team.members.all())
 
     # Only team members are allowed to edit their team
     edit_permission = has_team_edit_permission(request,team)

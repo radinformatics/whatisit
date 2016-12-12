@@ -112,9 +112,11 @@ class Team(models.Model):
     '''
     name = models.CharField(max_length=250, null=False, blank=False,verbose_name="Team Name")
     created_at = models.DateTimeField('date of request', auto_now_add=True)
-    team_image = ImageField(upload_to=get_image_path, blank=True, null=True)    
+    team_image = models.ImageField(upload_to=get_image_path, blank=True, null=True)    
+    ranking = models.PositiveIntegerField(blank=True,null=True,
+                                          verbose_name="team ranking based on total number of annotations, calculated once daily.")
     members = models.ManyToManyField(User, 
-                                     related_name="team members",
+                                     related_name="team_members",
                                      related_query_name="team_members", blank=True, 
                                      help_text="Members of the team. By default, creator is made member.")
                                      # would more ideally be implemented with User model, but this will work
@@ -125,6 +127,10 @@ class Team(models.Model):
 
     def __unicode__(self):
         return "<%s:%s>" %(self.id,self.name)
+
+    def get_absolute_url(self):
+        return_cid = self.id
+        return reverse('team_details', args=[str(return_cid)])
 
     def get_label(self):
         return "users"

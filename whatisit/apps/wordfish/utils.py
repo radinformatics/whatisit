@@ -15,6 +15,7 @@ from django.core.files.base import ContentFile
 from django.core.files import File
 from django.db.models.aggregates import Count
 from itertools import chain
+from whatisit.apps.users.models import Team
 from whatisit.apps.wordfish.models import (
     AllowedAnnotation, 
     Annotation,
@@ -24,6 +25,7 @@ from whatisit.apps.wordfish.models import (
 )
 from whatisit.settings import MEDIA_ROOT
 import numpy
+import operator
 import shutil
 import os
 import re
@@ -139,18 +141,16 @@ def summarize_team_annotations(members):
 
 
 def summarize_teams_annotations(teams,sort=True):
-    '''summarize_teams_annotations returns a sorted list 
+    '''summarize_teams_annotations returns a sorted list with [(team:count)] 
     :param members: a list or queryset of users
     :param sort: sort the result (default is True)
     '''
-    counted = []
+    sorted_teams = dict()
     for team in teams:
-        team.annotate(count=count_user_annotations(team.members))
-        counted.append(team)
+        team_count = summarize_team_annotations(team.members.all())['total']
+        sorted_teams[team.id] = team_count
     if sort == True:
-        sorted_teams = sorted(counted, key=lambda t: t.count)
-    else:
-        sorted_teams = counted
+        sorted_teams = sorted(sorted_teams.items(), key=operator.itemgetter(1))
     return sorted_teams
 
 

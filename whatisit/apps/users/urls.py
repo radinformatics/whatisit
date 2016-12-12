@@ -11,7 +11,7 @@ urlpatterns = [
     url(r'^home/$', user_views.home),
     url(r'^token/$', user_views.token, name="token"),
     url(r'^logout/$', user_views.logout, name="logout"),
-    url('', include(social_urls, namespace='social'))
+    url('', include(social_urls, namespace='social')),
 
     # Teams
     url(r'^teams$', user_views.view_teams, name="teams"),

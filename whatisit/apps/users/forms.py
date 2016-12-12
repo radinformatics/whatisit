@@ -45,9 +45,6 @@ class TeamForm(ModelForm):
 
         super(TeamForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_class = 'form-horizontal'
-        self.helper.label_class = 'col-lg-2'
-        self.helper.field_class = 'col-lg-8'
         self.helper.layout = Layout()
         tab_holder = TabHolder()
         self.helper.add_input(Submit("submit", "Save"))
