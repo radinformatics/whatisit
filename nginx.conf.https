@@ -49,8 +49,8 @@ server {
         ssl_dhparam /etc/ssl/certs/dhparam.pem;
         ssl_prefer_server_ciphers on;
 
-        location /assets {
-            alias /var/www/assets;
+        location /images {
+            alias /var/www/images;
         }
 
         location / {
