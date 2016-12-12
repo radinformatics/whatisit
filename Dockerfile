@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libgeos-dev \
     build-essential \
     openssl \
+    nginx \
     wget
 
 RUN pip install numpy \

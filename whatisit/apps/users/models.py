@@ -37,7 +37,7 @@ def get_image_path(instance, filename):
     team_folder = os.path.join(MEDIA_ROOT,'teams')
     if not os.path.exists(team_folder):
         os.mkdir(team_folder)
-    return os.path.join('teams', str(instance.id), filename)
+    return os.path.join('teams', filename)
 
 
 REQUEST_CHOICES = (("PENDING","PENDING"),

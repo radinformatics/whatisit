@@ -433,6 +433,10 @@ def view_report_collection(request,cid):
     # Show report Sets allowed to annotate
     context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
 
+    # Show report Sets needing testing
+    # TODO: write this query
+    #context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
+
     return render(request, 'reports/report_collection_details.html', context)
 
 
