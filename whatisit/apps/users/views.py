@@ -157,7 +157,7 @@ def join_team(request, tid):
         messages.info(request,"You have been removed from team %s" %(removed_team))
 
     # Add the user to the team
-    if user not in team.members:
+    if user not in team.members.all():
         team.members.add(user)
         team.save()
         messages.info(request,"%s has been successfully added to!" %(user.username,team.name))
