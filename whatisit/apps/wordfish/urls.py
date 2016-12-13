@@ -52,6 +52,6 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<rid>.+?)/update$',report_views.update_annotation,name='update_annotation'), # getrandom
 
     # Testing
-    url(r'^annotate/reports/(?P<sid>.+?)/(?P<rid>.+?)/test$',test_views.test_annotator,name='test_annotation'),
+    url(r'^annotate/reports/(?P<sid>.+?)/(?P<rid>.+?)/test$',test_views.test_annotator,name='test_annotator'),
 
 ]

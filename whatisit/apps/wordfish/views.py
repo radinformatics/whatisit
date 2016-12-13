@@ -38,7 +38,8 @@ from whatisit.apps.users.utils import (
     has_credentials, 
     get_credential_contenders, 
     get_credentials,
-    get_user
+    get_user,
+    get_user_report_sets
 )
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.contrib.auth.decorators import login_required
@@ -432,10 +433,8 @@ def view_report_collection(request,cid):
 
     # Show report Sets allowed to annotate
     context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
-
-    # Show report Sets needing testing
-    # TODO: write this query
-    #context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
+    context['report_set_testers'] = get_user_report_sets(collection,
+                                                         user=request.user) # status="TESTING"
 
     return render(request, 'reports/report_collection_details.html', context)
 

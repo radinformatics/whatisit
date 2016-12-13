@@ -61,16 +61,41 @@ def get_credential(request,cid):
 
 
 
-def has_credentials(report_set,return_users=True):
+def has_credentials(report_set,return_users=True,status=None):
     '''get a list of users that have credentials (either status is TESTING or PASSED) for
     a report set.
     :param return_users: return list of users (not credentials) default is True
+    :param status: one or more status to get. If not defined, will use TESTING and PASSED
     '''
+    if status == None:
+        status = ["TESTING","PASSED"]
+    if not isinstance(status,list):
+        status = [status]
     has_credential = Credential.objects.filter(report_set=report_set,
-                                               status__in=["TESTING","PASSED"])
+                                               status__in=status)
     if return_users == True:
         has_credential = [x.user for x in has_credential]
     return has_credential
+
+
+def get_user_report_sets(collection,user,status=None):
+    '''get a list of report sets for which a user has one or more status (default)
+    TESTING for a collection
+    '''
+    if status == None:
+        status = "TESTING"
+    if not isinstance(status,list):
+        status = [status]
+    report_set_contenders = ReportSet.objects.filter(collection=collection)
+    report_sets = []
+
+    for report_set_contender in report_set_contenders:
+        has_credential = Credential.objects.filter(report_set=report_set_contender,
+                                                   status__in=status,
+                                                   user=user).exists()
+        if has_credential:
+            report_sets.append(report_set_contender)
+    return report_sets        
 
 
 def get_credentials(users,report_set):
