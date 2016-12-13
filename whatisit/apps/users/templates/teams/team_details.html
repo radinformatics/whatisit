@@ -19,7 +19,7 @@
         <div class="card card-block" style="padding:30px">
             <div class="header">
                    <h3 class="title" style="padding-bottom:20px">
-                   {% if team_image %}
+                   {% if team.team_image %}
                    <img width="250px" src="{{ team.team_image.file.url }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
                    {% else %}
                    <img width="250px" src="{% static 'img/wordfish/wordfish.png' %}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
