@@ -83,7 +83,7 @@ def test_annotator(request,sid,rid=None):
         if user_status == "TESTING":
 
             # Check for session variable
-            testing_set = request.session.get('reports_testing_set', None)
+            testing_set = request.session.get('reports_testing', None)
             testing_correct = request.session.get('reports_testing_correct', None)
             testing_incorrect = request.session.get('reports_testing_incorrect', None)
 
