@@ -39,8 +39,8 @@
                    <td>{{ team.ranking }}</td>
                    <td><a href="{% url 'team_details' team.id %}">{{ team.name }}</a></td>
                    <td>{{ team.members.count }}</td>
-                   <td>{% if team.image_file %}
-                       <img width="50px" src="{{ team.team_image.file.url }}">
+                   <td>{% if team.team_image %}
+                       <img width="50px" src="{{ team.team_image.url }}">
                        {% else %}
                        <img width="50px" src="{% static 'img/wordfish/wordfish.png' %}">
                        {% endif %}
