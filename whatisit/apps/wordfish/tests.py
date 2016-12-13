@@ -58,8 +58,10 @@ def test_annotator(request,sid,rid=None):
        get_permissions,
        view_report_collection
     )
-    from whatisit.apps.users.models import Credential
-
+    from whatisit.apps.users.models import (
+        Credential,
+        TestingSession
+    )
     if rid != None: # scoring is needed
         completed_report = get_report(request,rid)
     
@@ -83,11 +85,15 @@ def test_annotator(request,sid,rid=None):
         # Only continue if user_status is TESTING
         if user_status == "TESTING":
 
-            # Check for session variable
+            # Get session variable
+            session = get_testing_session(request=request,
+                                          user=user,
+                                          report_set=report_set)
+
             testing_report = None
-            testing_set = request.session.get('reports_testing', None)
-            testing_correct = request.session.get('reports_testing_correct', None)
-            testing_incorrect = request.session.get('reports_testing_incorrect', None)
+            testing_set = session.get('reports_testing', None)
+            testing_correct = session.get('reports_testing_correct', None)
+            testing_incorrect = session.get('reports_testing_incorrect', None)
 
             # Total reports required for taking, and for passing
             N = report_set.number_tests
@@ -107,8 +113,8 @@ def test_annotator(request,sid,rid=None):
                                        ''' %(N))   
           
                 # Set the testing_correct, testing_incorrect to 0
-                request.session['reports_testing_incorrect'] = 0
-                request.session['reports_testing_correct'] = 0
+                session['reports_testing_incorrect'] = 0
+                session['reports_testing_correct'] = 0
 
                 # Randomly select N reports from the set
                 testing_reports = select_random_reports(reports=report_set.reports.all(),
@@ -117,7 +123,7 @@ def test_annotator(request,sid,rid=None):
 
                 # Remove the first for testing
                 testing_report = testing_reports.pop(0)
-                request.session['reports_testing'] = testing_reports
+                session['reports_testing'] = testing_reports
 
 
             ###########################################################
@@ -175,8 +181,8 @@ def test_annotator(request,sid,rid=None):
                             
                     # The user is still testing, update the counts
                     else:
-                        request.session['reports_testing_correct'] = testing_correct
-                        request.session['reports_testing_incorrect'] = testing_incorrect
+                        session['reports_testing_correct'] = testing_correct
+                        session['reports_testing_incorrect'] = testing_incorrect
                         
 
         # If user status is (still) TESTING, start or continue
@@ -185,7 +191,7 @@ def test_annotator(request,sid,rid=None):
             # If we didn't select a testing report
             if testing_report == None:
                 testing_report = testing_set.pop(0)
-                request.session['reports_testing'] = testing_set
+                session['reports_testing'] = testing_set
            
             # Update the user with remaining reports
             remaining_tests = N - (testing_correct + testing_incorrect)
@@ -206,11 +212,13 @@ def test_annotator(request,sid,rid=None):
         elif user_status == "APPROVED":
             messages.info(request,"Congratulations, you have passed the testing! You are now annotating the collection set.")
             request = clear_testing_session(request) # Sets all to None
+            delete_testing_session(user,report_set)
             return annotate_set(request,report_set.id)
 
         elif user_status == "DENIED":
             messages.info(request,"You are not qualified to annotate this set.")
             request = clear_testing_session(request) # Sets all to None
+            delete_testing_session(user,report_set)
             return view_report_collection(request,report_set.collection.id)
            
 
@@ -220,6 +228,8 @@ def test_annotator(request,sid,rid=None):
     
     # Denied, or not annotate permission returns to see collection
     return view_report_collection(request,report_set.collection.id)
+
+
 
 def clear_testing_session(request,update_value=None):
     '''clear_testing_session will return a request with the testing session
@@ -231,6 +241,40 @@ def clear_testing_session(request,update_value=None):
     request.session['reports_testing_incorrect'] = update_value
     request.session['reports_testing'] = update_value
     return request
+
+
+def delete_testing_session(user,report_set=None):
+    '''delete one or (all) testing sessions for a user, allowing
+    him or her to restart tests (given that the credential objects 
+    are updated appropriately). If no report_set is provided, all
+    sessions are deleted
+    :param user: a User object
+    :param report_set: a report set (optional)
+    '''
+    from whatisit.apps.users.models import TestingSession
+    if not report_set:
+        testing_session = TestingSession.objects.filter(user=user)
+    else:
+        testing_session = [TestingSession.objects.get(user=user,
+                                                      report_set=report_set)]
+    for session in testing_session:
+        session.session.delete()
+        session.delete()
+
+
+def get_testing_session(request,user,report_set):
+    '''get_testing_session retrieves a testing session, where a particular request.session
+    is linked to the TestingSession.session variable. If not created, the current from the
+    request is linked, and the object saved. If created, the same session variable is returned. 
+    '''
+    testing_session,created = TestingSession.objects.get_or_create(user=user, 
+                                                                   report_set=report_set)
+            
+    # If created is True, it's a new session
+    if created == True:
+        testing_session.session = request.session
+        testing_session.save()
+    return testing_session.session
 
 
 def get_testing_annotations(report_set):

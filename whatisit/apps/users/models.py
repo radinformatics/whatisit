@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.sessions.models import Session
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
@@ -19,6 +20,7 @@ from whatisit.settings import MEDIA_ROOT
 import collections
 import operator
 import os
+
 
 #######################################################################################################
 # Supporting Functions and Variables ##################################################################
@@ -104,6 +106,20 @@ class Credential(models.Model):
 
         # This prevents a single user from spamming multiple requests
         unique_together =  (("user", "report_set"),)
+
+
+
+class TestingSession(models.Model):
+    '''a testing session holds a session object (with a request.session)
+    that can be generated specific to a report set'''
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    session = models.ForeignKey(Session)  
+    report_set = models.ForeignKey(ReportSet)
+
+
+#######################################################################################################
+# Teams ###############################################################################################
+#######################################################################################################
 
 
 class Team(models.Model):
