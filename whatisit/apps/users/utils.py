@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.http.response import (
     HttpResponseRedirect, 
     HttpResponseForbidden, 
@@ -23,6 +24,8 @@ from whatisit.apps.users.models import (
 import collections
 from datetime import datetime
 from datetime import timedelta
+from itertools import chain
+from numpy import unique
 import operator
 import os
 
@@ -113,8 +116,8 @@ def get_credential_contenders(report_set,return_users=True):
     '''
     # Get list of allowed annotators for set, not in set (to add)
     all_annotators = RequestMembership.objects.filter(collection=report_set.collection)
-    all_annotators = [x.requester for x in all_annotators]
-    has_credential = has_credentials(report_set)
+    annotator_ids = unique([x.requester.id for x in all_annotators] + [a.id for a in report_set.collection.annotators.all()]).tolist()
+    all_annotators = User.objects.filter(id__in=annotator_ids)
     contenders = [user for user in all_annotators if user not in has_credentials(report_set)]
     return contenders
 
