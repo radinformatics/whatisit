@@ -163,7 +163,7 @@ def test_annotator(request,sid,rid=None):
                                     continue
                 
 
-                    # If the testing set has length 0, we finished
+                    # If the total number tests (correct and incorrect)
                     if len(testing_set) == 0:
                    
                         # Did the user pass?
