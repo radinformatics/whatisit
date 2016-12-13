@@ -27,6 +27,7 @@ $(document).ready(function(){
     $("#submid-id-submit").click(function(){
         $("#fade").show();
         $('#loadfish').show();
+        $("form").attr("action","{% url 'edit_team' team.id %}");
         $("form").submit();
     });
 

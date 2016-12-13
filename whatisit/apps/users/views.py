@@ -97,7 +97,8 @@ def edit_team(request, tid=None):
 
         context = {"form": form,
                    "edit_permission": edit_permission,
-                   "title":title}
+                   "title":title,
+                   "team":team}
 
         return render(request, "teams/edit_team.html", context)
 
