@@ -683,9 +683,15 @@ def save_annotation_set(request,cid):
             # How many reports in the set?
             N = int(request.POST.get('N'))
 
-            # How many tests should be passing?
+            # How many tests should be given and passing?
             testing_set = int(request.POST.get('testing_set'))
- 
+            testing_set_correct = int(request.POST.get('testing_set_correct')) 
+
+            # Required number correct must be less than total
+            if testing_set_correct > testing_set:
+                messages.info(request,"The required number of passing questions must be less than or equal to the number of testing questions.")
+                return create_annotation_set(request,cid)
+
             # What users does the request want to see annotations by?
             user_id = request.POST.get('user')
             if user_id == 'all':
@@ -730,9 +736,10 @@ def save_annotation_set(request,cid):
 
             # Otherwise, save the new report set
             report_set = ReportSet.objects.create(collection=collection,
-                                                  number_tests=N,
+                                                  number_tests=testing_set,
+                                                  number_reports=N,
                                                   name=set_name,
-                                                  passing_tests=testing_set,
+                                                  passing_tests=testing_set_correct,
                                                   gold_standard=gold_standard)
             report_set.save()
 
@@ -784,8 +791,7 @@ def annotate_set(request,sid):
     elif user_status == "TESTING":
         # Send the user to the testing view, will grant permission/deny after test
         return test_annotator(request=request,
-                              sid=report_set.id,
-                              uid=user.id)
+                              sid=report_set.id)
 
     else: #denied or other
         messages.info(request,"You are not allowed to perform this action.")
@@ -827,9 +833,11 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
 
     # Get the concise annotations
     annotations = get_annotations(user=request.user, report=report)
-    annotations = summarize_annotations(annotations)['labels']
-    context["annotations"] = annotations['labels']
-    context["counts"] = annotations['counts']
+    annotations = summarize_annotations(annotations)
+    if "labels" in annotations:
+        context["annotations"] = annotations['labels']
+    if "counts" in annotations:
+        context["counts"] = annotations['counts']
 
     # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
     if allowed_annotations == None:

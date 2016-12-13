@@ -175,6 +175,9 @@ class ReportSet(models.Model):
                                      verbose_name="Users allowed to annotate report set.")    
 
     collection = models.ForeignKey(ReportCollection)
+    number_reports = models.PositiveIntegerField(blank=False,null=False,
+                                                 verbose_name="total number of reports asked for in set.",
+                                                 default=500)
     number_tests = models.PositiveIntegerField(blank=False,null=False,
                                      verbose_name="total number of randomly selected high confidence reports to test", 
                                      default=20)

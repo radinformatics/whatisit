@@ -72,10 +72,19 @@
             <!-- Testing Set -->
             <div class="md-form">
                 <input type="number" id="testing_set" name="testing_set" min="0" class="form-control">
-                <label for="N">Testing Set N</label>
+                <label for="testing_set">Testing Set N</label>
                 <p style="border-radius:5px;" class="alert alert-info">This number of reports will be randomly selected for testing.</p>
             </div>
-        
+       
+
+            <!-- Testing Number Correct Set -->
+            <div class="md-form">
+                <input type="number" id="testing_set_correct" name="testing_set_correct" min="0" class="form-control">
+                <label for="testing_set_correct">Testing Set Correct (for passing)</label>
+                <p style="border-radius:5px;" class="alert alert-info">This number of reports will be required for passing testing.</p>
+            </div>
+
+ 
             <div class="text-xs-center">
                 <button type="submit" class="btn btn-primary">Generate Set</button>
             </div>

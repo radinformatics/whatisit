@@ -19,6 +19,8 @@ from django.shortcuts import (
 )
 
 from whatisit.apps.wordfish.models import (
+    Annotation,
+    AllowedAnnotation,
     ReportSet,
     ReportCollection,
     Report
@@ -53,14 +55,16 @@ def test_annotator(request,sid,rid=None):
        get_permissions,
        view_report_collection
     )
+    from whatisit.apps.users.models import Credential
 
     if rid != None: # scoring is needed
-        completed_report = get_report(rid)
+        completed_report = get_report(request,rid)
     
     user = request.user
 
-    report_set = get_report_set(sid)
-    permissions = get_permissions(collection=report_set.collection)
+    report_set = get_report_set(request,sid)
+    context = {'collection':report_set.collection}
+    permissions = get_permissions(request,context)
 
     # Double check that user has permission to annotate
     if permissions["annotate_permission"] == True:
@@ -91,15 +95,20 @@ def test_annotator(request,sid,rid=None):
             # NEW TESTING SESSION
             ###########################################################
             if testing_set == None:
-                messages.info(request, 'This is the start of the test. You will be asked to annotate %s reports.' %(N))   
+                messages.info(request, '''This is the start of the test. You will be asked to annotate %s reports.
+                                       You should click on the correct label below, and then you can 
+                                       use your right arrow key (or the arrow at the bottom) to submit your answer.
+                                       ''' %(N))   
           
                 # Set the testing_correct, testing_incorrect to 0
                 request.session['reports_testing_incorrect'] = 0
                 request.session['reports_testing_correct'] = 0
 
                 # Randomly select N reports from the set
-                testing_reports = select_random_reports(reports=report_set.reports,
+                testing_reports = select_random_reports(reports=report_set.reports.all(),
                                                         N=N)
+                testing_reports = list(testing_reports)
+
                 # Remove the first for testing
                 testing_report = testing_reports.pop(0)
                 request.session['reports_testing'] = testing_reports
@@ -212,7 +221,7 @@ def get_testing_annotations(report_set):
     the user has selected for a report set, but return ALL possible labels (eg, positive/negative)
     to test the user. This is to ensure that testing scoring is not biased on one label type
     '''
-    set_annotations = report_set.testing_annotations
+    set_annotations = report_set.testing_annotations.all()
     label_names = []
     for set_annotation in set_annotations:
         if set_annotation.name not in label_names:

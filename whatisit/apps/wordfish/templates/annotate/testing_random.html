@@ -40,8 +40,9 @@
         {% include "main/message.html" %}
 
         <!-- Form to send updates to server-->
-        <form id="testing_form" action="{% url 'test_annotation' sid report.id %}" method="POST">
+        <form id="testing_form" action="{% url 'test_annotator' sid report.id %}" method="POST">
 
+        {% csrf_token %}
         {% for name,labels in allowed_annotations.items %}
             <fieldset style="border:dashed 1px;margin-bottom:10px">
                 <legend style="width:0%;font-size:1em;margin-bottom:0px"><span style="background-color:white">{{ name }}</span></legend>
@@ -68,7 +69,7 @@
     {% if annotate_permission %}
     <div class="row">
         <div class="col-md-12">
-            <a href="{% url 'report_details' report.id %}"><h2 style="margin-bottom:50px">{{ collection.name }}/{{ report.report_id }}</h2></a>
+            <h2 style="margin-bottom:50px;color:#0275d8">{{ collection.name }}/{{ report.report_id }}</h2>
             <div class="card card-block">
                 <p id="markme">{{ report.report_text }}</p>
             </div>
@@ -128,7 +129,7 @@ $(document).ready(function(){
 
         // User can only submit form to move on        
         if (e.which == 39) { 
-           document.location = "/annotate/reports/{{ collection.id }}/{{ next }}"
+           $("#testing_form").submit();
            e.preventDefault();
            return false;
         }
