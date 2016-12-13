@@ -94,6 +94,7 @@
                    {% if edit_permission %}
                    <td>Edit</td>
                    {% endif %}
+                   <td>Actions</td>
                </tr>
            </thead>
            <tbody>
@@ -105,6 +106,9 @@
                    {% if edit_permission %}
                    <td><a href="{% url 'edit_set_annotators' testing_set.id %}"><button class="btn-sm btn btn-default">Edit Annotators</button></a></td>
                    {% endif %}
+                   <td>
+                   <a href="{% url 'annotate_set' report_set.id %}" id="testingButton"><button class="btn btn-sm btn-primary">Testing</button></a>
+                   </td>
                </tr>
            {% endfor %}
            {% for report_set in report_sets %}
@@ -120,6 +124,13 @@
                    {% if edit_permission %}
                    <td><a href="{% url 'edit_set_annotators' report_set.id %}"><button class="btn-sm btn btn-default">Edit Annotators</button></a></td>
                    {% endif %}
+                   <td>
+                   {% if annotate_permission %}
+                   <a href="{% url 'annotate_set' report_set.id %}" id="annotate"><button class="btn btn-sm btn-primary">Annotate</button></a>
+                   {% else %}
+                   <a href="#" id="annotateButton"><button class="btn btn-sm btn-primary" disabled>Annotate</button></a>
+                   {% endif %}
+                   </td>
                </tr>
         {% endfor %}
             </tbody>
