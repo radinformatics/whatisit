@@ -101,13 +101,13 @@
            {% for testing_set in report_set_testers %}
                <tr>
                    <td>
-<a href="{% url 'annotate_set' report_set.id %}" id="annotate"> Test for {{ testing_set.id }} : {{ testing_set.name }}</a>
+<a href="{% url 'annotate_set' testing_set.id %}" id="annotate"> Test for {{ testing_set.id }} : {{ testing_set.name }}</a>
                    </td>
                    {% if edit_permission %}
                    <td><a href="{% url 'edit_set_annotators' testing_set.id %}"><button class="btn-sm btn btn-default">Edit Annotators</button></a></td>
                    {% endif %}
                    <td>
-                   <a href="{% url 'annotate_set' report_set.id %}" id="testingButton"><button class="btn btn-sm btn-primary">Testing</button></a>
+                   <a href="{% url 'annotate_set' testing_set.id %}" id="testingButton"><button class="btn btn-sm btn-primary">Testing</button></a>
                    </td>
                </tr>
            {% endfor %}
