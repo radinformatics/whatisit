@@ -42,6 +42,8 @@ from whatisit.apps.users.utils import (
     needs_testing
 )
 
+import pickle
+
 def test_annotator(request,sid,rid=None):
     '''test_annotator will ask an annotator to answer the specified number of
     questions to be granted access to annotate a collection. The data is stored
@@ -90,6 +92,8 @@ def test_annotator(request,sid,rid=None):
             N_pass = report_set.passing_tests
 
             # Undefined session means the user hasn't created a set yet
+            res = {'correct':testing_correct,'wrong':testing_incorrect,'set':testing_set}
+            pickle.dump(res,open('testing-set.pkl','wb'))
 
             ###########################################################
             # NEW TESTING SESSION
