@@ -735,6 +735,7 @@ def save_annotation_set(request,cid):
                 return create_annotation_set(request,collection.id)
 
             # Otherwise, save the new report set
+            selections = selections[0:N]
             report_set = ReportSet.objects.create(collection=collection,
                                                   number_tests=testing_set,
                                                   number_reports=N,

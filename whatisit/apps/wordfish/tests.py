@@ -43,6 +43,7 @@ from whatisit.apps.users.utils import (
 )
 
 import pickle
+import re
 
 def test_annotator(request,sid,rid=None):
     '''test_annotator will ask an annotator to answer the specified number of
@@ -83,6 +84,7 @@ def test_annotator(request,sid,rid=None):
         if user_status == "TESTING":
 
             # Check for session variable
+            testing_report = None
             testing_set = request.session.get('reports_testing', None)
             testing_correct = request.session.get('reports_testing_correct', None)
             testing_incorrect = request.session.get('reports_testing_incorrect', None)
@@ -135,9 +137,11 @@ def test_annotator(request,sid,rid=None):
                         # The annotation labels have a '||'
                         if re.search('[||]',post_key):
                             new_annotation = request.POST[post_key]
-                            selected_name,selected_label = new_annotation['name'].split('||')
-                            user_selected = new_annotation['value'] == "on"                
-  
+                            user_selected = False
+                            if new_annotation == "on":
+                                selected_name,selected_label = post_key.split('||')               
+                                user_selected = True   
+
                             # If we have an answer
                             if selected_name in answers:
                                 correct_answer = answers[selected_name]
@@ -177,6 +181,15 @@ def test_annotator(request,sid,rid=None):
 
         # If user status is (still) TESTING, start or continue
         if user_status == "TESTING":
+
+            # If we didn't select a testing report
+            if testing_report == None:
+                testing_report = testing_set.pop(0)
+                request.session['reports_testing'] = testing_set
+           
+            # Update the user with remaining reports
+            remaining_tests = N - (testing_correct + testing_incorrect)
+            messages.info(request,'You have %s reports remaining in this session' %(remaining_tests))
 
             # Get allowed annotations for set
             testing_annotations = get_testing_annotations(report_set)
