@@ -71,7 +71,7 @@ def has_credentials(report_set,return_users=True,status=None):
     :param status: one or more status to get. If not defined, will use TESTING and PASSED
     '''
     if status == None:
-        status = ["TESTING","APPROVED"]
+        status = ['TESTING','PASSED']
     if not isinstance(status,list):
         status = [status]
     has_credential = Credential.objects.filter(report_set=report_set,
@@ -101,24 +101,32 @@ def get_user_report_sets(collection,user,status=None):
     return report_sets        
 
 
-def get_credentials(users,report_set):
+def get_credentials(users,report_set,status=None):
     '''get a list of credential objects for a group of users for a report_set
     '''
-    credentials = Credential.objects.filter(report_set=report_set,
-                                            user__in=users)
+    if status == None:
+        credentials = Credential.objects.filter(report_set=report_set,
+                                                user__in=users)
+    else:
+        if not isinstance(status,list):
+            status = [status]
+        credentials = Credential.objects.filter(report_set=report_set,
+                                                user__in=users,
+                                                status__in=status)
     return credentials
 
 
-def get_credential_contenders(report_set,return_users=True,status=None):
+def get_credential_contenders(report_set,request_status=None):
     '''get a list of users that are APPROVED (or other status) to 
     annotate a collection, but have not had a credential created.
-    :param return_users: return list of users (not credentials) default is True
-    :param status: the status to filter for. If not provided, deafult is APPROVED
+    :param report_set: the report set
+    :param request_status: the status of RequestMembership. If not provided, deafult is APPROVED
+    :param status: the Credential status. If not provided, deafult is PASSED    
     '''
-    if status==None:
-        status = "APPROVED"
+    if request_status==None:
+        request_status = "APPROVED"
     # Get list of allowed annotators for set, not in set (to add)
-    all_annotators = RequestMembership.objects.filter(collection=report_set.collection,status=status)
+    all_annotators = RequestMembership.objects.filter(collection=report_set.collection,status=request_status)
     annotator_ids = unique([x.requester.id for x in all_annotators] + [a.id for a in report_set.collection.annotators.all()]).tolist()
     all_annotators = User.objects.filter(id__in=annotator_ids)
     contenders = [user for user in all_annotators if user not in has_credentials(report_set)]
