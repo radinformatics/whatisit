@@ -167,7 +167,7 @@ def test_annotator(request,sid,rid=None):
                    
                         # Did the user pass?
                         if testing_correct >= N_pass:
-                            user_status = credential.status = "APPROVED"
+                            user_status = credential.status = "PASSED"
                         else:
                             user_status = credential.status = "DENIED"
                         credential.save()                            
@@ -201,7 +201,7 @@ def test_annotator(request,sid,rid=None):
                                    template="annotate/testing_random.html")
 
         # If the user status was approved, either previously or aboved, move on to annotation
-        elif user_status == "APPROVED":
+        elif user_status == "PASSED":
             messages.info(request,"Congratulations, you have passed the testing! You are now annotating the collection set.")
             request = delete_testing_session(request,session) # deletes session, sets reports to None
             return annotate_set(request,report_set.id)
