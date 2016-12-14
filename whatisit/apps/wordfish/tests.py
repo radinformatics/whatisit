@@ -179,7 +179,7 @@ def test_annotator(request,sid,rid=None):
                         credential.save()                            
                             
                     # Update the counts
-                    res = {'correct':testing_correct,'wrong':testing_incorrect,'choice':option_chosen}
+                    res = {'correct':testing_correct,'wrong':testing_incorrect,'choice':option_chosen,'keys':post_keys}
                     pickle.dump(res,open('testing-set.pkl','wb'))
                     session.correct = testing_correct
                     session.incorrect = testing_incorrect
