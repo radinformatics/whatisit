@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.sessions.models import Session
+from django.contrib.sessions.backends.db import SessionStore
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
@@ -113,7 +113,7 @@ class TestingSession(models.Model):
     '''a testing session holds a session object (with a request.session)
     that can be generated specific to a report set'''
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    session = models.ForeignKey(Session,null=True,blank=True)
+    session = models.ForeignKey(SessionStore,null=True,blank=True)
     report_set = models.ForeignKey(ReportSet)
 
 
