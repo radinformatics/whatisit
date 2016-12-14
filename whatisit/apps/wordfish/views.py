@@ -286,7 +286,7 @@ def edit_set_annotators(request,sid):
         contenders = get_credential_contenders(report_set)
 
         # Get list of failed annotators for set (if want to retest)
-        failures = get_credentials(denied_credentials,
+        failures = get_credentials(denied_credential,
                                    report_set,
                                    status="DENIED")
 

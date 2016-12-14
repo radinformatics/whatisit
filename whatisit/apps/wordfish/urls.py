@@ -37,11 +37,11 @@ urlpatterns = [
                                                                 name='deny_annotator'),
 
     # Change annotator access to report_set
-    url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/approve$',report_views.approve_set_annotator,name='approve_set_annotator'),
-    url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/deny$',report_views.deny_set_annotator,name='deny_set_annotator'),
-    url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/test$',report_views.test_set_annotator,name='test_set_annotator'),
-    url(r'^annotate/set/(?P<sid>.+?)/(?P<uid>.+?)/remove$',report_views.remove_set_annotator,name='remove_set_annotator'),
-    url(r'^annotate/set/(?P<sid>.+?)/test$',report_views.new_set_annotator,name='new_set_annotator'), #same as test, from post
+    url(r'^set/annotate/(?P<sid>.+?)/(?P<uid>.+?)/approve$',report_views.approve_set_annotator,name='approve_set_annotator'),
+    url(r'^set/annotate/(?P<sid>.+?)/(?P<uid>.+?)/deny$',report_views.deny_set_annotator,name='deny_set_annotator'),
+    url(r'^set/annotate/(?P<sid>.+?)/(?P<uid>.+?)/test$',report_views.test_set_annotator,name='test_set_annotator'),
+    url(r'^set/annotate/(?P<sid>.+?)/(?P<uid>.+?)/remove$',report_views.remove_set_annotator,name='remove_set_annotator'),
+    url(r'^set/annotate/(?P<sid>.+?)/test$',report_views.new_set_annotator,name='new_set_annotator'), #same as test, from post
 
     # Change / add contributors
     url(r'^contributors/(?P<cid>.+?)/(?P<uid>.+?)/remove$',report_views.remove_contributor,name='remove_contributor'),

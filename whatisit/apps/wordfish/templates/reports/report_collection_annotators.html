@@ -135,7 +135,7 @@
                                    <td>{{ annotator.updated_at }}</td>
  
                                    <td>{% if annotator.status == "DENIED" %}
-                                       <a href="{% url 'approve_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success btn-sm" disabled>FORCE APPROVE</button></a>
+                                       <a href="{% url 'approve_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-success btn-sm">FORCE APPROVE</button></a>
                                        <a href="{% url 'test_set_annotator' report_set.id annotator.user.id %}"><button class="btn btn-info btn-sm">TRIGGER RETEST</button><a>
                                        {% endif %}
                                    </td>
