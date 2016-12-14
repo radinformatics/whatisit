@@ -772,7 +772,7 @@ def annotate_set(request,sid):
 
     # Only continue annotation if the user is approved (and not expired)
     user_status = get_annotation_status(report_set=report_set,
-                                        user=user) # should look at date for testing, change to testing if needed
+                                        user=user) 
 
     # No credential exists, for user (this should not happen)
     if user_status == None:
@@ -780,7 +780,7 @@ def annotate_set(request,sid):
         return view_report_collection(request,report_set.collection.id)
 
     # Approved means we continue
-    if user_status == "APPROVED":
+    if user_status == "PASSED":
         
         if has_collection_annotate_permission(request,collection):
             reports = report_set.reports.all()
@@ -798,7 +798,7 @@ def annotate_set(request,sid):
 
     else: #denied or other
         messages.info(request,"You are not allowed to perform this action.")
-        return view_report_collection(request,cid)
+        return view_report_collection(request,report_set.collection.id)
     
     
 
