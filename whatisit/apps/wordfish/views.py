@@ -303,7 +303,7 @@ def edit_set_annotators(request,sid):
 @login_required
 def change_set_annotator(request,sid,uid,status):
     '''change the status of a set annotator to one of 
-    APPROVED,DENIED,TESTING
+    PASSED,DENIED,TESTING
     :param sid: the report_set id
     :param uid: the user id
     '''
@@ -316,7 +316,7 @@ def change_set_annotator(request,sid,uid,status):
         credential.status = status
         credential.save()
         messages.info(request,"User %s status changed to %s" %(annotator,status.lower()))
-        return render(request, 'reports/report_collection_annotators.html', context)
+        return edit_set_annotators(request,sid)
 
     # Does not have permission, return to collection
     messages.info(request, "You do not have permission to edit annotators for this collection.")
@@ -353,7 +353,7 @@ def approve_set_annotator(request,sid,uid):
     :param sid: the report_set id
     :param uid: the user id
     '''
-    return change_set_annotator(request,sid,uid,"APPROVE")
+    return change_set_annotator(request,sid,uid,"PASSED")
 
 
 @login_required
