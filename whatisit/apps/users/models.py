@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.sessions.backends.db import SessionStore
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
@@ -108,13 +107,17 @@ class Credential(models.Model):
         unique_together =  (("user", "report_set"),)
 
 
-
 class TestingSession(models.Model):
-    '''a testing session holds a session object (with a request.session)
-    that can be generated specific to a report set'''
+    '''a testing session holds a user testing session
+    that can be generated specific to a report set. The report set itself
+    is stored in a request.session with the TestingSession id as lookup'''
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    session = models.ForeignKey(SessionStore,null=True,blank=True)
     report_set = models.ForeignKey(ReportSet)
+    correct = models.PositiveIntegerField(blank=False,null=False,default=0)
+    incorrect = models.PositiveIntegerField(blank=False,null=False,default=0)
+
+    class Meta:
+        unique_together =  (("user", "report_set"),)
 
 
 #######################################################################################################
