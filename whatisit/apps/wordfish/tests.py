@@ -58,10 +58,8 @@ def test_annotator(request,sid,rid=None):
        get_permissions,
        view_report_collection
     )
-    from whatisit.apps.users.models import (
-        Credential,
-        TestingSession
-    )
+    from whatisit.apps.users.models import Credential
+
     if rid != None: # scoring is needed
         completed_report = get_report(request,rid)
     
@@ -267,6 +265,7 @@ def get_testing_session(request,user,report_set):
     is linked to the TestingSession.session variable. If not created, the current from the
     request is linked, and the object saved. If created, the same session variable is returned. 
     '''
+    from whatisit.apps.users.models import TestingSession
     testing_session,created = TestingSession.objects.get_or_create(user=user, 
                                                                    report_set=report_set)
             
