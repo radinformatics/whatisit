@@ -277,11 +277,15 @@ def edit_set_annotators(request,sid):
         # Get list of allowed annotators for set, not in set (to add)
         has_credential = has_credentials(report_set,status="PASSED")
 
+        # Get credentials for allowed annotators
+        credentials = get_credentials(has_credential,report_set)
+        users_with_credentials = [x.user for x in credentials]
+
         # Get list of allowed annotators for set, allowed in set (if want to remove)
         contenders = get_credential_contenders(report_set)
 
-        # And a credential for each associated user
-        credentials = get_credentials(has_credential,report_set)
+        # Remove contenders that are allowed annotation
+        contenders = [x for x in contenders if x not in users_with_credentials]
 
         context = {'annotators':credentials,
                    'collection':collection,
