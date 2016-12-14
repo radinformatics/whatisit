@@ -275,7 +275,7 @@ def edit_set_annotators(request,sid):
     if has_collection_edit_permission(request,collection):
 
         # Get list of allowed annotators for set, not in set (to add)
-        has_credential = has_credentials(report_set)
+        has_credential = has_credentials(report_set,status="PASSED")
 
         # Get list of allowed annotators for set, allowed in set (if want to remove)
         contenders = get_credential_contenders(report_set)

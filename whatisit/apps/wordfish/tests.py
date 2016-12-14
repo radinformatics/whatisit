@@ -55,6 +55,7 @@ def test_annotator(request,sid,rid=None):
     '''
     from whatisit.apps.wordfish.views import (
        annotate_report,
+       annotate_set,
        get_permissions,
        view_report_collection
     )
@@ -97,10 +98,6 @@ def test_annotator(request,sid,rid=None):
             # Total reports required for taking, and for passing
             N = report_set.number_tests
             N_pass = report_set.passing_tests
-
-            # Undefined session means the user hasn't created a set yet
-            res = {'correct':testing_correct,'wrong':testing_incorrect,'set':testing_set}
-            pickle.dump(res,open('testing-set.pkl','wb'))
 
             ###########################################################
             # NEW TESTING SESSION
@@ -151,20 +148,17 @@ def test_annotator(request,sid,rid=None):
                                 # The user selected the right answer
                                 if user_selected and correct_answer == selected_label:
                                     testing_correct += 1 
-                                    option_chosen = '1'
+
                                 # The user selected, but not right answer
                                 elif user_selected and correct_answer != selected_label:
                                     testing_incorrect += 1 
-                                    option_chosen = '2'
                             
                                 # The user didn't select, is right answer
                                 elif not user_selected and correct_answer == selected_label:
                                     testing_incorrect += 1 
-                                    option_chosen = '3'
 
                                 # The user didn't select, is not right answer
                                 elif not user_selected and correct_answer != selected_label:
-                                    option_chosen = '4'
                                     continue
                 
 
@@ -179,8 +173,6 @@ def test_annotator(request,sid,rid=None):
                         credential.save()                            
                             
                     # Update the counts
-                    res = {'correct':testing_correct,'wrong':testing_incorrect,'choice':option_chosen,'keys':post_keys}
-                    pickle.dump(res,open('testing-set.pkl','wb'))
                     session.correct = testing_correct
                     session.incorrect = testing_incorrect
                     session.save()
