@@ -752,7 +752,7 @@ def save_annotation_set(request,cid):
             # If we are successful, return a message to tell the admin to add annotators.
             add_annotators_link = "/collections/%s/sets/annotators" %(report_set.id)
             messages.info(request,"""Annotation set successfully created! You should now 
-                                  <a href="%s">add annotators</a> to it.</a>
+                                  add annotators to it.
                                   """ %(add_annotators_link))
 
 

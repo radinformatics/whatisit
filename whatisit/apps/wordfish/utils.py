@@ -245,7 +245,7 @@ def select_random_reports(reports,N=1):
     '''select random reports will select N reports from a provided set.
     '''
     # Make sure that enough reports are provided
-    if len(reports) <= N:
+    if len(reports) >= N:
         report_list = []
         while len(report_list) < N:
             new_report = select_random_report(reports)
@@ -270,7 +270,7 @@ def select_random_report(reports):
             record = Report.objects.get(id=rid)
         except:
             rid = None
-    return report
+    return record
 
 
 #TODO: edit these to upload reports 
