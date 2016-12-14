@@ -144,23 +144,27 @@ def test_annotator(request,sid,rid=None):
                                 user_selected = True   
 
                             # If we have an answer
+                            option_chosen = ''
                             if selected_name in answers:
                                 correct_answer = answers[selected_name]
 
                                 # The user selected the right answer
                                 if user_selected and correct_answer == selected_label:
                                     testing_correct += 1 
-
+                                    option_chosen = '1'
                                 # The user selected, but not right answer
                                 elif user_selected and correct_answer != selected_label:
                                     testing_incorrect += 1 
+                                    option_chosen = '2'
                             
                                 # The user didn't select, is right answer
                                 elif not user_selected and correct_answer == selected_label:
                                     testing_incorrect += 1 
+                                    option_chosen = '3'
 
                                 # The user didn't select, is not right answer
                                 elif not user_selected and correct_answer != selected_label:
+                                    option_chosen = '4'
                                     continue
                 
 
@@ -174,11 +178,12 @@ def test_annotator(request,sid,rid=None):
                             user_status = credential.status = "DENIED"
                         credential.save()                            
                             
-                    # The user is still testing, update the counts
-                    else:
-                        session.correct = testing_correct
-                        session.incorrect = testing_incorrect
-                        session.save()
+                    # Update the counts
+                    res = {'correct':testing_correct,'wrong':testing_incorrect}
+                    pickle.dump(res,open('testing-set.pkl','wb'))
+                    session.correct = testing_correct
+                    session.incorrect = testing_incorrect
+                    session.save()
 
         # If user status is (still) TESTING, start or continue
         if user_status == "TESTING":
