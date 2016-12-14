@@ -45,6 +45,8 @@
             {% endif %}
         {% endif %}
 
+        {% include "main/message.html" %}
+
         <!-- Form to send updates to server-->
         <form action="{% url 'update_annotation' report.id %}" method="POST" id="update_annotation">
 
