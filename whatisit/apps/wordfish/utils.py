@@ -25,6 +25,7 @@ from whatisit.apps.wordfish.models import (
 )
 from whatisit.settings import MEDIA_ROOT
 from random import randint
+from numpy.random import shuffle
 import numpy
 import operator
 import shutil
@@ -244,18 +245,11 @@ def get_allowed_annotations(collection,return_objects=True):
 def select_random_reports(reports,N=1):
     '''select random reports will select N reports from a provided set.
     '''
-    # Make sure that enough reports are provided
+    reports = list(reports)
+    shuffle(reports)
+    # If enough reports are provided, select subset
     if len(reports) >= N:
-        report_list = []
-        while len(report_list) < N:
-            new_report = select_random_report(reports)
-            # This double check isn't needed really...
-            if new_report not in report_list:
-                report_list.append(new_report)
-            # As we remove reports from the selection set
-            reports = reports.exclude(id=new_report.id)
-        return report_list
-    # otherwise return everything provided
+        reports = reports[0:N]
     return reports
 
 
