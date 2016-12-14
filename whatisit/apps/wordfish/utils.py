@@ -24,6 +24,7 @@ from whatisit.apps.wordfish.models import (
     ReportSet
 )
 from whatisit.settings import MEDIA_ROOT
+from random import randint
 import numpy
 import operator
 import shutil

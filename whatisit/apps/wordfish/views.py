@@ -73,7 +73,6 @@ import os
 import numpy
 import pandas
 import pickle
-from random import randint
 import re
 import shutil
 import tarfile
