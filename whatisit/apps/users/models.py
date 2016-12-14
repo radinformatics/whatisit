@@ -113,7 +113,7 @@ class TestingSession(models.Model):
     '''a testing session holds a session object (with a request.session)
     that can be generated specific to a report set'''
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    session = models.ForeignKey(Session)  
+    session = models.ForeignKey(Session,null=True,blank=True)
     report_set = models.ForeignKey(ReportSet)
 
 
