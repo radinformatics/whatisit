@@ -826,20 +826,28 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
     '''
     if report == None:
         report = get_report(request,rid)
+    collection = report.collection
 
     if template == None:
         template = "annotate/annotate_random.html"
 
-    context = {"collection":report.collection,
-               "report":report,
-               "next":next}
+    context = {"collection":collection,
+               "report":report}
 
     if sid != None:
         next = "%s/set" %(sid)
         context['sid'] = sid
 
+    # If next is None, return random
     elif next == None:
-        next = "random"
+        next = "%s/random" %(collection.id)
+
+    # If it's not None, we still need to add collection id
+    else:
+        next = "%s/%s" %(collection.id,next)
+
+    # Next url will direct to either set, or random
+    context['next'] = next
 
     # Get the concise annotations
     annotations = get_annotations(user=request.user, report=report)
