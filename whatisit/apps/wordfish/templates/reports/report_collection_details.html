@@ -85,7 +85,7 @@
     <ul role="tablist" style='padding-bottom:20px'>
       
         <!-- Report Sets -->
-        {% if report_sets %}
+        {% if report_sets or report_set_testers %}
         <h3 style='padding-top:10px'>Annotation Sets</h3>
         <table id="annotators" class="table table-striped table-bordered" cellspacing="0" width="100%">     
            <thead class="thead-inverse">
@@ -152,7 +152,9 @@
 {% endif %}
 
 {% if not report_sets %}
+   {% if not report_set_testers %}
 <p class="alert alert-info">You have no report sets to annotate.</p>
+   {% endif %}
 {% endif %}
 
 <!-- Membership requests -->
