@@ -204,6 +204,10 @@ def test_annotator(request,sid,rid=None):
         elif user_status == "PASSED":
             messages.info(request,"Congratulations, you have passed the testing! You are now annotating the collection set.")
             request = delete_testing_session(request,session) # deletes session, sets reports to None
+            # Add the user to the set
+            if request.user not in report_set.annotators.all():
+                report_set.annotators.add(request.user)
+                report_set.save()
             return annotate_set(request,report_set.id)
 
         elif user_status == "DENIED":
