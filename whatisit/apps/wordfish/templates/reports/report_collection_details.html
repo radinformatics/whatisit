@@ -115,8 +115,13 @@
                <tr>
                    <td>
                    {% if annotate_permission %}
-<a href="{% url 'annotate_set' report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
+                       {% if edit_permission %}
+                       <a href="{% url 'annotate_set' report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }} : {{ report_set.name }}</a>
+                       {% else %}
+                       <a href="{% url 'annotate_set' report_set.id %}" id="annotate"> Annotate Set {{ report_set.id }}</a>
+                       {% endif %}
                    {% else %}
+
                    <p>{{ report_set.id }} : {{ report_set.name }}</a>
                    {% endif %}
                    </td>
