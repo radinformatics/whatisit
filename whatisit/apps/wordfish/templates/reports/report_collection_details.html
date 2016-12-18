@@ -33,11 +33,28 @@
     <div class="col-md-8" style="padding-bottom:50px">
 
         <div class="card card-block" style="padding:30px;min-height:286px">
-            <h2>Annotate</h2>
-            <hr>
+
+             <!-- Nav tabs -->
+             <ul class="nav nav-tabs md-pills pills-default" role="tablist">
+                 <li class="nav-item">
+                     <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab"><i class="fa fa-user fa-2x"></i><br> Annotate</a>
+                 </li>
+                 {% if edit_permission %}
+                 <li class="nav-item">
+                     <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab"><i class="fa fa-heart fa-2x"></i><br> Users</a>
+                 </li>
+                 {% endif %}
+             </ul>
+
+             <!-- Tab panels -->
+             <div class="tab-content">
+
+             <!--Annotate panel -->
+             <div class="tab-pane fade in active" id="annotatePanel" role="tabpanel">
+                 <br>
+
             {% if edit_permission %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
-                <a href="{% url 'edit_contributors' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Add Contributors</button></a>
             <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
             {% endif %}
             {% if annotate_permission %}
@@ -49,33 +66,48 @@
 
                 <!-- Here is where we select default tags-->
                 <div style="padding-top:20px">
-                <label for="markup">Highlight Helpers</label>
+                    <label for="markup">Highlight Helpers</label>
 
-                {% if edit_permission %}
-                <form method="POST" action="{% url 'save_collection_markup' collection.id %}">
-                    {% csrf_token %}
-                    <input name="markup" id="markup"  value="{{ collection.markup }}"></input>
-                    <button type="submit" class="save btn btn-default btn-sm">Save</button>
-                </form>
-                {% else %}
-                    <input name="markup" id="markup"  value="{{ collection.markup }}" disabled></input>
-                {% endif %}
+                    {% if edit_permission %}
+                    <form method="POST" action="{% url 'save_collection_markup' collection.id %}">
+                        {% csrf_token %}
+                        <input name="markup" id="markup"  value="{{ collection.markup }}"></input>
+                        <button type="submit" class="save btn btn-default btn-sm">Save</button>
+                    </form>
+                    {% else %}
+                        <input name="markup" id="markup"  value="{{ collection.markup }}" disabled></input>
+                    {% endif %}
 
             <!--  The user does not have permission to annotate the collection!-->
             {% else %}
 
-                {% if membership %}
-                <p class="alert alert-info">Your annotator request submit on {{ membership.created_at }} has status {{ membership.status }}.</p>
-                {% else %}
-                You don't have permission to annotate this collection. Please <a href="{% url 'request_annotate_permission' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light">request permission</button></a>
-                {% endif %}
+                    {% if membership %}
+                    <p class="alert alert-info">Your annotator request submit on {{ membership.created_at }} has status {{ membership.status }}.</p>
+                    {% else %}
+                    You don't have permission to annotate this collection. Please <a href="{% url 'request_annotate_permission' collection.id %}"><button type="button" class="btn btn-lg btn-default waves-effect waves-light">request permission</button></a>
+                    {% endif %}
             {% endif %}
-            </div>
+                </div>
 
         </div>
-    </div>
- </div>
+        <!--End Annotate Panel -->
 
+        <!--Users panel -->
+        {% if edit_permission %}
+        <div class="tab-pane fade" id="usersPanel" role="tabpanel">
+            <br>
+
+                <a href="{% url 'edit_contributors' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Add Contributors</button></a>
+
+        </div>
+        <!--/.Panel 2-->
+        {% endif %}
+
+</div>
+
+
+    </div>
+</div>
 
 
 <!-- Report Counting -->
