@@ -899,7 +899,7 @@ def update_annotation(request,rid,report=None):
                     annotation_object = AllowedAnnotation.objects.get(name=aname,
                                                                       label=alabel)
                     annot = update_user_annotation(user=request.user,
-                                                   annotation_object=annotation_object,
+                                                   allowed_annotation=annotation_object,
                                                    report=report)
 
             response_data = {}

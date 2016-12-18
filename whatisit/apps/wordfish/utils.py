@@ -171,16 +171,16 @@ def get_annotations(user=None,report=None):
         return Annotation.objects.filter(annotator=user).annotate(Count('annotation', distinct=True))
 
 
-def update_user_annotation(user,annotation_object,report):
+def update_user_annotation(user,allowed_annotation,report):
     '''update_user_annotation will take a user, and an annotation object, a report, and update the report with the annotation.
     :param user: the user object
-    :param annotation_object: the annotation
+    :param allowed_annotation: the allowed annotation object
     '''
 
     # Remove annotations done previously by the user for the report
     previous_annotations = Annotation.objects.filter(annotator=user,
                                                      reports__id=report.id,
-                                                     annotation__name=annotation_object.name)
+                                                     annotation__name=allowed_annotation.name)
     annotation,created = Annotation.objects.get_or_create(annotator=user,
                                                           annotation=annotation_object)
 
