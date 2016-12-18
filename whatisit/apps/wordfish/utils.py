@@ -190,8 +190,11 @@ def update_user_annotation(user,annotation_object,report):
     annotation.reports.add(report)
     annotation.save()
     
-    # Finally, delete other annotation objects 
-    [x.delete() for x in previous_annotations if x.id != annotation.id]
+    # Finally, remove the report from other annotation objects 
+    for pa in previous_annotations:
+        if pa.id != annotation.id:
+            pa.reports.remove(report) 
+            pa.save() # not needed       
 
     return annotation
 
