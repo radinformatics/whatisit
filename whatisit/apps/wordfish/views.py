@@ -443,7 +443,8 @@ def view_report_collection(request,cid):
         context["requesters_pending"] = len([x for x in context["requesters"] if x.status == "PENDING"])
 
     # Show report Sets allowed to annotate
-    context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user])
+    context["report_sets"] = ReportSet.objects.filter(annotators__in=[request.user],
+                                                      collection=collection)
     context['report_set_testers'] = get_user_report_sets(collection,
                                                          user=request.user) # status="TESTING"
 
