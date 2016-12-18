@@ -16,6 +16,13 @@
   <div id="tools" style='display:none'>
        <label>Annotation Sets</label>
        <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default btn-sm">New Annotation Set </button></a><br>
+       
+       <!-- Form to clear all annotations -->
+       <form action="{% url 'clear_annotations' report.id %}" method="POST" id="clear_annotations">
+            <button type="button" class="btn btn-warning btn-sm" name="clear" id="clear_button" autocomplete="off">Clear Annotations</button>
+        </form>
+
+
        <hr>
        <label for="markup">Highlight Words</label>
        <input name="markup" placeholder="type then ENTER to add, click to remove" id="markup" value="{{ collection.markup }}"></input>
