@@ -17,6 +17,7 @@ from whatisit.apps.wordfish.tests import (
 
 from whatisit.apps.wordfish.utils import (
     add_message, 
+    clear_user_annotations,
     get_allowed_annotations,
     get_annotation_counts, 
     get_annotations, 
@@ -872,9 +873,9 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
 
 
 @login_required
-def update_annotation(request,rid,report=None):
-    '''update_annotation is the view to update an annotation when it changes. It should return a JSON response.
-    '''
+def clear_annotations(request,rid,report=None):
+    '''clear all annotations for a specific report and user'''
+
     if report == None:
         report = get_report(request,rid)
 
@@ -882,8 +883,33 @@ def update_annotation(request,rid,report=None):
     annotate_permission = has_collection_annotate_permission(request,report.collection)
     if annotate_permission:
 
-        # Get the concise annotations (not sure if I need these, actually)        
-        annotations = get_annotations(user=request.user, report=report)
+        if request.method == 'POST':
+            try:
+                clear_user_annotations(request.user,report)
+                response_data = {'result':'Annotations successfully cleared'}
+            except:
+                response_data = {'result':'Error clearing annotations.'}
+
+            return JsonResponse(response_data)
+
+        else:
+            return JsonResponse({"have you ever seen...": "a radiologist rigatoni?"})
+
+    else:
+        context = {"message":"You are not authorized to perform this action"}
+        return render(request, "messages/not_authorized.html", context)
+
+
+@login_required
+def update_annotation(request,rid,report=None):
+    '''update_annotation is the view to update an annotation when it changes. It should return a JSON response.
+    '''
+    if report == None:
+        report = get_report(request,rid)
+
+    # Does the user have permission to annotate the collection?
+    annotate_permission = has_collection_annotate_permission(request,report.collection)
+    if annotate_permission:
 
         if request.method == 'POST':
             try:
@@ -902,8 +928,7 @@ def update_annotation(request,rid,report=None):
                                                    allowed_annotation=annotation_object,
                                                    report=report)
 
-            response_data = {}
-            response_data['result'] = 'Create post successful!'
+            response_data = {'result':'Create post successful!'}
 
             return JsonResponse(response_data)
 

@@ -67,6 +67,13 @@
 
         </form>
 
+        <!-- Form to clear all annotations -->
+        <form action="{% url 'clear_annotations' report.id %}" method="POST" id="clear_annotations">
+            <label class="btn btn-primary">
+            <input class="annotate-button" type="button" name="clear" id="clear_button" autocomplete="off">Clear Annotations
+        </form>
+
+
         </div>
     </div>
     </div>
@@ -182,6 +189,29 @@ $(document).ready(function(){
         })
     }
 
+    // Function to clear annotations
+    function clearAnnotations() {
+
+        $.ajax({
+            url : "{% url 'clear_annotations' report.id %}", // the endpoint
+            type : "POST", // http method
+
+            // handle a successful response
+            success : function(json) {
+                console.log(json); // log the returned json to the console
+                console.log("success"); // another sanity check
+            },
+
+            // handle a non-successful response
+            error : function(xhr,errmsg,err) {
+                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+         });
+    }
+
+
     // On change on input, submit form
     $(".annotate-button").click(function(){
         setTimeout(function(){
@@ -189,6 +219,14 @@ $(document).ready(function(){
         },500)
     });
 
+    // On click, clear annotations
+    $("#clear_button").click(function(){
+        setTimeout(function(){
+             clearAnnotations();
+        },500)
+        $('input:radio').attr('checked',false)
+        $('.annotate-button').removeClass('active');
+    });
 
     // Annotation tools
     $("#tool-toggle").click(function(){

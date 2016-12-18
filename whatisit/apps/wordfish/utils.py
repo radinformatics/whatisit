@@ -171,6 +171,18 @@ def get_annotations(user=None,report=None):
         return Annotation.objects.filter(annotator=user).annotate(Count('annotation', distinct=True))
 
 
+def clear_user_annotations(user,report):
+    '''clear_user_annotations will remove all annotations for a user for a report.
+    :param user: the user
+    :param report: the report object to clear
+    '''
+    previous_annotations = Annotation.objects.filter(annotator=user,
+                                                     reports__id=report.id)
+    for previous_annotation in previous_annotations:
+        if report in previous_annotation.reports.all(): # in case multiple processes
+            previous_annotation.reports.remove(report) 
+
+
 def update_user_annotation(user,allowed_annotation,report):
     '''update_user_annotation will take a user, and an annotation object, a report, and update the report with the annotation.
     :param user: the user object
