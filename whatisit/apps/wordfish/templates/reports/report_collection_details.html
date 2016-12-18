@@ -37,11 +37,11 @@
              <!-- Nav tabs -->
              <ul class="nav nav-tabs md-pills pills-default" role="tablist">
                  <li class="nav-item">
-                     <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab"><i class="fa fa-user fa-2x"></i><br> Annotate</a>
+                     <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab"><i class="fa fa-pencil fa-2x"></i><br> Annotate</a>
                  </li>
                  {% if edit_permission %}
                  <li class="nav-item">
-                     <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab"><i class="fa fa-heart fa-2x"></i><br> Users</a>
+                     <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab"><i class="fa fa-user fa-2x"></i><br> Users</a>
                  </li>
                  {% endif %}
              </ul>
@@ -54,14 +54,14 @@
                  <br>
 
             {% if edit_permission %}
-                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">New Annotation Set</button></a>
-            <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-default waves-effect waves-light"> Counts</button></a>
+                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Annotation Set</button></a>
+            <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-sm btn-info waves-effect waves-light"> Counts</button></a>
             {% endif %}
             {% if annotate_permission %}
 
                 <!-- Continue Set -->
                 {% if request.session.reports %}
-                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
+                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">Resume Set ({{ request.session.reports|length }} remaining)</button></a>
                 {% endif %}
 
                 <!-- Here is where we select default tags-->
