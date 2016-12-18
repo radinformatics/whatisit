@@ -182,7 +182,7 @@ def update_user_annotation(user,allowed_annotation,report):
                                                      reports__id=report.id,
                                                      annotation__name=allowed_annotation.name)
     annotation,created = Annotation.objects.get_or_create(annotator=user,
-                                                          annotation=annotation_object)
+                                                          annotation=allowed_annotation)
 
     # If the annotation was just created, save it, and add report
     if created == True:
