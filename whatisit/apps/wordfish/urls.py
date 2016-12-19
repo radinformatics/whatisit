@@ -19,6 +19,10 @@ urlpatterns = [
     url(r'^collections/my$',report_views.my_report_collections,name='my_report_collections'),
     url(r'^collections/(?P<sid>.+?)/sets/annotators$',report_views.edit_set_annotators,name='edit_set_annotators'),
 
+    # Annotation Labels
+    url(r'^labels/reports/(?P<cid>.+?)/new$',report_views.create_label,name='create_label'), # create new label
+    #url(r'^labels/reports/(?P<cid>.+?)/(?P<lid>.+?)/edit$',report_views.create_label,name='edit_label'), # edit label
+ 
     # Annotation sets
     url(r'^filter/(?P<cid>.+?)/create$',report_views.create_annotation_set,name='create_annotation_set'),
     url(r'^filter/(?P<cid>.+?)/save$',report_views.save_annotation_set,name='save_annotation_set'),

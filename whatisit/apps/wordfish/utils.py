@@ -128,6 +128,13 @@ def count_user_annotations(users):
     return Annotation.objects.filter(annotator__in=users).count() 
    
 
+def count_user_reports(user,report_set):
+    '''return the count of a single user's reports annotated
+    :param report_set: a report set to count for
+    '''
+    return report_set.reports.filter(reports_annotated__annotator=user).distinct().count()
+
+
 def summarize_team_annotations(members):
     '''summarize_team_annotations will return a summary of annotations for a group of users, typically a team
     :param members: a list or queryset of users
@@ -247,7 +254,7 @@ def get_allowed_annotations(collection,return_objects=True):
     :param collection: the collection to select
     :param return_objects: if False, returns dictionary of objects
     '''
-    allowed = AllowedAnnotation.objects.filter(annotation__reports__collection=collection)
+    allowed = AllowedAnnotation.objects.filter(annotation__reports__collection=collection).distinct()
     if return_objects == False:
         allowed = group_allowed_annotations(allowed)
     return allowed
@@ -270,6 +277,8 @@ def select_random_reports(reports,N=1):
 
 def select_random_report(reports):
     '''select random report will return one random report
+    :NOTE this function was buggy when used with report_set,
+    select_random_reports is being used in favor (needs testing)
     '''
     rid = None
     while rid == None:

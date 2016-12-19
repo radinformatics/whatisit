@@ -54,6 +54,7 @@
                  <br>
 
             {% if edit_permission %}
+                <a href="{% url 'create_label' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Label</button></a>
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Annotation Set</button></a>
             <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-sm btn-info waves-effect waves-light"> Counts</button></a>
             {% endif %}

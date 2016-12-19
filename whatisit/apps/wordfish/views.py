@@ -18,6 +18,7 @@ from whatisit.apps.wordfish.tests import (
 from whatisit.apps.wordfish.utils import (
     add_message, 
     clear_user_annotations,
+    count_user_reports,
     get_allowed_annotations,
     get_annotation_counts, 
     get_annotations, 
@@ -28,6 +29,7 @@ from whatisit.apps.wordfish.utils import (
     get_report_set,
     group_allowed_annotations,
     select_random_report,
+    select_random_reports,
     summarize_annotations, 
     update_user_annotation
 )
@@ -812,6 +814,45 @@ def annotate_set(request,sid):
     
 
 ###############################################################################################
+# Labels ######################################################################################
+###############################################################################################
+
+@login_required
+def create_label(request,cid):
+    '''create_label will allow a user to create a new label to be associated with a collection. The user
+    will be able to select from other collection labels
+    :param cid: the collection id to associate the label with (not required, but no url accessible for it) 
+    '''
+    collection = get_report_collection(request,cid)
+
+    if request.user == collection.owner:
+
+        if request.method == "POST":
+
+            messages.info(request, "New annotation label generated successfully.")
+
+        else:
+
+            # Labels associated with collection
+            collection_labels = get_allowed_annotations(collection)
+
+            labels = [x for x in AllowedAnnotation.objects.all() if x not in collection_labels]
+
+            context = {'labels':labels,
+                       'collection':collection,
+                       'collection_labels':collection_labels}
+        
+            return render(request, 'labels/new_collection_label.html', context)
+
+    else:
+        # Does not have permission, return to collection
+        messages.info(request, "You do not have permission to perform this action.")
+    return view_report_collection(request,cid)
+
+
+
+
+###############################################################################################
 # annotations #################################################################################
 ###############################################################################################
 
@@ -839,6 +880,12 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
     if sid != None:
         next = "%s/set" %(sid)
         context['sid'] = sid
+
+        # Also tell the user how many to go
+        report_set = get_report_set(request,sid)
+        remaining = count_user_reports(user,report_set)
+        messages.info(request,"You have annotated %s of %s reports in this set." %(remaining,report_set.number_reports))
+
 
     # If next is None, return random
     elif next == None:
@@ -954,8 +1001,8 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
     if reports == None:
         reports = Report.objects.filter(collection=collection)
 
-    # Get a random report
-    report = select_random_report(reports)
+    # Get a random report (if gets slow, change to get_random_report
+    report = select_random_reports(reports)[0]
 
     # Ensure url returned is for report
     return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 'sid': sid}))
