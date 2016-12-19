@@ -26,7 +26,7 @@
                            </tr>
                        </thead>
 
-                           <form action="{% url 'new_set_annotator' report_set.id %}" method="POST">
+                           <form method="POST">
                                {% csrf_token %}
  
                                <tbody>
@@ -34,7 +34,7 @@
                                    <tr>
                                        <td>{{ label.name }}</td>
                                        <td>{{ label.option }}</td> 
-                                       <td><a href="{% url 'add_label' collection.id label.id %}"><button class="btn btn-success btn-sm">Add Label</button></a>
+                                       <td><a class="add_existing" data-url="{% url 'create_label' collection.id label.id %}"><button class="btn btn-success btn-sm">Add Label</button></a>
                                    </tr>
                                 {% endfor %}
                                </tbody>
@@ -50,20 +50,12 @@
 
     <div class="col-md-12 card">
         <br>
-        <h2>Add Annotator</h2>
-        <p class="alert alert-info" style="padding:5px">The users in this list have been given permission to join the collection, but are not added to this set. Adding them here will allow them to test to become part of the set annotators, and this testing will expire in {{ report_set.expire }}.</p>
+        <h2>Add New Label</h2>
 
         <!-- Here the user has the option to add an annotator -->
-        <form action="{% url 'new_set_annotator' report_set.id %}" method="POST">
+        <form action="{% url 'create_label' collection.id %}" method="POST">
 
             {% csrf_token %}
-
-            <label for="user">Contenders</label>
-            <select id="user" name="user" class="form-control">
-                {% for contender in contenders %}
-                <option value="{{ contender.id }}">{{ contender }}</option>
-                {% endfor %}
-            </select>
 
             <div class="text-xs-center">
                 <button type="submit" class="btn btn-primary">Add</button>
@@ -80,10 +72,37 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
-   $('#annotators').DataTable();
-   $(".remove_annotator").click(function(){
-      return confirm("Are you sure you want to remove this annotator? Annotations will not be lost, but the annotator will no longer be a part of the collection.");
+
+   // Create label with ajax, success will disabled/change text of button
+   $('.add_existing').click(function(){
+       var url = $(this).attr('data-url')
+       var button = this;
+   
+        $.ajax({
+            url : url, // the endpoint
+            type : "POST", // http method
+            
+            // handle a successful response
+            success : function(json) {
+                console.log(json); // log the returned json to the console
+                console.log("success"); // another sanity check
+                $(button).attr('disabled','disabled')
+                $(button).removeClass('btn-success',true)
+                $(button).addClass('btn-info',true)
+            },
+
+            // handle a non-successful response
+            error : function(xhr,errmsg,err) {
+                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                     console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+         });
+
    })
+
+        //var annotations = JSON.stringify($("#update_annotation").serializeArray())
+
 })
 </script>
 {% endblock %}
