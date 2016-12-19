@@ -21,7 +21,7 @@ urlpatterns = [
 
     # Annotation Labels
     url(r'^labels/reports/(?P<cid>.+?)/new$',report_views.create_label,name='create_label'), # create new label
-    #url(r'^labels/reports/(?P<cid>.+?)/(?P<lid>.+?)/edit$',report_views.create_label,name='edit_label'), # edit label
+    url(r'^labels/reports/(?P<cid>.+?)/(?P<lid>.+?)/new$',report_views.create_label,name='create_label'), # from existing
  
     # Annotation sets
     url(r'^filter/(?P<cid>.+?)/create$',report_views.create_annotation_set,name='create_annotation_set'),
