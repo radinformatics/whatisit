@@ -835,7 +835,11 @@ def create_label(request,cid,lid=None):
                 try:
                     allowed_annotation = AllowedAnnotation.objects.get(id=lid)
                     collection.allowed_annotations.add(allowed_annotation)
-                    response_text = {"result": "New annotation label generated successfully."}
+                    collection.save()
+                    label_name = "%s:%s" %(allowed_annotation.name,
+                                           allowed_annotation.label)
+                    response_text = {"result": "New annotation label %s added successfully." %(label_name)}
+
                 except BaseException as e:
                     response_text = {"error": "Error retrieving allowed annotation %s, %s" %(lid,e.message)}
 

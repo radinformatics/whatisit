@@ -33,6 +33,7 @@ input {
 <div class="row">
 
     <div style="padding-top:50px" class="col-md-12">
+        <p id='message_box' style="display:none" class='alert alert-info'></p>
         <h2 style="padding-bottom:20px">Select from Existing</h2>
 
                    <table id="labels" class="display" cellspacing="0" width="100%">
@@ -135,9 +136,9 @@ $(document).ready(function(){
             success : function(json) {
                 console.log(json); // log the returned json to the console
                 console.log("success"); // another sanity check
-                $(button).attr('disabled','disabled')
-                $(button).removeClass('btn-success',true)
-                $(button).addClass('btn-info',true)
+                $(button).parent().parent().remove();
+                $('#message_box').text(json.result);
+                $('#message_box').show();
             },
 
             // handle a non-successful response
