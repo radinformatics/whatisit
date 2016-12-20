@@ -865,7 +865,6 @@ def create_label(request,cid,lid=None):
             # Otherwise, the user wants a new one
             else:
 
-                pickle.dump(dict(request.POST),open('POST.pkl','wb'))
                 name = request.POST.get('annotation_name', None)
                 if name != None:
                     for key in request.POST.keys():
