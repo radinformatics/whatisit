@@ -62,7 +62,7 @@ from django.shortcuts import (
     render, 
     redirect
 )
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+
 from django.utils import timezone
 from django.urls import reverse
 
@@ -818,10 +818,11 @@ def annotate_set(request,sid):
 ###############################################################################################
 
 @login_required
-def create_label(request,cid):
+def create_label(request,cid,lid=None):
     '''create_label will allow a user to create a new label to be associated with a collection. The user
     will be able to select from other collection labels
     :param cid: the collection id to associate the label with (not required, but no url accessible for it) 
+    :param lid: if provided on a post, the label will be added to the collection as an allowed annotation
     '''
     collection = get_report_collection(request,cid)
 
@@ -829,7 +830,33 @@ def create_label(request,cid):
 
         if request.method == "POST":
 
-            messages.info(request, "New annotation label generated successfully.")
+            # If lid is defined, we are adding an already existing annotation label to collection
+            if lid != None:
+                try:
+                    allowed_annotation = AllowedAnnotation.objects.get(id=lid)
+                    collection.allowed_annotations.add(allowed_annotation)
+                    response_text = {"result": "New annotation label generated successfully."}
+                except BaseException as e:
+                    response_text = {"error": "Error retrieving allowed annotation %s, %s" %(lid,e.message)}
+
+            # Otherwise, the user wants a new one
+            else:
+
+                pickle.dump(dict(request.POST),open('POST.pkl','wb'))
+                name = request.POST.get('annotation_name', None)
+                if name != None:
+                    for key in request.POST.keys():
+                        if re.search('annotation_label',key):
+                            new_label = request.POST.get(key)
+                            allowed_annot,created = AllowedAnnotation.objects.get_or_create(name=name,
+                                                                                         label=new_label)                       
+                            if created == True:
+                                allowed_annot.save()
+                            collection.annotations.add(allowed_annot)
+
+                    response_text = {"result": "Label generation successful."}
+                else:
+                    response_text = {"result": "An annotation name is required"}
 
         else:
 
@@ -842,7 +869,10 @@ def create_label(request,cid):
                        'collection':collection,
                        'collection_labels':collection_labels}
         
+            # send back json response success
             return render(request, 'labels/new_collection_label.html', context)
+
+        return JsonResponse(response_text)
 
     else:
         # Does not have permission, return to collection

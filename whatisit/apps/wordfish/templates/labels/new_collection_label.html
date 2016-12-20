@@ -6,6 +6,15 @@
 {% block css %}
 <link href="{% static "css/bootstrap.datatables.css"%}" media="screen" rel="stylesheet" type="text/css" />
 <!--https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap.min.css-->
+<style>
+/* must be capitalized */
+input {
+  text-transform: capitalize;
+}
+.remove_label {
+  border-radius: 10px;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -25,9 +34,6 @@
                                <th></th>
                            </tr>
                        </thead>
-
-                           <form method="POST">
-                               {% csrf_token %}
  
                                <tbody>
                                {% for label in labels %}
@@ -38,7 +44,6 @@
                                    </tr>
                                 {% endfor %}
                                </tbody>
-                           </form>
                     </table>
                 </div>
     </div>
@@ -52,10 +57,23 @@
         <br>
         <h2>Add New Label</h2>
 
-        <!-- Here the user has the option to add an annotator -->
+        <!-- Here the user has the option to add a new label -->
         <form action="{% url 'create_label' collection.id %}" method="POST">
 
             {% csrf_token %}
+
+            <div class="md-form input-group">
+                <input type="text" class="form-control" name="annotation_name" placeholder="DISEASE_PRESENT" aria-describedby="labelname">
+                <span class="input-group-addon" id="labelname">_label</span>
+            </div>
+
+            <ul class="list-group" id="label_list">
+                <li class="list-group-item">
+                    <input type="text" class="form-control" name="annotation_label_1" placeholder="PRESENT">
+                    <button type='button' class="remove_label btn btn-danger btn-sm"><i class="fa fa-close"></i></button>          
+                </li>
+            </ul>
+            <button type='button' id="add_label" class="btn btn-default btn-sm">Add label</button>
 
             <div class="text-xs-center">
                 <button type="submit" class="btn btn-primary">Add</button>
@@ -68,12 +86,26 @@
 
 {% endblock %}
 {% block scripts %}
+<script src="{% static "js/cookie-token.js" %}"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
 
    $("#labels").DataTable();
+ 
+   // Add a row for a new label when the user clicks
+   $('#add_label').click(function(){
+       var number = 1 + Math.floor(Math.random() * 10000);
+       var template = '<li class="list-group-item"><input type="text" class="form-control" name="annotation_label_' + number + '" placeholder="PRESENT"><button type="button" class="remove_label btn btn-danger btn-sm"><i class="fa fa-close"></i></button></li>'
+       $("#label_list").append(template)  
+   })
+
+   // When a user clicks a label, it will be removed
+   $('.remove_label').click(function(){
+       $(this).parent().remove();  
+   })
+
 
    // Create label with ajax, success will disabled/change text of button
    $('.add_existing').click(function(){
