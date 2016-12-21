@@ -56,10 +56,14 @@
             {% if edit_permission %}
                 <a href="{% url 'create_label' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Label</button></a>
                 <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">Gold Standard Annotation</button></a>
+                
                 {% if annotation_counts.total > 25 %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Annotation Set</button></a>
                 {% endif %}
+
+                {% if annotation_counts.total > 0 %}
             <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-sm btn-info waves-effect waves-light"> Counts</button></a>
+                {% endif %}
 
             {% endif %}
             {% if annotate_permission %}
