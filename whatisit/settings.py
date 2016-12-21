@@ -219,6 +219,12 @@ STATIC_URL = '/static/'
 GRAVATAR_DEFAULT_IMAGE = "retro" 
 # An image url or one of the following: 'mm', 'identicon', 'monsterid', 'wavatar', 'retro'. Defaults to 'mm'
 
+# Report Gold Standard Settings
+
+# The minimum number of annotations required (across reports) to allow
+# generation of a set for annotation
+GOLD_STANDARD_MIN_ANNOTS=25
+
 # Bogus secret key.
 try:
     from whatisit.secrets import *

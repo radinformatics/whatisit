@@ -34,7 +34,12 @@ from whatisit.apps.wordfish.utils import (
     update_user_annotation
 )
 
-from whatisit.settings import BASE_DIR, MEDIA_ROOT
+from whatisit.settings import (
+    BASE_DIR, 
+    MEDIA_ROOT,
+    GOLD_STANDARD_MIN_ANNOTS
+)
+
 from whatisit.apps.users.models import RequestMembership, Credential
 from whatisit.apps.users.utils import (
     get_annotation_status,
@@ -670,6 +675,16 @@ def create_annotation_set(request,cid):
     if has_collection_edit_permission(request,collection):
         users = get_collection_annotators(collection)
         allowed_annotations = get_allowed_annotations(collection,return_objects=False)
+
+        # Only allow generation of a set if minimum of 25 reports (for gold standard)
+        count = get_annotation_counts(collection)['total']
+        if count < GOLD_STANDARD_MIN_ANNOTS:
+            messages.info(request,'''You must have a minimum of 25 annotations to create an annotation set. 
+                                     A collection owner or contributor can annotate random reports to generate 
+                                     this gold standard.''')
+            return view_report_collection(request,cid)
+
+
         context = {"users": users,
                    "collection": collection,
                    "allowed_annotations": allowed_annotations}
@@ -794,8 +809,11 @@ def annotate_set(request,sid):
     if user_status == "PASSED":
         
         if has_collection_annotate_permission(request,collection):
-            reports = report_set.reports.all()
-            #TODO: add session variable here to move user through set based on id
+
+            # If the user has un-annotated reports, return those first
+            reports = report_set.reports.all().exclude(reports_annotated__annotator=user).distinct()
+            if len(reports) == 0:
+                reports = report_set.reports.all()
             return annotate_random(request,
                                    cid=collection.id,
                                    sid=sid,
