@@ -29,6 +29,18 @@ input {
 {% block content %}
 {% include 'main/message.html' %}
 
+<div class="row">
+
+    <!-- Container collection meta -->
+    <div class="header" style="padding-bottom:20px">
+        <h3 class="title" style="padding-bottom:20px">
+        <a href="{% url 'report_collection_details' collection.id %}"><i class="fa fa-chevron-left"></i> {{ collection.name }}</a></h3>
+    </div>
+
+    <div class="col-md-4" style="padding-bottom:50px">
+</div>
+
+
 <div class="row" style="padding-top:50px">
 
     <div class="col-md-12">
