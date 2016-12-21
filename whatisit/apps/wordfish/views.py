@@ -1067,5 +1067,6 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
     report = select_random_reports(reports)[0]
 
     # Ensure url returned is for report
-    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 'sid': sid}))
-    
+    if sid != None:
+        return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 'sid': sid}))
+    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id}))
