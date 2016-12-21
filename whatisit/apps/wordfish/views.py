@@ -817,6 +817,25 @@ def annotate_set(request,sid):
 # Labels ######################################################################################
 ###############################################################################################
 
+def view_label(request,cid,template=None):
+    '''view_label is a general template to return a view of labels
+    '''
+    collection = get_report_collection(request,cid)
+    if template==None:
+        template = 'labels/new_collection_label.html'
+
+    # Labels associated with collection
+    collection_labels = collection.allowed_annotations.all()
+    labels = [x for x in AllowedAnnotation.objects.all() if x not in collection_labels]
+
+    context = {'labels':labels,
+               'collection':collection,
+               'collection_labels':collection_labels}
+
+    # send back json response success
+    return render(request, template, context)
+
+
 @login_required
 def create_label(request,cid,lid=None):
     '''create_label will allow a user to create a new label to be associated with a collection. The user
@@ -835,14 +854,17 @@ def create_label(request,cid,lid=None):
                 try:
                     allowed_annotation = AllowedAnnotation.objects.get(id=lid)
                     collection.allowed_annotations.add(allowed_annotation)
-                    response_text = {"result": "New annotation label generated successfully."}
+                    collection.save()
+                    label_name = "%s:%s" %(allowed_annotation.name,
+                                           allowed_annotation.label)
+                    response_text = {"result": "New annotation label %s added successfully." %(label_name)}
+
                 except BaseException as e:
                     response_text = {"error": "Error retrieving allowed annotation %s, %s" %(lid,e.message)}
 
             # Otherwise, the user wants a new one
             else:
 
-                pickle.dump(dict(request.POST),open('POST.pkl','wb'))
                 name = request.POST.get('annotation_name', None)
                 if name != None:
                     for key in request.POST.keys():
@@ -852,25 +874,17 @@ def create_label(request,cid,lid=None):
                                                                                          label=new_label)                       
                             if created == True:
                                 allowed_annot.save()
-                            collection.annotations.add(allowed_annot)
+                            collection.allowed_annotations.add(allowed_annot)
 
-                    response_text = {"result": "Label generation successful."}
+                    messages.info(request,"Label generation successful.")
                 else:
-                    response_text = {"result": "An annotation name is required"}
+                    messages.info(request,"An annotation name is required.")
+                
+                return view_label(request,cid)
 
         else:
 
-            # Labels associated with collection
-            collection_labels = get_allowed_annotations(collection)
-
-            labels = [x for x in AllowedAnnotation.objects.all() if x not in collection_labels]
-
-            context = {'labels':labels,
-                       'collection':collection,
-                       'collection_labels':collection_labels}
-        
-            # send back json response success
-            return render(request, 'labels/new_collection_label.html', context)
+            return view_label(request,cid)
 
         return JsonResponse(response_text)
 
