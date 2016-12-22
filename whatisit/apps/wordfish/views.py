@@ -150,7 +150,7 @@ def request_annotate_permission(request,cid):
     a collection (as an annotator) via a RequestMembership object. This does not
     give full access to annotate, they must then be added to specific annotation sets
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     previous_request,created = RequestMembership.objects.get_or_create(requester=request.user,
                                                                        collection=collection)
     if created == True:
@@ -166,7 +166,7 @@ def deny_annotate_permission(request,cid,uid):
     '''a user can be denied annotate permission at the onset (being asked) or
     have it taken away, given asking --> pending --> does not pass test
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         requester = get_user(request,uid)
         permission_request = RequestMembership.objects.get(collection=collection,
@@ -183,7 +183,7 @@ def approve_annotate_permission(request,cid,uid):
     '''a user must first get approved for annotate permission before being
     added to an annotation set
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         requester = get_user(request,uid)
         permission_request = RequestMembership.objects.get(collection=collection,
@@ -210,7 +210,7 @@ def approve_annotate_permission(request,cid,uid):
 def edit_contributors(request,cid):
     '''edit_contributors is the view to see, add, and delete contributors for a set.
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if request.user == collection.owner:
 
         # Who are current contributors?
@@ -237,7 +237,7 @@ def add_contributor(request,cid):
     '''add a new contributor to a collection
     :param cid: the collection id
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if request.user == collection.owner:
         if request.method == "POST":
             user_id = request.POST.get('user',None)
@@ -256,7 +256,7 @@ def remove_contributor(request,cid,uid):
     :param cid: the collection id
     :param uid: the contributor (user) id
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     user = get_user(request,uid)
     contributors = collection.contributors.all()
     if request.user == collection.owner:
@@ -436,7 +436,7 @@ def my_report_collections(request):
 # View report collection
 @login_required
 def view_report_collection(request,cid):
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     report_count = Report.objects.filter(collection=collection).count()
     context = {"collection":collection,
                "report_count":report_count}
@@ -460,7 +460,7 @@ def view_report_collection(request,cid):
 
 @login_required
 def save_collection_markup(request,cid):
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     edit_permission = has_collection_edit_permission(request,collection)
     if request.method == "POST":
         if edit_permission:
@@ -476,7 +476,7 @@ def save_collection_markup(request,cid):
 # View report collection
 @login_required
 def summarize_reports(request,cid):
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     # Get a count of annotations by label in the collection
     annotation_counts = get_annotation_counts(collection)
     report_count = Report.objects.filter(collection=collection).count()
@@ -489,7 +489,7 @@ def summarize_reports(request,cid):
 # View report
 @login_required
 def view_report(request,rid):
-    report = get_report(request,rid)
+    report = get_report(rid)
     #TODO: In the future if we ever want to allow counting across collection, this needs to change
     annotation_counts = get_annotation_counts(report.collection,reports=[report])
     context = {"report":report,
@@ -504,8 +504,8 @@ def view_report(request,rid):
 
 # Delete report
 @login_required
-def delete_report(request,cid):
-    report = get_report(request,cid)
+def delete_report(request,rid):
+    report = get_report(rid)
     collection = report.collection
     if request.user == collection.owner:
         report.delete()
@@ -519,7 +519,7 @@ def delete_report(request,cid):
 def upload_reports(request,cid):
     '''upload_reports to a collection (currently not implemented)
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     messages.info(request,"Upload of reports in the interface is not currently supported.")    
     return view_report_collection(request,cid)
 
@@ -529,7 +529,7 @@ def upload_reports(request,cid):
 def edit_report_collection(request, cid=None):
 
     if cid:
-        collection = get_report_collection(request,cid)
+        collection = get_report_collection(cid)
     else:
         collection = ReportCollection(owner=request.user)
         if has_collection_edit_permission(request,collection):
@@ -576,7 +576,7 @@ def create_annotation_session(request,cid):
     (stored in a session) for making annotations. (not currently in use)
     :param cid: the collection id to use
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         report_set = request.session.get('reports', None) 
         if report_set != None:
@@ -599,7 +599,7 @@ def save_annotation_session(request,cid):
     a session with the queryset. (not in use)
     :param cid: the collection id to use
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         if request.method == "POST":
 
@@ -635,7 +635,7 @@ def annotate_session(request,cid):
     '''annotate_custom will allow the user to annotate a custom selected set (saved in a session)
     if not defined, the user is redirected to create one, with a message
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         report_set = request.session.get('reports', None)
 
@@ -671,7 +671,7 @@ def create_annotation_set(request,cid):
     (stored as ReportSet) for making annotations.
     :param cid: the collection id to use
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         users = get_collection_annotators(collection)
         allowed_annotations = get_allowed_annotations(collection,return_objects=False)
@@ -698,7 +698,7 @@ def save_annotation_set(request,cid):
     a ReportSet with the queryset.
     :param cid: the collection id to use
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if has_collection_edit_permission(request,collection):
         if request.method == "POST":
             
@@ -846,7 +846,7 @@ def bulk_annotate(request,cid,sid=None):
         collection = report_set.collection
         reports = report_set.reports.all()
     else:
-        collection = get_report_collection(request,cid)
+        collection = get_report_collection(cid)
         reports = collection.report_set.all()
    
     if has_collection_edit_permission(request,collection):
@@ -883,12 +883,11 @@ def bulk_annotate(request,cid,sid=None):
 
             allowed_annotations = get_allowed_annotations(collection,return_objects=False)
 
-            context = {"users": users,
-                       "collection": collection,
+            context = {"collection": collection,
                        "allowed_annotations": allowed_annotations}
 
             if sid != None:
-                context['report_set'] = report_set
+                context['sid'] = sid
 
             return render(request, "annotate/bulk_annotate.html", context)
     return view_report_collection(request,cid)
@@ -902,7 +901,7 @@ def bulk_annotate(request,cid,sid=None):
 def view_label(request,cid,template=None):
     '''view_label is a general template to return a view of labels
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if template==None:
         template = 'labels/new_collection_label.html'
 
@@ -925,7 +924,7 @@ def create_label(request,cid,lid=None):
     :param cid: the collection id to associate the label with (not required, but no url accessible for it) 
     :param lid: if provided on a post, the label will be added to the collection as an allowed annotation
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
 
     if request.user == collection.owner:
 
@@ -994,7 +993,7 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
     the entire set of a collection is used.
     '''
     if report == None:
-        report = get_report(request,rid)
+        report = get_report(rid)
     collection = report.collection
 
     if template == None:
@@ -1053,7 +1052,7 @@ def clear_annotations(request,rid,report=None):
     '''clear all annotations for a specific report and user'''
 
     if report == None:
-        report = get_report(request,rid)
+        report = get_report(rid)
 
     # Right now, only owners allowed to contribute
     annotate_permission = has_collection_annotate_permission(request,report.collection)
@@ -1081,7 +1080,7 @@ def update_annotation(request,rid,report=None):
     '''update_annotation is the view to update an annotation when it changes. It should return a JSON response.
     '''
     if report == None:
-        report = get_report(request,rid)
+        report = get_report(rid)
 
     # Does the user have permission to annotate the collection?
     annotate_permission = has_collection_annotate_permission(request,report.collection)
@@ -1125,7 +1124,7 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
     :param sid: the set id of a report, if provided, will be sent in with the next url param
     :param reports: a pre selected subset to select randomly from
     '''
-    collection = get_report_collection(request,cid)
+    collection = get_report_collection(cid)
     if reports == None:
         reports = Report.objects.filter(collection=collection)
 

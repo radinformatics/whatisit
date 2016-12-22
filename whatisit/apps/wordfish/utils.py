@@ -35,9 +35,9 @@ import re
 
 #### GETS #############################################################
 
-def get_report(request,cid):
+def get_report(rid):
     '''get a single report, or return 404'''
-    keyargs = {'id':cid}
+    keyargs = {'id':rid}
     try:
         report = Report.objects.get(**keyargs)
     except Report.DoesNotExist:
@@ -46,7 +46,7 @@ def get_report(request,cid):
         return report
 
 
-def get_report_collection(request,cid):
+def get_report_collection(cid):
     '''get a single collection, or return 404'''
     keyargs = {'id':cid}
     try:

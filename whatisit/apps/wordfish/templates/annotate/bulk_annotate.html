@@ -14,7 +14,7 @@
             <hr class="mt-2 mb-2">
         </div>
 
-        <form action="{% url 'bulk_annotate' collection.id report_set.id %}" method="POST">
+        <form action="{% url 'bulk_annotate' collection.id sid %}" method="POST">
 
             {% csrf_token %}
 
