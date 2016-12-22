@@ -122,18 +122,14 @@ def count_user_annotations(users):
     '''return the count of a single user's annotations 
     (meaning across reports)
     '''
-    # Return count for a single user
-    count = 0
 
-    # For a single user
+    # Count for a single user
     if isinstance(users,User):
-        report_counts = Annotation.objects.filter(annotator=users).annotate(Count('reports', distinct=True))
+        count = Report.objects.filter(reports_annotated__annotator=users).distinct().count()
 
     # or count across a group of users
     else:
-        report_counts = Annotation.objects.filter(annotator__in=users).annotate(Count('reports', distinct=True))
-    for report_count in report_counts:
-        count += report_count.reports__count
+        count = Report.objects.filter(reports_annotated__annotator__in=users).distinct().count()
 
     return count
    
