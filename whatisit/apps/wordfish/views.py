@@ -943,12 +943,6 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
         next = "%s/set" %(sid)
         context['sid'] = sid
 
-    # Tell the user how many annotated / remaining
-    remaining_message = count_remaining_reports(user=request.user,
-                                                collection=collection,sid,
-                                                return_message=True)
-    messages.info(request,remaining_message)
-
     # If next is None, return random
     elif next == None:
         next = "%s/random" %(collection.id)
@@ -956,6 +950,14 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
     # If it's not None, we still need to add collection id
     else:
         next = "%s/%s" %(collection.id,next)
+
+    # Tell the user how many annotated / remaining
+    remaining_message = count_remaining_reports(user=request.user,
+                                                collection=collection,
+                                                sid=sid,
+                                                return_message=True)
+    messages.info(request,remaining_message)
+
 
     # Next url will direct to either set, or random
     context['next'] = next
