@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<sid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
 
     # Bulk Annotations
-    url(r'^bulk/reports/(?P<cid>.+?)/(?P<sid>.+?)/annotate$',report_views.bulk_annotate,name='bulk_annotate'), # set
+    url(r'^bulk/reports/(?P<cid>.+?)/(?P<sid>.+?)/annotate$',report_views.bulk_annotate,name='bulk_annotate_set'), # set
     url(r'^bulk/reports/(?P<cid>.+?)/annotate$',report_views.bulk_annotate,name='bulk_annotate'), # collection
 
     # Request Addition to collection
