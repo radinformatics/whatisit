@@ -33,6 +33,10 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report'), # showrandom
     url(r'^annotate/reports/(?P<sid>.+?)/set$',report_views.annotate_set,name='annotate_set'),
 
+    # Bulk Annotations
+    url(r'^bulk/reports/(?P<cid>.+?)/(?P<sid>.+?)/annotate$',report_views.bulk_annotate,name='bulk_annotate'), # set
+    url(r'^bulk/reports/(?P<cid>.+?)/annotate$',report_views.bulk_annotate,name='bulk_annotate'), # collection
+
     # Request Addition to collection
     url(r'^annotate/(?P<cid>.+?)/request$',report_views.request_annotate_permission,name='request_annotate_permission'),
     url(r'^annotate/(?P<cid>.+?)/(?P<uid>.+?)/approve$',report_views.approve_annotate_permission,

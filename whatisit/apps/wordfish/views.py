@@ -828,8 +828,72 @@ def annotate_set(request,sid):
     else: #denied or other
         messages.info(request,"You are not allowed to perform this action.")
         return view_report_collection(request,report_set.collection.id)
-    
-    
+
+
+###############################################################################################
+# Bulk Annotation #############################################################################
+###############################################################################################
+
+
+@login_required
+def bulk_annotate(request,cid,sid=None):
+    '''bulk annotate will allow a user to apply annotations, in masse, to a collection or set
+    :param cid: the collection id to use
+    :param sid: the report set id, if a subset of reports is being used
+    '''
+    if sid !=None:
+        report_set = get_report_set(request,sid)
+        collection = report_set.collection
+        reports = report_set.reports.all()
+    else:
+        collection = get_report_collection(request,cid)
+        reports = collection.report_set.all()
+   
+    if has_collection_edit_permission(request,collection):
+
+        # POST indicates creating a bulk annotation
+        if request.method == "POST":
+
+            # Does the user want to bulk annotate only unlabeled sets?
+            unlabeled_only = request.POST.get('unlabeled_only',None)
+
+            # What annotations does the user want to do in bulk?
+            selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
+            selections = []
+            seen_annotations = []
+            for selection_key in selection_keys:
+                name,label = selection_key.replace("whatisit||","").split("||")
+                allowed_annotation = AllowedAnnotation.objects.get(name=name,
+                                                                   label=label)
+
+                # If the user doesn't want to include already labeled reports, exclude
+                if unlabeled_only == True:
+                    reports = reports.exclude(reports_annotated__annotator=user).distinct()
+
+                for report in reports:
+                    annot = update_user_annotation(user=request.user,
+                                                   allowed_annotation=allowed_annotation,
+                                                   report=report)
+
+                messages.info(request,"Annotation %s:%s applied to %s reports" %(name,label,reports.count()))
+                return view_report_collection(request,cid)
+
+        # Otherwise just render the form
+        else:
+
+            allowed_annotations = get_allowed_annotations(collection,return_objects=False)
+
+            context = {"users": users,
+                       "collection": collection,
+                       "allowed_annotations": allowed_annotations}
+
+            if sid != None:
+                context['report_set'] = report_set
+
+            return render(request, "annotate/bulk_annotate.html", context)
+    return view_report_collection(request,cid)
+        
+
 
 ###############################################################################################
 # Labels ######################################################################################

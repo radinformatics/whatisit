@@ -2,11 +2,8 @@
 {% load crispy_forms_tags %}
 {% load staticfiles %}
 
-{% block header %}
-{% include 'main/mega_dropdown.html' %}
-{% endblock %}
-
 {% block content %}
+{% include 'main/message.html' %}
 
 {% if request.session.reports %}
     {% if request.session.reports|length > 0 %}
