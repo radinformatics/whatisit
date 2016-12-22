@@ -278,7 +278,7 @@ def edit_set_annotators(request,sid):
     this means that the user has asked for and been given permission to annotate the collection.
     :param sid: the report set id
     '''
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     collection = report_set.collection
     if has_collection_edit_permission(request,collection):
 
@@ -322,7 +322,7 @@ def change_set_annotator(request,sid,uid,status):
     :param sid: the report_set id
     :param uid: the user id
     '''
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     collection = report_set.collection
     if has_collection_edit_permission(request,collection):
         annotator = get_user(request,uid)
@@ -345,7 +345,7 @@ def new_set_annotator(request,sid):
     collection, with default state TESTING to ensure tests first.
     :param sid: the report_set id
     '''
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     collection = report_set.collection
     if has_collection_edit_permission(request,collection):
         if request.method == "POST":
@@ -395,7 +395,7 @@ def remove_set_annotator(request,sid,uid):
     :param sid: the report_set id
     :param uid: the user id
     '''
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     collection = report_set.collection
     if has_collection_edit_permission(request,collection):
         annotator = get_user(request,uid)
@@ -792,7 +792,7 @@ def save_annotation_set(request,cid):
 def annotate_set(request,sid):
     '''annotate_set will allow the user to annotate a custom selected set
     '''
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     collection = report_set.collection
     user = request.user
 
@@ -842,7 +842,7 @@ def bulk_annotate(request,cid,sid=None):
     :param sid: the report set id, if a subset of reports is being used
     '''
     if sid !=None:
-        report_set = get_report_set(request,sid)
+        report_set = get_report_set(sid)
         collection = report_set.collection
         reports = report_set.reports.all()
     else:

@@ -57,7 +57,7 @@ def get_report_collection(request,cid):
         return collection
 
 
-def get_report_set(request,sid):
+def get_report_set(sid):
     '''get a report set, or return 404'''
     keyargs = {'id':sid}
     try:
@@ -145,7 +145,7 @@ def count_remaining_reports(user,collection,return_message=False,sid=None):
     '''
 
     if sid != None:
-        report_set = get_report_set(request,sid)
+        report_set = get_report_set(sid)
         remaining = count_user_reports(user,report_set)
         message = "You have annotated %s of %s reports in this set." %(remaining,report_set.number_reports)
     else:
