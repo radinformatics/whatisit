@@ -85,6 +85,7 @@ TEMPLATES = [
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
                 'whatisit.apps.main.context_processors.domain_processor', #custom context processor
+                'whatisit.apps.main.context_processors.disqus_processor', #custom context processor
             ],
         },
     },
@@ -217,6 +218,7 @@ STATIC_URL = '/static/'
 
 # Gravatar
 GRAVATAR_DEFAULT_IMAGE = "retro" 
+DISQUS_NAME = 'wordfish'
 # An image url or one of the following: 'mm', 'identicon', 'monsterid', 'wavatar', 'retro'. Defaults to 'mm'
 
 # Report Gold Standard Settings

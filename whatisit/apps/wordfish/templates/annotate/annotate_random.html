@@ -82,7 +82,7 @@
     </div>     
     <div class="row" style='padding-top:25px'>
         <div class="col-md-12">
-            <div id="last-one" class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>
+            <!--<div id="last-one" class="arrow" style="float:left" type="button"><i class="fa fa-chevron-left fa-2x"></i></div>-->
             <a id="next-one" href="/annotate/reports/{{ next }}"><div class="arrow" style="float:right;text-align:right" type="button"><i class="fa fa-chevron-right fa-2x"></i></div></a>
         </div>
     </div>     
@@ -102,6 +102,7 @@
     {% endif %}
 </div>
 
+{% include "messages/disqus.html" %}
 {% include "annotate/controls.html" %}
 
 {% endblock %}
