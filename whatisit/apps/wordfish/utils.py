@@ -119,20 +119,54 @@ def get_annotation_counts(collection,reports=None):
 #### Teams #############################################################
 
 def count_user_annotations(users):
-    '''return the count of a single user's annotations
+    '''return the count of a single user's annotations 
+    (meaning across reports)
     '''
     # Return count for a single user
+    count = 0
+
+    # For a single user
     if isinstance(users,User):
-        return Annotation.objects.filter(annotator=users).count()
+        report_counts = Annotation.objects.filter(annotator=users).annotate(Count('reports', distinct=True))
+
     # or count across a group of users
-    return Annotation.objects.filter(annotator__in=users).count() 
+    else:
+        report_counts = Annotation.objects.filter(annotator__in=users).annotate(Count('reports', distinct=True))
+    for report_count in report_counts:
+        count += report_count.reports__count
+
+    return count
    
+
+def count_remaining_reports(user,collection,return_message=False,sid=None):
+    '''count remaining reports is a wrapper function to count reports
+    in a collection or set, and return either the count or a message to indicate
+    the number remaining.
+    :param user: the user to count for
+    :param collection: the collection to count for
+    :param return_message: if True, return a message (str) instead of count
+    :param sid: a report set id. If provided, will return counts relevant to a set
+    '''
+
+    if sid != None:
+        report_set = get_report_set(request,sid)
+        remaining = count_user_reports(user,report_set)
+        message = "You have annotated %s of %s reports in this set." %(remaining,report_set.number_reports)
+    else:
+        remaining = count_user_annotations(user)
+        message = "You have annotated %s reports." %(remaining)
+
+    if return_message == True:
+        return message
+    return remaining
+
 
 def count_user_reports(user,report_set):
     '''return the count of a single user's reports annotated
     :param report_set: a report set to count for
     '''
     return report_set.reports.filter(reports_annotated__annotator=user).distinct().count()
+
 
 
 def summarize_team_annotations(members):

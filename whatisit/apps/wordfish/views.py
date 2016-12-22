@@ -18,7 +18,7 @@ from whatisit.apps.wordfish.tests import (
 from whatisit.apps.wordfish.utils import (
     add_message, 
     clear_user_annotations,
-    count_user_reports,
+    count_remaining_reports,
     get_allowed_annotations,
     get_annotation_counts, 
     get_annotations, 
@@ -943,11 +943,11 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
         next = "%s/set" %(sid)
         context['sid'] = sid
 
-        # Also tell the user how many to go
-        report_set = get_report_set(request,sid)
-        remaining = count_user_reports(request.user,report_set)
-        messages.info(request,"You have annotated %s of %s reports in this set." %(remaining,report_set.number_reports))
-
+    # Tell the user how many annotated / remaining
+    remaining_message = count_remaining_reports(user=request.user,
+                                                collection=collection,sid,
+                                                return_message=True)
+    messages.info(request,remaining_message)
 
     # If next is None, return random
     elif next == None:
