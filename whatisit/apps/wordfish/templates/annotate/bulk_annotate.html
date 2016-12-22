@@ -4,6 +4,7 @@
 
 {% block content %}
 {% include 'main/message.html' %}
+{% include 'main/loader.html' %}
 
 <div class="card">
     <div class="card-block">
@@ -14,19 +15,21 @@
             <hr class="mt-2 mb-2">
         </div>
 
-        <form action="{% url 'bulk_annotate' collection.id sid %}" method="POST">
+        <form action="" method="POST">
 
             {% csrf_token %}
 
             <!-- Annotations -->
             {% for name,allowed in allowed_annotations.items %}
                <h4 style="color:#d9534f">{{ name }}</h4>
-               {% for allowed_annotation in allowed %}
-               <fieldset class="form-group">
-                   <input type="radio" name="whatisit||{{ name }}||{{ allowed_annotation }}" id="whatisit||{{ name }}||{{ allowed_annotation }}">
-                   <label for="whatisit||{{ name }}||{{ allowed_annotation }}">{{ allowed_annotation }}</label>
-               </fieldset>
+
+               <select name="whatisit||{{name}}" class="mdb-select colorful-select dropdown-primary">
+                <option value=""></option>
+                {% for allowed_annotation in allowed %}   
+                <option value="{{ allowed_annotation }}">{{ allowed_annotation }}</option>
                {% endfor %}
+               </select>
+               
             {% endfor %}
 
             <!-- Apply to all reports? -->
@@ -36,11 +39,32 @@
            </fieldset>
 
             <div class="text-xs-center">
-                <button type="submit" class="btn btn-primary">Generate Set</button>
+                <button id="submit_button" type="submit" class="btn btn-primary">Apply Annotation</button>
             </div>
 
         </form>
     </div>
 </div>
 
+{% endblock %}
+{% block scripts %}
+<script>
+ $(document).ready(function() {
+    $('.mdb-select').material_select();
+    {% if sid %}
+        var url = "{% url 'bulk_annotate' collection.id sid %}"
+    {% else %}
+        var url = "{% url 'bulk_annotate' collection.id %}"
+    {% endif %}
+    $("form").attr("action",url);
+
+   // Show wordfish when clicks time intensive action
+   $('#submit_button').click(function() {
+      $("#fade").show();
+      $('#loadfish').show();
+      return true;
+   });
+
+  });
+</script>
 {% endblock %}

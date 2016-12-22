@@ -21,7 +21,11 @@
        
        {% if request.user in collection.annotators.all %}
            <!-- Bulk annotation -->
+           {% if sid %}
            <a href="{% url 'bulk_annotate' collection.id sid %}"><button type="button" class="btn btn-default btn-sm">Bulk Annotate Set</button></a> 
+           {% else %}
+           <a href="{% url 'bulk_annotate' collection.id %}"><button type="button" class="btn btn-default btn-sm">Bulk Annotate Set</button></a>
+           {% endif %}
        {% endif %}
 
        <!-- Form to clear all annotations -->

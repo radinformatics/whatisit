@@ -862,20 +862,25 @@ def bulk_annotate(request,cid,sid=None):
             selections = []
             seen_annotations = []
             for selection_key in selection_keys:
-                name,label = selection_key.replace("whatisit||","").split("||")
-                allowed_annotation = AllowedAnnotation.objects.get(name=name,
-                                                                   label=label)
+                name = selection_key.replace("whatisit||","")
+                label = request.POST.get(selection_key,"")
+                if label != "":
+                    allowed_annotation = AllowedAnnotation.objects.get(name=name,
+                                                                       label=label)
 
-                # If the user doesn't want to include already labeled reports, exclude
-                if unlabeled_only == True:
-                    reports = reports.exclude(reports_annotated__annotator=user).distinct()
+                    # If the user doesn't want to include already labeled reports, exclude
+                    if unlabeled_only != None:
+                        reports = reports.exclude(reports_annotated__annotator=request.user).distinct()
 
-                for report in reports:
-                    annot = update_user_annotation(user=request.user,
-                                                   allowed_annotation=allowed_annotation,
-                                                   report=report)
+                    for report in reports:
+                        annot = update_user_annotation(user=request.user,
+                                                       allowed_annotation=allowed_annotation,
+                                                       report=report)
 
-                messages.info(request,"Annotation %s:%s applied to %s reports" %(name,label,reports.count()))
+                    messages.info(request,"Annotation %s:%s applied to %s reports" %(name,label,reports.count()))
+                else:
+                    messages.error(request,"Could not bulk annotate %s." %(name))
+
                 return view_report_collection(request,cid)
 
         # Otherwise just render the form
