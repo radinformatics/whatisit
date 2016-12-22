@@ -19,6 +19,7 @@ from whatisit.apps.wordfish.utils import (
     add_message, 
     clear_user_annotations,
     count_remaining_reports,
+    count_user_annotations,
     get_allowed_annotations,
     get_annotation_counts, 
     get_annotations, 
@@ -437,9 +438,11 @@ def my_report_collections(request):
 @login_required
 def view_report_collection(request,cid):
     collection = get_report_collection(cid)
-    report_count = Report.objects.filter(collection=collection).count()
+    report_count = collection.report_set.count()
+    annotation_count = count_user_annotations(collection.annotators.all())
     context = {"collection":collection,
-               "report_count":report_count}
+               "report_count":report_count,
+               "annotation_count":annotation_count}
 
     # Get all permissions, context must have collection as key
     context = get_permissions(request,context)
