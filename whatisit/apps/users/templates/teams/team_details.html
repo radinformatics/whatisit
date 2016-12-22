@@ -37,7 +37,7 @@
                  <p>Annotations: {{ annotation_counts.total|intcomma }}</p>
             </div>
 
-            {% if request.user not in team.members %}
+            {% if request.user not in team.members.all %}
              <a href="{% url 'join_team' team.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Join Team</button></a>
             {% else %}
                 <p class="alert alert-info">You are a member of this team.</p>
