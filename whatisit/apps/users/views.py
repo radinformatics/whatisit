@@ -149,7 +149,7 @@ def join_team(request, tid):
     user = request.user
 
     # Get the user's current team, and remove
-    users_team = Team.objects.filter(members__contains=user)
+    users_team = get_user_team(request)
     removed_team = remove_user_teams(remove_teams=users_team,
                                      user=user)
 
