@@ -31,9 +31,10 @@ from whatisit.apps.wordfish.utils import (
     group_allowed_annotations,
     select_random_report,
     select_random_reports,
-    summarize_annotations, 
-    update_user_annotation
+    summarize_annotations
 )
+
+from whatisit.apps.wordfish.tasks import update_user_annotation
 
 from whatisit.settings import (
     BASE_DIR, 
@@ -876,11 +877,12 @@ def bulk_annotate(request,cid,sid=None):
                         reports = reports.exclude(reports_annotated__annotator=request.user).distinct()
 
                     for report in reports:
-                        annot = update_user_annotation(user=request.user,
-                                                       allowed_annotation=allowed_annotation,
-                                                       report=report)
+                        # Update user annotation sent to celery to run async
+                        update_user_annotation.apply_async([request.user.id,
+                                                           allowed_annotation.id,
+                                                           report.id])
 
-                    messages.info(request,"Annotation %s:%s applied to %s reports" %(name,label,reports.count()))
+                    messages.info(request,"Annotation %s:%s task running for %s reports" %(name,label,reports.count()))
                 else:
                     messages.error(request,"Could not bulk annotate %s." %(name))
 

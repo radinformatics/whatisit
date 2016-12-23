@@ -190,6 +190,7 @@ def summarize_teams_annotations(teams,sort=True):
         sorted_teams[team.id] = team_count
     if sort == True:
         sorted_teams = sorted(sorted_teams.items(), key=operator.itemgetter(1))
+        sorted_teams.reverse() # ensure returns from most to least
     return sorted_teams
 
 
@@ -218,34 +219,6 @@ def clear_user_annotations(user,report):
     for previous_annotation in previous_annotations:
         if report in previous_annotation.reports.all(): # in case multiple processes
             previous_annotation.reports.remove(report) 
-
-
-def update_user_annotation(user,allowed_annotation,report):
-    '''update_user_annotation will take a user, and an annotation object, a report, and update the report with the annotation.
-    :param user: the user object
-    :param allowed_annotation: the allowed annotation object
-    '''
-
-    # Remove annotations done previously by the user for the report
-    previous_annotations = Annotation.objects.filter(annotator=user,
-                                                     reports__id=report.id,
-                                                     annotation__name=allowed_annotation.name)
-    annotation,created = Annotation.objects.get_or_create(annotator=user,
-                                                          annotation=allowed_annotation)
-
-    # If the annotation was just created, save it, and add report
-    if created == True:
-        annotation.save()
-    annotation.reports.add(report)
-    annotation.save()
-    
-    # Finally, remove the report from other annotation objects 
-    for pa in previous_annotations:
-        if pa.id != annotation.id:
-            pa.reports.remove(report) 
-            pa.save() # not needed       
-
-    return annotation
 
 
 def group_allowed_annotations(allowed_annotations):

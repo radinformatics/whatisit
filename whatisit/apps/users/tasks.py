@@ -1,4 +1,6 @@
+from celery.decorators import periodic_task
 from celery import shared_task, Celery
+from celery.schedules import crontab
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -17,10 +19,10 @@ app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
-@app.task
+@periodic_task(run_every=crontab(minute=0, hour=0))
 def update_team_rankings():
     '''update team rankings will calculate ordered rank for all current teams, count annotations,
-    and update these fields (with the update date) once a day at 1:30 am (see above)
+    and update these fields (with the update date) once a day at midnight (see above)
     '''
     teams = Team.objects.all()
     rankings = summarize_teams_annotations(teams) # sorted list with [(teamid,count)]
@@ -57,6 +59,7 @@ def send_result(eid,wid,data):
             email_send()
     except:
         email_send()
+
 
 
 def email_send():
