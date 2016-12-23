@@ -107,7 +107,7 @@ def edit_team(request, tid=None):
     return redirect("teams")
 
 @login_required
-def view_teams(	request):
+def view_teams(request):
     '''view all teams (log in not required)
     :parma tid: the team id to edit or create. If none, indicates a new team
     '''
@@ -161,15 +161,11 @@ def join_team(request, tid):
     if user not in team.members.all():
         team.members.add(user)
         team.save()
-        messages.info(request,"%s has been successfully added to!" %(user.username,team.name))
+        messages.info(request,"%s has been successfully added to %s!" %(user.username,team.name))
     else:
         messages.info(request,"You are already a member of %s!" %(team.name))
 
-    edit_permission = has_team_edit_permission(request,team)
-    context = {"team": team,
-               "edit_permission":edit_permission}
-    return render(request, "teams/team_details.html", context)
-
+    return view_teams(request)
 
 
 # Python social auth extensions

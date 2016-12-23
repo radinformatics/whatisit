@@ -42,7 +42,7 @@ RUN pip install requests-oauthlib
 RUN pip install python-openid
 RUN pip install django-sendfile
 RUN pip install django-polymorphic
-RUN pip install celery[redis]
+RUN pip install celery[redis]==3.1.25
 RUN pip install django-celery
 RUN pip install scikit-learn
 RUN pip install django-cleanup

@@ -32,7 +32,7 @@ python-openid
 django-lockdown
 django-sendfile
 django-polymorphic
-celery[redis]
+celery[redis]==3.1.25
 django-celery
 django-cleanup
 django-chosen

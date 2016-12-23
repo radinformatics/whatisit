@@ -44,7 +44,7 @@ THIRD_PARTY_APPS = [
     'social.apps.django_app.default',
     'crispy_forms',
     'opbeat.contrib.django',
-    #'djcelery',
+    'djcelery',
     'rest_framework',
     'rest_framework.authtoken',
     'guardian',
@@ -215,6 +215,35 @@ MEDIA_ROOT = '/var/www/images'
 MEDIA_URL = '/images/'
 STATIC_ROOT = '/var/www/static'
 STATIC_URL = '/static/'
+
+# CELERY SETTINGS
+REDIS_PORT = 6379  
+REDIS_DB = 0  
+REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', 'redis')
+
+# CELERY SETTINGS
+CELERY_ALWAYS_EAGER = False  
+CELERY_ACKS_LATE = True  
+CELERY_TASK_PUBLISH_RETRY = True  
+CELERY_DISABLE_RATE_LIMITS = False
+
+# By default we will ignore result
+# If you want to see results and try out tasks interactively, change it to False
+# Or change this setting on tasks level
+CELERY_IGNORE_RESULT = True  
+CELERY_SEND_TASK_ERROR_EMAILS = False  
+CELERY_TASK_RESULT_EXPIRES = 600
+CELERY_RESULT_BACKEND = 'redis://%s:%d/%d' %(REDIS_HOST,REDIS_PORT,REDIS_DB)
+
+BROKER_URL = os.environ.get('BROKER_URL',None)
+if BROKER_URL == None:
+    BROKER_URL = CELERY_RESULT_BACKEND
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ENABLE_UTC = True  
+CELERY_TIMEZONE = "UTC"
 
 # Gravatar
 GRAVATAR_DEFAULT_IMAGE = "retro" 

@@ -201,9 +201,9 @@ def remove_user_teams(remove_teams,user):
     if not isinstance(remove_teams,list):
         remove_teams = [remove_teams]
     for remove_team in remove_teams:
-        if user in remove_team.members:
+        if user in remove_team.members.all():
             previous_team = remove_team
-            remove_team.members = [x for x in remove_team.members if x != user]
+            remove_team.members.remove(user)
             remove_team.save()
     return previous_team
 
