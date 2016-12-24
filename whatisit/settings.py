@@ -222,28 +222,25 @@ REDIS_DB = 0
 REDIS_HOST = os.environ.get('REDIS_PORT_6379_TCP_ADDR', 'redis')
 
 # CELERY SETTINGS
-CELERY_ALWAYS_EAGER = False  
-CELERY_ACKS_LATE = True  
-CELERY_TASK_PUBLISH_RETRY = True  
-CELERY_DISABLE_RATE_LIMITS = False
-
-# By default we will ignore result
-# If you want to see results and try out tasks interactively, change it to False
-# Or change this setting on tasks level
-CELERY_IGNORE_RESULT = False
-CELERY_SEND_TASK_ERROR_EMAILS = False  
-CELERY_TASK_RESULT_EXPIRES = 600
-CELERY_RESULT_BACKEND = 'redis://%s:%d/%d' %(REDIS_HOST,REDIS_PORT,REDIS_DB)
-
-BROKER_URL = os.environ.get('BROKER_URL',None)
-if BROKER_URL == None:
-    BROKER_URL = CELERY_RESULT_BACKEND
-
+CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
+BROKER_URL = 'redis://redis:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ENABLE_UTC = True  
 CELERY_TIMEZONE = "UTC"
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+)
+CELERY_IMPORTS = ('whatisit.apps.wordfish.tasks',
+                  'whatisit.apps.users.tasks', )
+
+CELERY_RESULT_BACKEND = 'redis://%s:%d/%d' %(REDIS_HOST,REDIS_PORT,REDIS_DB)
+
+#BROKER_URL = os.environ.get('BROKER_URL',None)
+if BROKER_URL == None:
+    BROKER_URL = CELERY_RESULT_BACKEND
 
 # Gravatar
 GRAVATAR_DEFAULT_IMAGE = "retro" 
