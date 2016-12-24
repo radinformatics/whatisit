@@ -837,8 +837,7 @@ def annotate_set(request,sid,show_count=True):
             return annotate_random(request,
                                    cid=collection.id,
                                    sid=sid,
-                                   reports=reports,
-                                   show_count=show_count)
+                                   reports=reports)
 
 
     elif user_status == "TESTING":
