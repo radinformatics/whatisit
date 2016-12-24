@@ -809,7 +809,7 @@ def save_annotation_set(request,cid):
 
 
 @login_required
-def annotate_set(request,sid):
+def annotate_set(request,sid,show_count=True):
     '''annotate_set will allow the user to annotate a custom selected set
     '''
     report_set = get_report_set(sid)
@@ -837,7 +837,8 @@ def annotate_set(request,sid):
             return annotate_random(request,
                                    cid=collection.id,
                                    sid=sid,
-                                   reports=reports)
+                                   reports=reports,
+                                   show_count=show_count)
 
 
     elif user_status == "TESTING":
@@ -1010,11 +1011,13 @@ def create_label(request,cid,lid=None):
 ###############################################################################################
 
 @login_required
-def annotate_report(request,rid,sid=None,report=None,next=None,template=None,allowed_annotations=None):
+def annotate_report(request,rid,sid=None,report=None,next=None,template=None,
+                    allowed_annotations=None,show_count=True):
     '''annotate_report is the view to return a report annotation interface for a particular report id
     :param rid: report id to annotate
     :param sid: a report set id, if coming from annotate_random with a report set
-    :param report_set: a report set. If 
+    :param report_set: a report set.
+    :param show_count: if true, will show the user the total reports annotated
     :param next: the next page to show (annotate/reports/{{ collection.id }}/{{ next }}
     :param template: an optional template, if not provided, default is used
     :param allowed_annotations: a custom set of allowed annotations to use. If not provided,
@@ -1043,11 +1046,12 @@ def annotate_report(request,rid,sid=None,report=None,next=None,template=None,all
         next = "%s/%s" %(collection.id,next)
 
     # Tell the user how many annotated / remaining
-    remaining_message = count_remaining_reports(user=request.user,
-                                                collection=collection,
-                                                sid=sid,
-                                                return_message=True)
-    messages.info(request,remaining_message)
+    if show_count == True:
+        remaining_message = count_remaining_reports(user=request.user,
+                                                    collection=collection,
+                                                    sid=sid,
+                                                    return_message=True)
+        messages.info(request,remaining_message)
 
 
     # Next url will direct to either set, or random
@@ -1142,6 +1146,28 @@ def update_annotation(request,rid,report=None):
         context = {"message":"You are not authorized to annotate this collection."}
         return render(request, "messages/not_authorized.html", context)
 
+@login_required
+def annotate_goldstandard(request,cid,rid=None,sid=None,reports=None):
+    '''annotate_random will select a random record from a collection, and render a page for
+    the user to annotate
+    :param cid: the collection id to select from
+    :param rid: a report id, if provided, to annotate
+    :param sid: the set id of a report, if provided, will be sent in with the next url param
+    :param reports: a pre selected subset to select randomly from
+    '''
+    collection = get_report_collection(cid)
+    if reports == None:
+        reports = Report.objects.filter(collection=collection)
+
+    # Get a random report (if gets slow, change to get_random_report
+    report = select_random_reports(reports)[0]
+
+    # Ensure url returned is for report
+    if sid != None:
+        return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id,
+                                                                        'sid': sid}))
+    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id}))
+
 
 @login_required
 def annotate_random(request,cid,rid=None,sid=None,reports=None):
@@ -1161,5 +1187,6 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
 
     # Ensure url returned is for report
     if sid != None:
-        return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 'sid': sid}))
+        return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 
+                                                                        'sid': sid}))
     return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id}))
