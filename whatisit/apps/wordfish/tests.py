@@ -62,11 +62,11 @@ def test_annotator(request,sid,rid=None):
     from whatisit.apps.users.models import Credential
 
     if rid != None: # scoring is needed
-        completed_report = get_report(request,rid)
+        completed_report = get_report(rid)
     
     user = request.user
 
-    report_set = get_report_set(request,sid)
+    report_set = get_report_set(sid)
     context = {'collection':report_set.collection}
     permissions = get_permissions(request,context)
 
@@ -198,7 +198,8 @@ def test_annotator(request,sid,rid=None):
                                    sid=report_set.id,
                                    report=testing_report,
                                    allowed_annotations=testing_annotations,
-                                   template="annotate/testing_random.html")
+                                   template="annotate/testing_random.html",
+                                   show_count=False)
 
         # If the user status was approved, either previously or aboved, move on to annotation
         elif user_status == "PASSED":
@@ -212,6 +213,8 @@ def test_annotator(request,sid,rid=None):
 
         elif user_status == "DENIED":
             messages.info(request,"You are not qualified to annotate this set.")
+            session = get_testing_session(user=user,
+                                          report_set=report_set)
             request = delete_testing_session(request,session) # deletes session, sets reports to None
             return view_report_collection(request,report_set.collection.id)
            
