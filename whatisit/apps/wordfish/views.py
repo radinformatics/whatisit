@@ -764,6 +764,7 @@ def save_annotation_set(request,cid):
                 selection = Annotation.objects.filter(annotator__in=user,
                                                       annotation=annotation_object,
                                                       reports__collection=collection)
+
                 for annotation in selection:
                     if annotation not in seen_annotations:
                         selections = list(chain(selections,annotation.reports.all()))
