@@ -59,4 +59,4 @@ def update_user_annotation(user,allowed_annotation,report):
             pa.reports.remove(report) 
             pa.save() # not needed       
 
-    return annotation
+    return annotation.id
