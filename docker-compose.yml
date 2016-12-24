@@ -38,7 +38,7 @@ redis:
 
 worker:
   image: vanessa/whatisit
-  command: celery worker -A whatisit.celery -Q default -n default@%h
+  command: celery worker -A whatisit.celery -Q default -l debug -n default@%h
   volumes:
     - .:/code
   volumes_from:
