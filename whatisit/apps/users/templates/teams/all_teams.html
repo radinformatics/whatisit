@@ -30,6 +30,7 @@
                     <th>Name</th>
                     <th>Members</th>
                     <th>Image</th>
+                    <th>Annotations</th>
                     <th>Action</th>
                </tr>
            </thead>
@@ -45,15 +46,22 @@
                        <img width="50px" src="{% static 'img/wordfish/wordfish.png' %}">
                        {% endif %}
                    </td>
+                   <td>{{ team.annotation_count }}</td>
                    <td>{% if user_team == team %}
                       <a href="{% url 'team_details' team.id %}"><button class="btn btn-primary" type="button" id="team_details">View your Team</button></a>
                        {% else %}
-                      <a href="{% url 'join_team' team.id %}"><button class="btn btn-sm btn-primary" type="button" id="join_team">Join</button></a>            {% endif %}
+                           {% if user_team %}
+                      <a href="{% url 'join_team' team.id %}"><button class="btn btn-info btn-primary" type="button" id="join_team">Change Team</button></a> 
+                           {% else %}
+ <a href="{% url 'join_team' team.id %}"><button class="btn btn-info btn-primary" type="button" id="join_team">Join</button></a>
+                           {% endif %}
+                       {% endif %}
                    </td>
                </tr>
           {% endfor %}
           </tbody>
           </table>
+          <p style='margin-top:50px' class='alert alert-success'>Team Rankings are re-calculated on a nightly basis. If you've made annotations, check your new ranking tomorrow.</p>
          {% endif %}
         </article>
     </div>

@@ -28,7 +28,7 @@ def update_team_rankings():
     rankings = summarize_teams_annotations(teams) # sorted list with [(teamid,count)]
 
     # Iterate through rankings, get team and annotation count
-    for g in range(rankings):
+    for g in range(len(rankings)):
 
         group = rankings[g]
         team_id = group[0]
