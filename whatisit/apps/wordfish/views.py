@@ -15,6 +15,10 @@ from whatisit.apps.wordfish.tests import (
     test_annotator
 )
 
+from whatisit.apps.main.utils import (
+    parse_numeric_input
+)
+
 from whatisit.apps.wordfish.utils import (
     add_message, 
     clear_user_annotations,
@@ -706,6 +710,7 @@ def save_annotation_set(request,cid):
     if has_collection_edit_permission(request,collection):
         if request.method == "POST":
             
+            pickle.dump(dict(request.POST),open('POST.pkl','wb'))
             # What does the user want to name the set?
             set_name = request.POST.get('setname').lower().replace(" ","_")
 
@@ -714,11 +719,21 @@ def save_annotation_set(request,cid):
             gold_standard = get_user(request,gold_standard)
 
             # How many reports in the set?
-            N = int(request.POST.get('N'))
-
+            request,N = parse_numeric_input(request=request,
+                                            value=request.POST.get('N'),
+                                            default=100,
+                                            description="the number of reports")
+            
             # How many tests should be given and passing?
-            testing_set = int(request.POST.get('testing_set'))
-            testing_set_correct = int(request.POST.get('testing_set_correct')) 
+            request,testing_set = parse_numeric_input(request=request,
+                                                      value=request.POST.get('testing_set'),
+                                                      default=25,
+                                                      description="the number of testing reports")
+
+            request,testing_set_correct = parse_numeric_input(request=request,
+                                                              value=request.POST.get('testing_set_correct'),
+                                                              default=20,
+                                                              description="the number reports correct to pass")
 
             # Required number correct must be less than total
             if testing_set_correct > testing_set:

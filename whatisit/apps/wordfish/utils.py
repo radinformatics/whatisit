@@ -257,7 +257,7 @@ def get_allowed_annotations(collection,return_objects=True):
     :param collection: the collection to select
     :param return_objects: if False, returns dictionary of objects
     '''
-    allowed = AllowedAnnotation.objects.filter(annotation__reports__collection=collection).distinct()
+    allowed = collection.allowed_annotations.all().distinct()
     if return_objects == False:
         allowed = group_allowed_annotations(allowed)
     return allowed

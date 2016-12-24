@@ -35,13 +35,20 @@
         <div class="card card-block" style="padding:30px;min-height:286px">
 
              <!-- Nav tabs -->
-             <ul class="nav nav-tabs md-pills pills-default" role="tablist">
+             {% if edit_permission %}
+             <ul class="nav nav-tabs tabs-3 blue" role="tablist">
+             {% else %}
+             <ul class="nav nav-tabs tabs-2 blue" role="tablist">
+             {% endif %}
                  <li class="nav-item">
-                     <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab"><i class="fa fa-pencil fa-2x"></i><br> Annotate</a>
+                     <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab">Annotate</a>
                  </li>
                  {% if edit_permission %}
                  <li class="nav-item">
-                     <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab"><i class="fa fa-user fa-2x"></i><br> Users</a>
+                     <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab">Users</a>
+                 </li>
+                 <li class="nav-item">
+                     <a class="nav-link" data-toggle="tab" href="#summaryPanel" role="tab">Summary</a>
                  </li>
                  {% endif %}
              </ul>
@@ -54,15 +61,11 @@
                  <br>
 
             {% if edit_permission %}
-                <a href="{% url 'create_label' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Label</button></a>
-                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">Gold Standard Annotation</button></a>
+                <a href="{% url 'create_label' collection.id %}"><button type="button" class="btn btn-info  waves-effect waves-light">New Label</button></a>
+                <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-info  waves-effect waves-light">Gold Standard Set</button></a>
                 
                 {% if annotation_count > 25 %}
-                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info btn-sm waves-effect waves-light">New Annotation Set</button></a>
-                {% endif %}
-
-                {% if annotation_count > 0 %}
-            <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-sm btn-info waves-effect waves-light"> Counts</button></a>
+                <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info waves-effect waves-light">New Annotation Set</button></a>
                 {% endif %}
 
             {% endif %}
@@ -101,7 +104,7 @@
         </div>
         <!--End Annotate Panel -->
 
-        <!--Users panel -->
+        <!--Users and Summary panel -->
         {% if edit_permission %}
         <div class="tab-pane fade" id="usersPanel" role="tabpanel">
             <br>
@@ -109,7 +112,17 @@
                 <a href="{% url 'edit_contributors' collection.id %}"><button type="button" class="btn btn-default waves-effect waves-light">Add Contributors</button></a>
 
         </div>
-        <!--/.Panel 2-->
+        <!-- end panel -->
+        <div class="tab-pane fade" id="summaryPanel" role="tabpanel">
+            <br>
+
+             {% if annotation_count > 0 %}
+            <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light"> Counts</button></a>
+            {% else %}
+            <p class="alert alert-info">You must have annotated reports to see summary statistics</p> 
+            {% endif %}
+
+        </div>
         {% endif %}
     </div>
   </div>

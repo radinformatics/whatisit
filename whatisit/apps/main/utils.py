@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import whatisit.apps.main.__init__ as hello
+from django.contrib import messages
 import subprocess
 import collections
 import simplejson
@@ -9,6 +10,7 @@ import zipfile
 import shutil
 import sys
 import os
+import re
 
 # Python less than version 3 must import OSError
 if sys.version_info[0] < 3:
@@ -18,6 +20,25 @@ def get_installdir():
     '''get_installdir returns the installation directory of the application
     '''
     return os.path.abspath(os.path.dirname(hello.__file__))
+
+def parse_numeric_input(request,value,default,description):
+    '''parse_numeric_input will attempt to parse some value
+    as numeric input, and catch the error with a messages
+    to the user if it fails
+    :param request: the request object
+    :param value: the value to try to parse (usually from POST)
+    :param default: the default value to use
+    :param description: a description to provide to the user
+    '''
+    if description == None:
+        description = ''
+    try:        
+        value = int(re.sub('[^0-9]','',value))
+    except:
+        value = default
+        messages.info(request,"We had trouble parsing %s. It has been set to a default of %s" %(description,value))
+    return request,value
+
 
 def run_command(cmd,error_message=None,sudopw=None,suppress=False):
     '''run_command uses subprocess to send a command to the terminal.
