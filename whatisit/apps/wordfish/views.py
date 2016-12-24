@@ -1146,28 +1146,6 @@ def update_annotation(request,rid,report=None):
         context = {"message":"You are not authorized to annotate this collection."}
         return render(request, "messages/not_authorized.html", context)
 
-@login_required
-def annotate_goldstandard(request,cid,rid=None,sid=None,reports=None):
-    '''annotate_random will select a random record from a collection, and render a page for
-    the user to annotate
-    :param cid: the collection id to select from
-    :param rid: a report id, if provided, to annotate
-    :param sid: the set id of a report, if provided, will be sent in with the next url param
-    :param reports: a pre selected subset to select randomly from
-    '''
-    collection = get_report_collection(cid)
-    if reports == None:
-        reports = Report.objects.filter(collection=collection)
-
-    # Get a random report (if gets slow, change to get_random_report
-    report = select_random_reports(reports)[0]
-
-    # Ensure url returned is for report
-    if sid != None:
-        return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id,
-                                                                        'sid': sid}))
-    return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id}))
-
 
 @login_required
 def annotate_random(request,cid,rid=None,sid=None,reports=None):
@@ -1190,3 +1168,84 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
         return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id, 
                                                                         'sid': sid}))
     return HttpResponseRedirect(reverse('annotate_report',  kwargs={'rid': report.id}))
+
+
+
+############################################################################################
+# TESTING ##################################################################################
+############################################################################################
+
+@login_required
+def annotate_testing(request,cid,rid=None,sid=None,reports=None):
+    '''annotate_random will select a random record from a collection, and render a page for
+    the user to annotate
+    :param cid: the collection id to select from
+    :param rid: a report id, if provided, to annotate
+    :param sid: the set id of a report, if provided, will be sent in with the next url param
+    :param reports: a pre selected subset to select randomly from
+    '''
+    collection = get_report_collection(cid)
+    if reports == None:
+        reports = Report.objects.filter(collection=collection)
+
+    # Get a random report (if gets slow, change to get_random_report
+    report = select_random_reports(reports)[0]
+
+    # Ensure url returned is for report
+    if sid != None:
+        return HttpResponseRedirect(reverse('annotate_report_testing',  kwargs={'rid': report.id,
+                                                                                'sid': sid}))
+    return HttpResponseRedirect(reverse('annotate_report_testing',  kwargs={'rid': report.id}))
+
+
+@login_required
+def annotate_report_testing(request,rid,sid=None,report=None,next=None,allowed_annotations=None):
+    '''annotate_report_testing is the view to return a report annotation interface to test an id
+    :param sid: a report set id, if coming from annotate_random with a report set
+    :param report_set: a report set.
+    :param next: the next page to show (annotate/reports/{{ collection.id }}/{{ next }}
+    :param allowed_annotations: a custom set of allowed annotations to use. If not provided,
+    the entire set of a collection is used.
+    '''
+    if report == None:
+        report = get_report(rid)
+    collection = report.collection
+
+    context = {"collection":collection,
+               "report":report}
+
+    if sid != None:
+        next = "%s/set" %(sid)
+        context['sid'] = sid
+
+    # If next is None, return random
+    elif next == None:
+        next = "%s/random" %(collection.id)
+
+    # If it's not None, we still need to add collection id
+    else:
+        next = "%s/%s" %(collection.id,next)
+
+    # Next url will direct to either set, or random
+    context['next'] = next
+
+    # Get the concise annotations
+    annotations = get_annotations(user=request.user, report=report)
+    annotations = summarize_annotations(annotations)
+    if "labels" in annotations:
+        context["annotations"] = annotations['labels']
+    if "counts" in annotations:
+        context["counts"] = annotations['counts']
+
+    # Get the allowed_annotations, and organize them into a lookup dictionary with key:options
+    if allowed_annotations == None:
+        allowed_annotations = report.collection.allowed_annotations.all()
+    context["allowed_annotations"] = group_allowed_annotations(allowed_annotations)
+
+    # Format markup
+    context["markup"] = ["%s" %(x) for x in report.collection.markup.split(",")]  
+
+    # Get all permissions, context must have collection as key
+    context = get_permissions(request,context)
+
+    return render(request, "annotate/testing_random.html", context)

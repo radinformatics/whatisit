@@ -54,7 +54,7 @@ def test_annotator(request,sid,rid=None):
     :param rid: the report id that was tested
     '''
     from whatisit.apps.wordfish.views import (
-       annotate_report,
+       annotate_report_testing,
        annotate_set,
        get_permissions,
        view_report_collection
@@ -193,13 +193,11 @@ def test_annotator(request,sid,rid=None):
             testing_annotations = get_testing_annotations(report_set)
 
             # Start testing the user
-            return annotate_report(request=request,
-                                   rid=testing_report.id,
-                                   sid=report_set.id,
-                                   report=testing_report,
-                                   allowed_annotations=testing_annotations,
-                                   template="annotate/testing_random.html",
-                                   show_count=False)
+            return annotate_report_testing(request=request,
+                                           rid=testing_report.id,
+                                           sid=report_set.id,
+                                           report=testing_report,
+                                           allowed_annotations=testing_annotations)
 
         # If the user status was approved, either previously or aboved, move on to annotation
         elif user_status == "PASSED":
