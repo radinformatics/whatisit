@@ -859,7 +859,6 @@ def bulk_annotate(request,cid,sid=None):
         if request.method == "POST":
 
             # Does the user want to bulk annotate only unlabeled sets?
-            pickle.dump(dict(request.POST),open('post.pkl','wb'))
             unlabeled_only = request.POST.get('unlabeled_only',None)
 
             # What annotations does the user want to do in bulk?
