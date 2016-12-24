@@ -230,7 +230,7 @@ CELERY_DISABLE_RATE_LIMITS = False
 # By default we will ignore result
 # If you want to see results and try out tasks interactively, change it to False
 # Or change this setting on tasks level
-CELERY_IGNORE_RESULT = True  
+CELERY_IGNORE_RESULT = False
 CELERY_SEND_TASK_ERROR_EMAILS = False  
 CELERY_TASK_RESULT_EXPIRES = 600
 CELERY_RESULT_BACKEND = 'redis://%s:%d/%d' %(REDIS_HOST,REDIS_PORT,REDIS_DB)
@@ -239,7 +239,7 @@ BROKER_URL = os.environ.get('BROKER_URL',None)
 if BROKER_URL == None:
     BROKER_URL = CELERY_RESULT_BACKEND
 
-CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ENABLE_UTC = True  

@@ -867,7 +867,7 @@ def bulk_annotate(request,cid,sid=None):
             seen_annotations = []
             for selection_key in selection_keys:
                 name = selection_key.replace("whatisit||","")
-                label = request.POST.get(selection_key,"")
+                label = request.POST.get(selection_key,"")[0]
                 if label != "":
                     allowed_annotation = AllowedAnnotation.objects.get(name=name,
                                                                        label=label)
@@ -878,9 +878,12 @@ def bulk_annotate(request,cid,sid=None):
 
                     for report in reports:
                         # Update user annotation sent to celery to run async
-                        update_user_annotation.apply_async([request.user.id,
-                                                           allowed_annotation.id,
-                                                           report.id])
+                        update_user_annotation.apply_async(kwargs={'user':user.id, 
+                                                                   'allowed_annotation':allowed_annotation.id,
+                                                                   'report':report.id})
+                        #result = update_user_annotation.apply_async([user.id,
+                        #                                             allowed_annotation.id,
+                        #                                             report.id])
 
                     messages.info(request,"Annotation %s:%s task running for %s reports" %(name,label,reports.count()))
                 else:
