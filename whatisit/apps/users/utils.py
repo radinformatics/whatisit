@@ -197,6 +197,9 @@ def remove_user_teams(remove_teams,user):
     :param user: the user to remove
     :returns: previous team removed from (user only allowed one at a time)
     '''
+    if remove_teams == None:
+        return remove_teams
+
     previous_team = None
     if not isinstance(remove_teams,list):
         remove_teams = [remove_teams]
