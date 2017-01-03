@@ -20,7 +20,6 @@ from whatisit.apps.main.utils import (
 )
 
 from whatisit.apps.wordfish.utils import (
-    add_message, 
     clear_user_annotations,
     count_remaining_reports,
     count_user_annotations,

@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
     'djcelery',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_swagger',
     'guardian',
     'django_gravatar',
     'lockdown',
@@ -192,7 +193,6 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'America/Chicago'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

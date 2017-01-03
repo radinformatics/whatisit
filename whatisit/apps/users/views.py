@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from whatisit.apps.api.views import getToken
+from whatisit.apps.api.views import get_token
 from django.shortcuts import render_to_response, redirect, render
 from django.template.context import RequestContext
 
@@ -45,12 +45,13 @@ def login(request):
 def home(request):
     return render_to_response('social/home.html')
 
+
 @login_required
 def token(request):
     '''getToken retrieves the user's token, and returns a page with it
     for the user to use to authenticate with the API
     '''
-    token = getToken(request,json_response=False)
+    token = get_token(request,json_response=False)
     context = RequestContext(request, {'request': request, 
                                        'user': request.user,
                                        'token': token['token'] })

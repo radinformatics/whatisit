@@ -19,6 +19,7 @@ RUN pip install uwsgi
 RUN pip install 'Django==1.10.2'
 RUN pip install python-social-auth
 RUN pip install djangorestframework
+RUN pip install django-rest-swagger
 RUN pip install markdown
 RUN pip install django-filter
 RUN pip install django-taggit

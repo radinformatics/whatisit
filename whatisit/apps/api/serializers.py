@@ -15,6 +15,13 @@ class ReportSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('report_id', 'report_text')
 
 
+class SingleReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Report
+        fields = ('report_id','report_text')
+
+
 class ReportCollectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ReportCollection
