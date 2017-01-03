@@ -1,7 +1,13 @@
 from django.contrib.auth.models import User
-from whatisit.apps.wordfish.models import Report, ReportCollection
-from rest_framework import serializers
+from whatisit.apps.wordfish.models import (
+    Annotation,
+    AllowedAnnotation,
+    Report, 
+    ReportCollection,
+    ReportSet
+)
 
+from rest_framework import serializers
 
 class ReportSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -13,6 +19,13 @@ class ReportCollectionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ReportCollection
         fields = ('name',)
+
+
+class ReportSetSerializer(serializers.HyperlinkedModelSerializer):
+    reports = serializers.PrimaryKeyRelatedField(many=True, queryset=Report.objects.all())
+    class Meta:
+        model = ReportSet
+        fields = ('name','reports')
 
 
 #class UserSerializer(serializers.ModelSerializer):

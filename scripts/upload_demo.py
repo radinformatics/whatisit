@@ -23,6 +23,10 @@ from whatisit.apps.wordfish.models import (
 # singularity run -B $PWD:/data pefinder.img --reports /data/pefinder/data/ stanford_data.csv --delim ,  --output /data/stanford_pe.tsv --verbose
 # from: https://github.com/vsoch/pe-predictive
 
+# This was done twice, once for the impressions only (data in report_text) and once for
+# full text (data in rad_report)
+full_text=True
+
 input_file = "%s/scripts/stanford_pe.tsv" %(BASE_DIR)
 
 if os.path.exists(input_file):
@@ -30,7 +34,10 @@ if os.path.exists(input_file):
     # For the user, get the first (not anon) one
     user = User.objects.all()[1]
     # First make a new collection
-    collection,created = ReportCollection.objects.get_or_create(name="stanford-pe-predictive",
+    collection_name = "stanford-pe-predictive"
+    if full_text == True:
+        collection_name = "stanford-pe-predictive-full"
+    collection,created = ReportCollection.objects.get_or_create(name=collection_name,
                                                                 owner=user)
     if created == True:
         collection.save()
@@ -74,15 +81,19 @@ if os.path.exists(input_file):
     labels = [a.name for a in AllowedAnnotation.objects.all()]
     labels = numpy.unique(labels).tolist()
     # Create a robot user to associate with the annotations
-    robot = User.objects.create(username='pefinder') #password not provided here
-    robot.save()
+    robot,created = User.objects.get_or_create(username='pefinder') #password not provided here
+    if created == True:
+        robot.save()
     # Now upload reports to it!
     for row in data.iterrows():
         print("Parsing %s of %s" %(row[0],data.shape[0]))
         # Which labels do we have?
         report_annotations = [x for x in row[1].index if x in labels]
         # Now add the report with the annotations, and allowed annotations
-        report_text = row[1].report_text
+        if full_text == True:
+            report_text = row[1].rad_report
+        else:
+            report_text = row[1].report_text        
         report_id = row[1].report_id
         new_report, created = Report.objects.get_or_create(report_id=report_id,
                                                            report_text=report_text,
