@@ -9,27 +9,28 @@ from whatisit.apps.wordfish.models import (
 
 from rest_framework import serializers
 
-class ReportSerializer(serializers.HyperlinkedModelSerializer):
+class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = ('report_id', 'report_text')
 
 
-class SingleReportSerializer(serializers.ModelSerializer):
+#class SingleReportSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Report
-        fields = ('report_id','report_text')
+#    class Meta:
+#        model = Report
+#        fields = ('id','report_text')
 
 
-class ReportCollectionSerializer(serializers.HyperlinkedModelSerializer):
+class ReportCollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportCollection
         fields = ('name',)
 
 
-class ReportSetSerializer(serializers.HyperlinkedModelSerializer):
+class ReportSetSerializer(serializers.ModelSerializer):
     reports = serializers.PrimaryKeyRelatedField(many=True, queryset=Report.objects.all())
+    
     class Meta:
         model = ReportSet
         fields = ('name','reports')

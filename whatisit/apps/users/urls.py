@@ -9,7 +9,6 @@ urlpatterns = [
     url(r'^login/$', user_views.login, name="login"),
     url(r'^accounts/login/$', user_views.login, name="login"),
     url(r'^home/$', user_views.home),
-    url(r'^token/$', user_views.token, name="token"),
     url(r'^logout/$', user_views.logout, name="logout"),
     url('', include(social_urls, namespace='social')),
 
