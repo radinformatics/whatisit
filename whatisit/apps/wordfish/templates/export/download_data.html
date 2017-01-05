@@ -1,0 +1,151 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% load staticfiles %}
+{% load humanize %}
+
+{% block css %}
+<link href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" media="screen" rel="stylesheet" type="text/css">
+<link href="{% static "css/bootstrap-tagsinput.css"%}" media="screen" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block content %}
+{% include 'main/message.html' %}
+
+<div class="card">
+    <div class="card-block">
+
+        <!--Header-->
+        <div class="text-xs-center">
+            <h3>Download Data Views</h3>
+            <hr class="mt-2 mb-2">
+        </div>
+
+        <p id="select-user" class="alert alert-info hidden">Please specify an annotator first.</p>
+        <p class="alert alert-info">You can also programmatically download data via our <a href="/api">API</a></p>
+
+        {% if report_sets %}
+            {% if annotators %}
+            <!-- Make sure an annotator is selected -->
+            <label for="user">Annotator to Download</label>
+            <select id="user" name="user" class="form-control">
+                <option value="none">--</option>
+                {% for user in annotators %}
+                <option value="{{ user.id }}">{{ user }}</option>
+                {% endfor %}
+            </select>
+
+            <!--Downloads for report sets-->
+            <h4 title="this is the recommended method">Report Sets</h4>
+
+            <table id="reportsets" class="table table-striped table-bordered" cellspacing="0" width="100%">     
+                 <thead class="thead-inverse">
+                     <tr>
+                         <td>Set Name</td>
+                         <td>Annotations</td>
+                         <td>Reports</td>
+                     </tr>
+                 </thead>
+            <tbody>
+            {% for report_set in report_sets %}
+               <tr>
+                   <td>{{ report_set.name }}</td>
+
+                   <!--Report Set Annotations -->
+                   <td><a><button data-type="" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-annotations">Report Set Annotations (tsv) <i class="fa fa-download"></i></button></a>
+                   <a><button data-type="/json" data-setid="{{ report_set.id }}" data-collection="{{ report_set.collection.id }}" class="btn-sm btn btn-default download-annotations">Report Set Annotations (json) <i class="fa fa-download"></i></button></a></td>
+
+                   <!--Report Set Reports-->
+                   <td><a><button data-type="" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-set">Set Reports (tsv) <i class="fa fa-download"></i></button></a>
+                   <a><button data-type="/json" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-set-json">Set Reports (json) <i class="fa fa-download"></i></button></a></td>
+
+               </tr>
+           {% endfor %}
+            </tbody>
+           </table>
+
+        <!-- No annotators, but report sets -->
+        {% else %}
+        <p class="alert alert-info">You don't have any annotators.</p>
+        {% endif %}        
+ 
+        <!-- No report sets -->
+        {% else %}
+        <p class="alert alert-info">You don't have any report sets to download.</p>
+        {% endif %}
+
+        <!-- Downloads for entire collection-->
+        <div class="row">
+            <div class="col-md-12">
+                <a href="{% url 'download_reports' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light">Collection Reports (tsv) <i class="fa fa-download"></i></button></a>
+                <a href="{% url 'download_reports_json' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light">Collection Reports (json) <i class="fa fa-download"></i></button></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Hidden buttons for clicking to download report sets  -->
+<a><button id="do-download" class="hidden"></button>
+<a target="_blank"><button class="hidden" id="do-download-set"></button>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<script>
+$(document).ready(function(){
+
+   // Download set or json when user clicks button for it
+   $('.download-annotations').click(function() {
+
+      var user = $("user").val();
+      if (user!="none"){
+          var set_id = $(this).attr('data-setid');
+          var download_type = $(this).attr('data-type');
+          $("#select-user").addClass('hidden');
+          var url = "/download/set/" + set_id + "/user/" + user + download_type;
+
+          // Json download should open in new window
+          if (download_type == ""){
+              $("#do-download").attr("href",url)
+              $("#do-download").click()
+          } else {
+              $("#do-download-json").attr("href",url)
+              $("#do-download-json").click()
+          }
+
+      } else {
+        $("#select-user").removeClass('hidden');
+      }
+   });
+
+   $('.download-set').click(function() {
+
+      var user = $("user").val();
+      if (user!="none"){
+          var set_id = $(this).attr('data-setid');
+          var collection_id = $(this).attr('data-collection');
+          var download_type = $(this).attr('data-type');
+          $("#select-user").addClass('hidden');
+          var url = "/download/set/" + collection_id + "/" +  set_id + download_type;
+
+          // Json download should open in new window
+          if (download_type == ""){
+              $("#do-download").attr("href",url)
+              $("#do-download").click()
+          } else {
+              $("#do-download-json").attr("href",url)
+              $("#do-download-json").click()
+          }
+
+      } else {
+        $("#select-user").removeClass('hidden');
+      }
+   });
+
+
+   $('#reportsets').DataTable();
+
+})
+</script>
+{% endblock %}

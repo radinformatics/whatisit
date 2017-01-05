@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.views.generic.base import TemplateView
 import whatisit.apps.wordfish.views as report_views
 import whatisit.apps.wordfish.tests as test_views
+import whatisit.apps.wordfish.storage as data_views
 
 urlpatterns = [
 
@@ -64,5 +65,14 @@ urlpatterns = [
     url(r'^annotate/reports/(?P<sid>.+?)/(?P<rid>.+?)/test$',test_views.test_annotator,name='test_annotator'),
     url(r'^testing/reports/(?P<rid>.+?)/(?P<sid>.+?)/annotate$',report_views.annotate_report,name='annotate_report_testing'), # set
     url(r'^testing/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report_testing'),
+
+    # Download Files/Json
+    url(r'^download/set/(?P<sid>.+?)/user/(?P<uid>.+?)$',data_views.download_annotation_set,name='download_set'),
+    url(r'^download/set/(?P<sid>.+?)/user/(?P<uid>.+?)/json$',data_views.download_annotation_set_json,name='download_set_json'),
+    url(r'^downloads/collection/(?P<cid>.+?)$',data_views.download_data,name='download_data'),
+    url(r'^download/collection/(?P<cid>.+?)$',data_views.download_reports,name='download_reports'), # all 
+    url(r'^download/collection/(?P<cid>.+?)/json$',data_views.download_reports,name='download_reports_json'), # all 
+    url(r'^download/set/(?P<cid>.+?)/(?P<sid>.+?)$',data_views.download_reports,name='download_reports'), # in set
+    url(r'^download/set/(?P<cid>.+?)/(?P<sid>.+?)/json$',data_views.download_reports,name='download_reports_json'), # in set
 
 ]
