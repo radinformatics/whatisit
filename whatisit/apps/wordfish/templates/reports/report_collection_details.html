@@ -64,9 +64,9 @@
                 <a href="{% url 'create_label' collection.id %}"><button type="button" class="btn btn-info  waves-effect waves-light">New Label</button></a>
                 <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-info  waves-effect waves-light">Gold Standard Set</button></a>
                 
-                {% if annotation_count > 25 %}
+              
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info waves-effect waves-light">New Annotation Set</button></a>
-                {% endif %}
+              
 
             {% endif %}
             {% if annotate_permission %}
