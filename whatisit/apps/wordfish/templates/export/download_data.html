@@ -20,7 +20,7 @@
             <hr class="mt-2 mb-2">
         </div>
 
-        <p id="select-user" class="alert alert-info hidden">Please specify an annotator first.</p>
+        <p id="select-user" style="display:none" class="alert alert-info">Please specify an annotator first.</p>
         <p class="alert alert-info">You can also programmatically download data via our <a href="/api">API</a></p>
 
         {% if report_sets %}
@@ -28,7 +28,7 @@
             <!-- Make sure an annotator is selected -->
             <label for="user">Annotator to Download</label>
             <select id="user" name="user" class="form-control">
-                <option value="none">--</option>
+                <option value="none"></option>
                 {% for user in annotators %}
                 <option value="{{ user.id }}">{{ user }}</option>
                 {% endfor %}
@@ -52,12 +52,12 @@
 
                    <!--Report Set Annotations -->
                    <td><a><button data-type="" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-annotations">Report Set Annotations (tsv) <i class="fa fa-download"></i></button></a>
-                   <a><button data-type="/json" data-setid="{{ report_set.id }}" data-collection="{{ report_set.collection.id }}" class="btn-sm btn btn-default download-annotations">Report Set Annotations (json) <i class="fa fa-download"></i></button></a></td>
+                   <!--<a><button data-type="/json" data-setid="{{ report_set.id }}" data-collection="{{ report_set.collection.id }}" class="btn-sm btn btn-default download-annotations">Report Set Annotations (json) <i class="fa fa-download"></i></button></a>--></td>
 
                    <!--Report Set Reports-->
                    <td><a><button data-type="" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-set">Set Reports (tsv) <i class="fa fa-download"></i></button></a>
-                   <a><button data-type="/json" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-set-json">Set Reports (json) <i class="fa fa-download"></i></button></a></td>
-
+                   <!--<a><button data-type="/json" data-collection="{{ report_set.collection.id }}" data-setid="{{ report_set.id }}" class="btn-sm btn btn-default download-set-json">Set Reports (json) <i class="fa fa-download"></i></button></a>-->
+                 </td>
                </tr>
            {% endfor %}
             </tbody>
@@ -77,7 +77,7 @@
         <div class="row">
             <div class="col-md-12">
                 <a href="{% url 'download_reports' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light">Collection Reports (tsv) <i class="fa fa-download"></i></button></a>
-                <a href="{% url 'download_reports_json' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light">Collection Reports (json) <i class="fa fa-download"></i></button></a>
+                <!--<a href="{% url 'download_reports_json' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light">Collection Reports (json) <i class="fa fa-download"></i></button></a>-->
             </div>
         </div>
     </div>
@@ -85,8 +85,8 @@
 
 
 <!-- Hidden buttons for clicking to download report sets  -->
-<a><button id="do-download" class="hidden"></button>
-<a target="_blank"><button class="hidden" id="do-download-set"></button>
+<a><button id="do-download" style="display:none"></button>
+<a target="_blank"><button style="display:none" id="do-download-set"></button>
 {% endblock %}
 
 {% block scripts %}
@@ -98,48 +98,36 @@ $(document).ready(function(){
    // Download set or json when user clicks button for it
    $('.download-annotations').click(function() {
 
-      var user = $("user").val();
+      var user = $("#user").val();
       if (user!="none"){
           var set_id = $(this).attr('data-setid');
           var download_type = $(this).attr('data-type');
-          $("#select-user").addClass('hidden');
+          $("#select-user").hide();
           var url = "/download/set/" + set_id + "/user/" + user + download_type;
 
-          // Json download should open in new window
-          if (download_type == ""){
-              $("#do-download").attr("href",url)
-              $("#do-download").click()
-          } else {
-              $("#do-download-json").attr("href",url)
-              $("#do-download-json").click()
-          }
+          // Json download should open in new wi
+          document.location = url;
 
       } else {
-        $("#select-user").removeClass('hidden');
+        $("#select-user").show();
       }
    });
 
    $('.download-set').click(function() {
 
-      var user = $("user").val();
+      var user = $("#user").val();
       if (user!="none"){
           var set_id = $(this).attr('data-setid');
           var collection_id = $(this).attr('data-collection');
           var download_type = $(this).attr('data-type');
-          $("#select-user").addClass('hidden');
+          $("#select-user").hide();
           var url = "/download/set/" + collection_id + "/" +  set_id + download_type;
 
           // Json download should open in new window
-          if (download_type == ""){
-              $("#do-download").attr("href",url)
-              $("#do-download").click()
-          } else {
-              $("#do-download-json").attr("href",url)
-              $("#do-download-json").click()
-          }
+          document.location = url;
 
       } else {
-        $("#select-user").removeClass('hidden');
+        $("#select-user").show();
       }
    });
 

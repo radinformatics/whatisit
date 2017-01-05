@@ -233,7 +233,7 @@ def get_reportset_annotations(report_set,user):
             data = data.append(subset)
         except:
             pass
-    data["Annotation_annotator"] = annotations.annotator.username
+    data["Annotation_annotator"] = user.username
     return data
 
 

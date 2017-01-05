@@ -34,6 +34,8 @@ from whatisit.apps.wordfish.utils import (
     get_reportset_annotations    
 )
 
+from whatisit.apps.wordfish.models import ReportSet
+
 import pandas
 import errno
 import itertools
@@ -67,7 +69,7 @@ def download_annotation_set(request,sid,uid,return_json=False):
     # Does the user have permission to edit?
     requester = request.user
     if requester == collection.owner or requester in collection.contributors.all():
-        user = User.objects.get(uid)
+        user = User.objects.get(id=uid)
         df = get_reportset_annotations(report_set,user)
         if not return_json:
             response = HttpResponse(df.to_csv(sep="\t"), content_type='text/csv')
@@ -90,7 +92,8 @@ def download_data(request,cid):
     # Does the user have permission to edit?
     requester = request.user
     if requester == collection.owner or requester in collection.contributors.all():
-        context = {"annotators":get_collection_annotators(collection),
+        context = {"collection":collection,
+                   "annotators":get_collection_annotators(collection),
                    "report_sets":ReportSet.objects.filter(collection=collection)}
         return render(request, 'export/download_data.html', context)
 
