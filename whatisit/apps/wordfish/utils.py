@@ -28,6 +28,7 @@ from random import randint
 from numpy.random import shuffle
 import numpy
 import operator
+import pandas
 import shutil
 import os
 import re
