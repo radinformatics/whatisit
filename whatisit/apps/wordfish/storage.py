@@ -27,22 +27,12 @@ from whatisit.settings import (
     MEDIA_URL
 )
 
-from whatisit.apps.wordfish.models import (
-    Report,
-    ReportSet,
-    ReportCollection,
-    Annotation,
-    AllowedAnnotation
-)
-
 from whatisit.apps.wordfish.utils import (
     get_collection_annotators,
     get_report_collection,
-    get_report_set
+    get_report_set,
     get_reportset_annotations    
 )
-
-from whatisit.apps.users.utils import get_user
 
 import pandas
 import errno
@@ -125,8 +115,8 @@ def download_annotation_set(request,sid,uid,return_json=False):
 
     # Does the user have permission to edit?
     requester = request.user
-    if requester == collection.owner or if requester in collection.contributors.all():
-        user = get_user(request,uid)
+    if requester == collection.owner or requester in collection.contributors.all():
+        user = User.objects.get(uid)
         df = get_reportset_annotations(report_set,user)
         if not return_json:
             response = HttpResponse(df.to_csv(sep="\t"), content_type='text/csv')
@@ -148,7 +138,7 @@ def download_data(request,cid):
 
     # Does the user have permission to edit?
     requester = request.user
-    if requester == collection.owner or if requester in collection.contributors.all():
+    if requester == collection.owner or requester in collection.contributors.all():
         context = {"annotators":get_collection_annotators(collection),
                    "report_sets":ReportSet.objects.filter(collection=collection)}
         return render(request, 'export/download_data.html', context)
@@ -180,12 +170,12 @@ def download_reports(request,cid,sid=None,return_json=False):
         export_name = "%s_reports_set.tsv" %(report_set.id)
     else:
         collection = get_report_collection(cid)
-        reports = Report.objects.filter(collection=collection)
+        reports = collection.report_set.all()
         export_name = "%s_reports.tsv" %(collection.id)
 
     # Does the user have permission to edit?
     requester = request.user
-    if requester == collection.owner or if requester in collection.contributors.all():
+    if requester == collection.owner or requester in collection.contributors.all():
         df = pandas.DataFrame(columns=["report_id","report_text"])
         df["report_id"] = [r.report_id for r in reports]
         df["report_text"] = [r.report_text for r in reports]
