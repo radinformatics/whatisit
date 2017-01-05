@@ -14,23 +14,29 @@
 <div class="row">
 
     <!-- Container collection meta -->
-    <div class="col-md-4" style="padding-bottom:50px">
+    <div class="col-md-12" style="padding-bottom:50px">
         <div class="card card-block" style="padding:30px">
             <div class="header" style="padding-bottom:50px">
                    <h3 class="title" style="padding-bottom:20px">
                    <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
                    {{ collection.name }}</h3>
             </div>
-            <div class="content">
-                <div data-background-color="white" data-active-color="danger">
-                     <p>Total Reports: {{ report_count|intcomma }}</p>
-                     <p>Annotations: {{ annotation_count|intcomma }}</p>
-                </div>
-            </div>
         </div>    
     </div>
 
-    <div class="col-md-8" style="padding-bottom:50px">
+    <div class="col-md-4">
+          <div data-background-color="white" data-active-color="danger">
+              <p>Total Reports: {{ report_count|intcomma }}</p>
+              <p>Annotations: {{ annotation_count|intcomma }}</p>
+          </div>
+    </div>
+</div>
+
+
+<!-- Work panels -->
+<div class="row">
+
+    <div class="col-md-12" style="padding-bottom:50px">
 
         <div class="card card-block" style="padding:30px;min-height:286px">
 
@@ -48,7 +54,7 @@
                      <a class="nav-link" data-toggle="tab" href="#usersPanel" role="tab">Users</a>
                  </li>
                  <li class="nav-item">
-                     <a class="nav-link" data-toggle="tab" href="#summaryPanel" role="tab">Summary</a>
+                     <a class="nav-link" data-toggle="tab" href="#summaryPanel" role="tab">Data</a>
                  </li>
                  {% endif %}
              </ul>
@@ -65,9 +71,8 @@
                 <a href="{% url 'annotate_random' collection.id %}"><button type="button" class="btn btn-info  waves-effect waves-light">Gold Standard Set</button></a>
                 
               
+                {% if annotation_count > 1 %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info waves-effect waves-light">New Annotation Set</button></a>
-              
-
             {% endif %}
             {% if annotate_permission %}
 
@@ -104,7 +109,8 @@
         </div>
         <!--End Annotate Panel -->
 
-        <!--Users and Summary panel -->
+
+        <!--Users Panel -->
         {% if edit_permission %}
         <div class="tab-pane fade" id="usersPanel" role="tabpanel">
             <br>
@@ -113,11 +119,14 @@
 
         </div>
         <!-- end panel -->
+
+        <!-- Summary Data Panel -->
         <div class="tab-pane fade" id="summaryPanel" role="tabpanel">
             <br>
 
              {% if annotation_count > 0 %}
             <a href="{% url 'report_collection_summary' collection.id %}"><button id="count_button" type="button" class="btn btn-info waves-effect waves-light"> Counts</button></a>
+            <a href="{% url 'download_data' collection.id %}"><button type="button" class="btn btn-info waves-effect waves-light"> Downloads</button></a>
             {% else %}
             <p class="alert alert-info">You must have annotated reports to see summary statistics</p> 
             {% endif %}
@@ -199,8 +208,8 @@
      <p>There are no reports in this collection!</p>
 
      {% if edit_permission %}
-     <p><a href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
-     <div class="mdl-tooltip" for="new-container">
+     <p><a id="upload-reports" href="{% url 'upload_reports' collection.id %}"><button class="btn btn-primary">Upload Reports</button></a></p>
+     <div class="mdl-tooltip" for="upload-reports">
          <p>Currently, a set of reports must be a tab separated file with a <strong>report_id</strong> column, a <strong>report_text</strong> column, and columns that end with <strong>_label</strong> will be treated as labels to import.</p>
      </div>
      {% endif %}
