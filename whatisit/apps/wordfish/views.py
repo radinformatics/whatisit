@@ -1,3 +1,4 @@
+from notifications.signals import notify
 from whatisit.apps.wordfish.forms import (
     ReportForm, 
     ReportCollectionForm,
@@ -182,6 +183,13 @@ def deny_annotate_permission(request,cid,uid):
         if permission_request.status not in ["APPROVED","DENIED"]:
             permission_request.status = "DENIED"
             permission_request.save()
+
+            # Send a notification to the user
+            message = """Your request to annotate sets in the collection %s 
+                         has been denied""" %(collection.name)
+            notify.send(collection.owner, recipient=requester, verb=message)
+
+
             messages.success(request, 'Annotators updated.')    
     return view_report_collection(request,cid)
 
@@ -206,6 +214,10 @@ def approve_annotate_permission(request,cid,uid):
             permission_request.status = "APPROVED"
             permission_request.save()
 
+            # Send a notification to the user
+            message = """Your request to annotate sets in the collection %s 
+                         has been approved!""" %(collection.name)
+            notify.send(collection.owner, recipient=requester, verb=message)
             messages.success(request, 'Annotators approved.')
     
     return view_report_collection(request,cid)
@@ -339,6 +351,14 @@ def change_set_annotator(request,sid,uid,status):
         credential.status = status
         credential.save()
         messages.info(request,"User %s status changed to %s" %(annotator,status.lower()))
+
+        # Alert the user of the status change
+        message = """Your request to annotate set %s for 
+                     collection %s has updated status %s""" %(report_set.name,
+                                                              collection.name,
+                                                              status.lower())
+        notify.send(collection.owner, recipient=annotator, verb=message)
+
         return edit_set_annotators(request,sid)
 
     # Does not have permission, return to collection
