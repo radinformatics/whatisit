@@ -37,7 +37,10 @@ from whatisit.apps.wordfish.utils import (
     summarize_annotations
 )
 
-from whatisit.apps.wordfish.tasks import update_user_annotation
+from whatisit.apps.wordfish.tasks import (
+    update_user_annotation,
+    generate_annotation_set
+)
 
 from whatisit.settings import (
     BASE_DIR, 
@@ -709,13 +712,11 @@ def save_annotation_set(request,cid):
     if has_collection_edit_permission(request,collection):
         if request.method == "POST":
             
-            pickle.dump(dict(request.POST),open('POST.pkl','wb'))
             # What does the user want to name the set?
             set_name = request.POST.get('setname').lower().replace(" ","_")
 
             # What user should be used as gold standard?
             gold_standard = request.POST.get('gold_standard')
-            gold_standard = get_user(request,gold_standard)
 
             # How many reports in the set?
             request,N = parse_numeric_input(request=request,
@@ -742,69 +743,25 @@ def save_annotation_set(request,cid):
             # What users does the request want to see annotations by?
             user_id = request.POST.get('user')
             if user_id == 'all':
-                user = get_collection_users(collection)
+                user = [u.id for u in get_collection_users(collection)]
             else:
-                user = [get_user(request,user_id)]
+                user = [get_user(request,user_id).id]
 
             # What annotation (name and label) do we filter to?
             selection_keys = [x for x in request.POST.keys() if re.search("^whatisit[||]", x)]
-            selections = []
-            seen_annotations = []
-            allowed_annotations = []
-            for selection_key in selection_keys:
-                name,label = selection_key.replace("whatisit||","").split("||")
-                annotation_object = AllowedAnnotation.objects.get(name=name,
-                                                                  label=label)
+            generate_annotation_set.apply_async(kwargs={'uid':request.user.id,
+                                                        'user_ids':user,
+                                                        'selection_keys':selection_keys,
+                                                        'rid':report_set.id,
+                                                        'N':N,
+                                                        'testing_set':testing_set,
+                                                        'testing_set_correct':testing_set_correct,
+                                                        'gid':gold_standard,
+                                                        'set_name':set_name})
 
-                # We save the allowed annotation as a label to use for testing
-                allowed_annotations.append(annotation_object)
+            messages.info(request,"""Your set is being created. It's status will be sent via notification. Once it is created, you should add annotators to it.""")
 
-                # Query to select the reports of interest
-                selection = Annotation.objects.filter(annotator__in=user,
-                                                      annotation=annotation_object,
-                                                      reports__collection=collection)
-
-                for annotation in selection:
-                    if annotation not in seen_annotations:
-                        selections = list(chain(selections,annotation.reports.all()))
-                        seen_annotations.append(annotation)
-
-            # Remove reports that are already in sets
-            existing = []
-            existing_sets = ReportSet.objects.all()
-            for existing_set in existing_sets:
-                existing = list(chain(existing,existing_set.reports.all()))
-
-            selections = [report for report in selections if report not in existing]
-
-            # If we have fewer selections left than options, no go
-            if len(selections) < N:
-                messages.info(request,"There are %s reports (not in a set) that match this criteria, cannot create new set." %(len(selections)))
-                return create_annotation_set(request,collection.id)
-
-            # Otherwise, save the new report set
-            selections = selections[0:N]
-            report_set = ReportSet.objects.create(collection=collection,
-                                                  number_tests=testing_set,
-                                                  number_reports=N,
-                                                  name=set_name,
-                                                  passing_tests=testing_set_correct,
-                                                  gold_standard=gold_standard)
-            report_set.save()
-
-            # Set creator should be allowed to see it
-            report_set.annotators.add(request.user)            
-            report_set.reports = selections
-            report_set.testing_annotations = allowed_annotations
-            report_set.save()   
-
-            # If we are successful, return a message to tell the admin to add annotators.
-            add_annotators_link = "/collections/%s/sets/annotators" %(report_set.id)
-            messages.info(request,"""Annotation set successfully created! You should now 
-                                  add annotators to it.""")
-
-
-    return view_report_collection(request,cid)
+    return redirect('report_collection_details',cid=collection.id)
 
 
 @login_required
@@ -897,9 +854,6 @@ def bulk_annotate(request,cid,sid=None):
                         update_user_annotation.apply_async(kwargs={'user':request.user.id, 
                                                                    'allowed_annotation':allowed_annotation.id,
                                                                    'report':report.id})
-                        #result = update_user_annotation.apply_async([user.id,
-                        #                                             allowed_annotation.id,
-                        #                                             report.id])
 
                     messages.info(request,"Annotation %s:%s task running for %s reports" %(name,label,reports.count()))
         

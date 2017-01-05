@@ -56,6 +56,7 @@ RUN pip install simplejson
 RUN pip install django-gravatar2
 RUN pip install pygments
 RUN pip install django-lockdown
+RUN pip install django-notifications-hq
 
 RUN mkdir /code
 RUN mkdir -p /var/www/images

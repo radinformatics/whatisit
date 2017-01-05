@@ -45,3 +45,4 @@ django-gravatar2
 singularity
 simplejson
 pygments
+django-notifications-hq
