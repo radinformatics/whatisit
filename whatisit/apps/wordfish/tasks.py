@@ -33,21 +33,20 @@ app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @shared_task
-def generate_annotation_set(uid,user_ids,selection_keys,rid,N,testing_set,testing_set_correct,set_name,gid):
+def generate_annotation_set(uid,user_ids,selection_keys,cid,N,testing_set,testing_set_correct,set_name,gid):
     '''generate annotation set is a task to select reports and generate an annotation set.
     If failed, will send a message to the user
     :param uid: the user id requesting, in case failed
     :param users: the (list, one or more) of user ids to include
     :param selection_keys: the list of selection keys
-    :param rid: the report set id to generate for
+    :param cid: the id of the collection to generate a set for
     :param N: the number to include in the report set
     :param testing_set: the number to include in the testing set
     :param testing_set_correct: the total correct
     :param set_name: the name for the new report set
     :param gid: the unique id for the gold standard user
     '''
-    report_set = get_report_set(rid)
-    collection = report_set.collection
+    collection = get_report_collection(cid)
 
     # Try to get requester and gold standard annotator users
     try:

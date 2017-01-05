@@ -752,7 +752,7 @@ def save_annotation_set(request,cid):
             generate_annotation_set.apply_async(kwargs={'uid':request.user.id,
                                                         'user_ids':user,
                                                         'selection_keys':selection_keys,
-                                                        'rid':report_set.id,
+                                                        'cid':collection.id,
                                                         'N':N,
                                                         'testing_set':testing_set,
                                                         'testing_set_correct':testing_set_correct,

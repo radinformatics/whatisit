@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     nginx \
     wget
 
+RUN pip install --upgrade pip
 RUN pip install numpy \
     cython
 RUN pip install -v scipy
