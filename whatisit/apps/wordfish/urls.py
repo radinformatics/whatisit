@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.views.generic.base import TemplateView
 import whatisit.apps.wordfish.views as report_views
 import whatisit.apps.wordfish.tests as test_views
-import whatisit.apps.wordfish.storage as data_views
+import whatisit.apps.wordfish.export as data_views
 
 urlpatterns = [
 
