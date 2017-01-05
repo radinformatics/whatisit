@@ -2,8 +2,8 @@ from django.views.generic.base import (
     TemplateView,
     RedirectView
 )
+from django.conf.urls import include, url
 import notifications.urls
-from django.conf.urls import url
 import whatisit.apps.main.views as main_views
 
 favicon_view = RedirectView.as_view(url='/static/img/favicon/favicon.ico', 

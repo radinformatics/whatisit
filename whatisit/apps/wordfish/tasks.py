@@ -90,7 +90,7 @@ def generate_annotation_set(uid,user_ids,selection_keys,rid,N,testing_set,testin
         existing_sets = ReportSet.objects.filter(collection=collection)
         for existing_set in existing_sets:
             existing = list(chain(existing,existing_set.reports.all()))
-         selections = [report for report in selections if report not in existing]
+        selections = [report for report in selections if report not in existing]
 
         # If we have fewer selections left than options, no go
         if len(selections) < N:

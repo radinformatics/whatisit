@@ -14,20 +14,17 @@
 <div class="row">
 
     <!-- Container collection meta -->
-    <div class="col-md-12" style="padding-bottom:50px">
-        <div class="card card-block" style="padding:30px">
-            <div class="header" style="padding-bottom:50px">
-                   <h3 class="title" style="padding-bottom:20px">
-                   <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>
-                   {{ collection.name }}</h3>
-            </div>
-        </div>    
+    <div class="col-md-6" style="padding-bottom:20px">
+        <div class="header">
+               <h3 class="title">
+               <img src="http://api.adorable.io/avatars/70/con-{{ collection.id }}" style="position:relative;top:-5px;border-radius:35px; padding-right:20px;margin-right:15px"/>{{ collection.name }}</h3>
+        </div>
     </div>
 
     <div class="col-md-4">
           <div data-background-color="white" data-active-color="danger">
-              <p>Total Reports: {{ report_count|intcomma }}</p>
-              <p>Annotations: {{ annotation_count|intcomma }}</p>
+              <p style="float:right">Total Reports: {{ report_count|intcomma }}<br>
+              Annotations: {{ annotation_count|intcomma }}</p>
           </div>
     </div>
 </div>
@@ -42,9 +39,9 @@
 
              <!-- Nav tabs -->
              {% if edit_permission %}
-             <ul class="nav nav-tabs tabs-3 blue" role="tablist">
+             <ul style="margin-bottom:50px" class="nav nav-tabs tabs-3 blue" role="tablist">
              {% else %}
-             <ul class="nav nav-tabs tabs-2 blue" role="tablist">
+             <ul style="margin-bottom:50px" class="nav nav-tabs tabs-2 blue" role="tablist">
              {% endif %}
                  <li class="nav-item">
                      <a class="nav-link active" data-toggle="tab" href="#annotatePanel" role="tab">Annotate</a>
@@ -73,6 +70,8 @@
               
                 {% if annotation_count > 1 %}
                 <a href="{% url 'create_annotation_set' collection.id %}"><button type="button" class="btn btn-info waves-effect waves-light">New Annotation Set</button></a>
+                {% endif %}            
+
             {% endif %}
             {% if annotate_permission %}
 
@@ -218,7 +217,7 @@
 
 {% if not report_sets %}
    {% if not report_set_testers %}
-<p class="alert alert-info">You have no report sets to annotate.</p>
+    <p style="margin-bottom:30px" class="alert alert-info">You have no report sets to annotate.</p>
    {% endif %}
 {% endif %}
 
@@ -261,7 +260,6 @@
 {% else %}
 <p class="alert alert-info">There are no pending requests for annotation.</p>
 {% endif %}
-
 {% endif %}
 
 {% endblock %}
