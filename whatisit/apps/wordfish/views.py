@@ -265,6 +265,11 @@ def add_contributor(request,cid):
                 user = get_user(request,user_id)
                 collection.contributors.add(user)
                 collection.save()
+
+                # Alert the user of the status change
+                message = """You have been added as a contributor to the %s.""" %(collection.name)
+                notify.send(collection.owner, recipient=user, verb=message)
+
                 messages.success(request, 'User %s added as contributor to collection.' %(user))
 
     return edit_contributors(request,cid)
