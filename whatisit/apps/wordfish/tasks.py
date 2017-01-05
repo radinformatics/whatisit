@@ -18,7 +18,8 @@ from whatisit.apps.wordfish.models import (
 )
 
 from whatisit.apps.wordfish.utils import (
-    get_report_set
+    get_report_set,
+    get_report_collection
 )
 
 from whatisit.apps.users.utils import get_user
@@ -50,15 +51,15 @@ def generate_annotation_set(uid,user_ids,selection_keys,cid,N,testing_set,testin
 
     # Try to get requester and gold standard annotator users
     try:
-        requester = User.objects.get(uid)
-        gold_standard = User.objects.get(gid)
+        requester = User.objects.get(id=uid)
+        gold_standard = User.objects.get(id=gid)
     except:
-        return False
+        raise
 
     user = []
     for uid in user_ids:
         try:     
-            add_user = User.objects.get(uid)
+            add_user = User.objects.get(id=uid)
             user.append(add_user)
         except:
             pass

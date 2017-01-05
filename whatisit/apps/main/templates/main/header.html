@@ -1,4 +1,7 @@
+{% load notifications_tags %}
 {% block header %}
+{% notifications_unread as unread_count %}
+
    <header>
 
    <style>
@@ -50,9 +53,11 @@
                             <a class="nav-link pull-right" href="/api">API</a>
                         </li>
                         {% if request.user.is_authenticated %}
+                        {% if unread_count %}
                         <li class="nav-item">
                             <a href="/notifications"><i style="margin-top:10px" class="fa fa-bell"></i></a>
                         </li>
+                        {% endif %}
                         {% endif %}
 
                     <!--<form class="form-inline">
