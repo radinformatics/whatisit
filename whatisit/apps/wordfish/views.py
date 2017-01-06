@@ -414,7 +414,7 @@ def approve_set_annotator(request,sid,uid):
     :param sid: the report_set id
     :param uid: the user id
     '''
-    response = change_set_annotator(request,sid,uid,"PASSED")
+    return change_set_annotator(request,sid,uid,"PASSED")
 
 
 @login_required

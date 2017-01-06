@@ -98,11 +98,11 @@
             {% else %}
             
             <!-- No annotators -->
-            <div>
                    <p>You have no annotators for this collection. A user must request to be an annotator for you to give them annotation permission to a set. <a href="{% url 'report_collection_details' collection.id %}"><button class="btn btn-primary">Return to collection.</button></a></p>
                     
             </div>
             {% endif %}
+        </div>
     </div>
 </div>
 <!--/Annotate-->
@@ -143,6 +143,7 @@
                     </table>
                 </div>
             {% endif %}
+    </div>
 
 <!-- Testing - can auto approve -->
 {% if testing %}
@@ -190,7 +191,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <script>
 $(document).ready(function(){
-   $('#annotators').DataTable();
+   //$('#annotators').DataTable();
    $(".remove_annotator").click(function(){
       return confirm("Are you sure you want to remove this annotator? Annotations will not be lost, but the annotator will no longer be a part of the collection.");
    })
