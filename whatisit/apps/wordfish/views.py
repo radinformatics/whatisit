@@ -167,7 +167,7 @@ def request_annotate_permission(request,cid):
 
     # redirect back to collection with message
     messages.success(request, 'Request sent.')
-    return view_report_collection(request,cid)
+    return HttpResponseRedirect(collection.get_absolute_url())
 
 
 @login_required
@@ -310,6 +310,7 @@ def edit_set_annotators(request,sid):
         # Get list of allowed annotators for set, not in set (to add)
         has_credential = has_credentials(report_set,status="PASSED")
         denied_credential = has_credentials(report_set,status="DENIED")
+        testing_credential = has_credentials(report_set,status="TESTING")
 
         # Get credentials for allowed annotators
         credentials = get_credentials(has_credential,report_set)
@@ -323,11 +324,17 @@ def edit_set_annotators(request,sid):
                                    report_set,
                                    status="DENIED")
 
+        # Get list of testing annotators for set (if want to pass without testing)
+        testing = get_credentials(testing_credential,
+                                  report_set,
+                                  status="TESTING")
+
         # Remove contenders that are allowed annotation
         contenders = [x for x in contenders if x not in users_with_credentials]
 
         context = {'annotators':credentials,
                    'collection':collection,
+                   'testing':testing,
                    'contenders':contenders,
                    'report_set':report_set,
                    'failures':failures}
@@ -822,6 +829,7 @@ def annotate_set(request,sid,show_count=True):
 
 
     elif user_status == "TESTING":
+
         # Send the user to the testing view, will grant permission/deny after test
         return test_annotator(request=request,
                               sid=report_set.id)
