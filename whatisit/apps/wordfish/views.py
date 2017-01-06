@@ -732,7 +732,7 @@ def create_annotation_set(request,cid):
             messages.info(request,'''You must have a minimum of 25 annotations to create an annotation set. 
                                      A collection owner or contributor can annotate random reports to generate 
                                      this gold standard.''')
-            return view_report_collection(request,cid)
+            return HttpResponseRedirect(collection.get_absolute_url())
 
 
         context = {"users": users,
@@ -820,7 +820,7 @@ def annotate_set(request,sid,show_count=True):
     # No credential exists, for user (this should not happen)
     if user_status == None:
         messages.info(request,"You must ask for permission to annotate a collection first.")
-        return view_report_collection(request,report_set.collection.id)
+        return HttpResponseRedirect(collection.get_absolute_url())
 
     # Approved means we continue
     if user_status == "PASSED":
@@ -1169,7 +1169,7 @@ def annotate_random(request,cid,rid=None,sid=None,reports=None):
 
 @login_required
 def annotate_testing(request,cid,rid=None,sid=None,reports=None):
-    '''annotate_random will select a random record from a collection, and render a page for
+    '''annotate_testing will select a random record from a collection, and render a page for
     the user to annotate
     :param cid: the collection id to select from
     :param rid: a report id, if provided, to annotate

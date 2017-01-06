@@ -82,7 +82,7 @@ def generate_annotation_set(uid,user_ids,selection_keys,cid,N,testing_set,testin
 
             for annotation in selection:
                 if annotation not in seen_annotations:
-                    selections = list(chain(selections,annotation.reports.all()))
+                    selections = list(chain(selections,annotation.reports.filter(collection=collection)))
                     seen_annotations.append(annotation)
 
         # Remove reports that are already in sets
