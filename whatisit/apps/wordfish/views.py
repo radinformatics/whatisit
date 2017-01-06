@@ -180,7 +180,7 @@ def deny_annotate_permission(request,cid,uid):
         requester = get_user(request,uid)
         permission_request = RequestMembership.objects.get(collection=collection,
                                                            requester=requester)
-        if permission_request.status not in ["APPROVED","DENIED"]:
+        if permission_request.status != "DENIED":
             permission_request.status = "DENIED"
             permission_request.save()
 
@@ -364,14 +364,22 @@ def change_set_annotator(request,sid,uid,status):
         credential.save()
         messages.info(request,"User %s status changed to %s" %(annotator,status.lower()))
 
+        # If the user is passed, add to annotators
+        if status == "PASSED":
+            report_set.annotators.add(annotator)
+        elif status in ["DENIED","TESTING"]:
+            report_set.annotators.remove(annotator) 
+        report_set.save()
+
         # Alert the user of the status change
         message = """Your request to annotate set %s for 
                      collection %s has updated status %s""" %(report_set.name,
                                                               collection.name,
                                                               status.lower())
+
         notify.send(collection.owner, recipient=annotator, verb=message)
 
-        return edit_set_annotators(request,sid)
+        return redirect('edit_set_annotators',sid=report_set.id)
 
     # Does not have permission, return to collection
     messages.info(request, "You do not have permission to edit annotators for this collection.")
@@ -396,9 +404,7 @@ def new_set_annotator(request,sid):
                                                        report_set=report_set)
                 credential.save()
                 messages.success(request, 'Credential for user %s added, user will need to test before annotating.' %(user))
-
-    return edit_set_annotators(request,sid)
-
+    return redirect('edit_set_annotators',sid=report_set.id)
 
 
 
@@ -408,7 +414,7 @@ def approve_set_annotator(request,sid,uid):
     :param sid: the report_set id
     :param uid: the user id
     '''
-    return change_set_annotator(request,sid,uid,"PASSED")
+    response = change_set_annotator(request,sid,uid,"PASSED")
 
 
 @login_required
@@ -633,7 +639,8 @@ def create_annotation_session(request,cid):
                    "collection": collection,
                    "allowed_annotations": allowed_annotations}
         return render(request, "reports/create_annotation_set_local.html", context)
-    return view_report_collection(request,cid)
+    return HttpResponseRedirect(collection.get_absolute_url())
+
 
 @login_required
 def save_annotation_session(request,cid):
@@ -670,7 +677,8 @@ def save_annotation_session(request,cid):
             request.session['reports'] = selections
             return annotate_session(request,cid)
 
-    return view_report_collection(request,cid)
+    return HttpResponseRedirect(collection.get_absolute_url())
+
 
 @login_required
 def annotate_session(request,cid):
@@ -699,7 +707,7 @@ def annotate_session(request,cid):
                                    report=next_report,
                                    next="set")
 
-    return view_report_collection(request,cid)
+    return HttpResponseRedirect(collection.get_absolute_url())
 
 
 
@@ -731,7 +739,8 @@ def create_annotation_set(request,cid):
                    "collection": collection,
                    "allowed_annotations": allowed_annotations}
         return render(request, "reports/create_annotation_set.html", context)
-    return view_report_collection(request,cid)
+
+    return HttpResponseRedirect(collection.get_absolute_url())
 
 
 @login_required
@@ -836,7 +845,7 @@ def annotate_set(request,sid,show_count=True):
 
     else: #denied or other
         messages.info(request,"You are not allowed to perform this action.")
-        return view_report_collection(request,report_set.collection.id)
+        return HttpResponseRedirect(collection.get_absolute_url())
 
 
 ###############################################################################################
@@ -904,9 +913,8 @@ def bulk_annotate(request,cid,sid=None):
                 context['sid'] = sid
 
             return render(request, "annotate/bulk_annotate.html", context)
-    return view_report_collection(request,cid)
-        
-
+    return HttpResponseRedirect(collection.get_absolute_url())
+    
 
 ###############################################################################################
 # Labels ######################################################################################
@@ -986,8 +994,7 @@ def create_label(request,cid,lid=None):
     else:
         # Does not have permission, return to collection
         messages.info(request, "You do not have permission to perform this action.")
-    return view_report_collection(request,cid)
-
+    return HttpResponseRedirect(collection.get_absolute_url())
 
 
 
