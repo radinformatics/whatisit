@@ -103,7 +103,7 @@ $(document).ready(function(){
           var set_id = $(this).attr('data-setid');
           var download_type = $(this).attr('data-type');
           $("#select-user").hide();
-          var url = "/download/set/" + set_id + "/user/" + user + download_type;
+          var url = "/download/set" + download_type + "/" + set_id + "/user/" + user;
 
           // Json download should open in new wi
           document.location = url;
@@ -121,7 +121,7 @@ $(document).ready(function(){
           var collection_id = $(this).attr('data-collection');
           var download_type = $(this).attr('data-type');
           $("#select-user").hide();
-          var url = "/download/set/" + collection_id + "/" +  set_id + download_type;
+          var url = "/download/set" + download_type + "/" +  collection_id + "/" +  set_id;
 
           // Json download should open in new window
           document.location = url;

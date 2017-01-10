@@ -66,10 +66,18 @@ urlpatterns = [
     url(r'^testing/reports/(?P<rid>.+?)/(?P<sid>.+?)/annotate$',report_views.annotate_report,name='annotate_report_testing'), # set
     url(r'^testing/reports/(?P<rid>.+?)/annotate$',report_views.annotate_report,name='annotate_report_testing'),
 
-    # Download Files/Json
+    # Download Files/Json: Annotations
     url(r'^download/set/(?P<sid>.+?)/user/(?P<uid>.+?)$',data_views.download_annotation_set,name='download_set'),
     url(r'^download/set/json/(?P<sid>.+?)/user/(?P<uid>.+?)$',data_views.download_annotation_set_json,name='download_set_json'),
+
+    # General Download page View
     url(r'^downloads/collection/(?P<cid>.+?)$',data_views.download_data,name='download_data'),
+    
+    # Download Files/Json: Reports
     url(r'^download/collection/(?P<cid>.+?)$',data_views.download_reports,name='download_reports'), # all 
     url(r'^download/collection/json/(?P<cid>.+?)$',data_views.download_reports_json,name='download_reports_json'), # all
+    url(r'^download/set/(?P<cid>.+?)/(?P<sid>.+?)$',data_views.download_reports,name='download_reports_set'),
+    url(r'^download/set/json/(?P<cid>.+?)/(?P<sid>.+?)$',data_views.download_reports,name='download_set_reports_json'),
+
+
 ]
