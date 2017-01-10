@@ -216,23 +216,21 @@ def get_reportset_annotations(report_set,user):
     '''
     report_ids = [r.report_id for r in report_set.reports.all()]
     collection = report_set.collection
-    allowed_annnotations = AllowedAnnotation.objects.filter(annotations_allowed_collection=collection)
+    allowed_annotations = AllowedAnnotation.objects.filter(annotations_allowed_collection=collection)
     columns = ['report_id',"AllowedAnnotation_label","AllowedAnnotation_name","Annotation_annotator"]
     data = pandas.DataFrame(columns=columns)
     # Add each allowed annotation to the table
-    for aa in allowed_annnotations:
-        try:
-            subset = pandas.DataFrame(columns=columns)
-            annotations = Annotation.objects.get(reports__report_id__in=report_ids,
-                                                 annotator=user,
-                                                 annotation=aa)
-            report_ids = [r.report_id for r in annotations.reports.all()]
-            subset["report_id"] = report_ids
+    for aa in allowed_annotations:
+        subset = pandas.DataFrame(columns=columns)
+        annotations = Annotation.objects.filter(reports__report_id__in=report_ids,
+                                                annotator=user,
+                                                annotation=aa).distinct()
+        if len(annotations) > 0: 
+            annotation_report_ids = [r.report_id for r in annotations[0].reports.all()]
+            subset["report_id"] = annotation_report_ids
             subset["AllowedAnnotation_name"] = aa.name 
             subset["AllowedAnnotation_label"] = aa.label
             data = data.append(subset)
-        except:
-            pass
     data["Annotation_annotator"] = user.username
     return data
 

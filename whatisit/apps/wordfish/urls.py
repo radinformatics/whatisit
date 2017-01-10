@@ -68,11 +68,8 @@ urlpatterns = [
 
     # Download Files/Json
     url(r'^download/set/(?P<sid>.+?)/user/(?P<uid>.+?)$',data_views.download_annotation_set,name='download_set'),
-    url(r'^download/set/(?P<sid>.+?)/user/(?P<uid>.+?)/json$',data_views.download_annotation_set_json,name='download_set_json'),
+    url(r'^download/set/json/(?P<sid>.+?)/user/(?P<uid>.+?)$',data_views.download_annotation_set_json,name='download_set_json'),
     url(r'^downloads/collection/(?P<cid>.+?)$',data_views.download_data,name='download_data'),
     url(r'^download/collection/(?P<cid>.+?)$',data_views.download_reports,name='download_reports'), # all 
-    url(r'^download/collection/(?P<cid>.+?)/json$',data_views.download_reports,name='download_reports_json'), # all 
-    url(r'^download/set/(?P<cid>.+?)/(?P<sid>.+?)$',data_views.download_reports,name='download_reports'), # in set
-    url(r'^download/set/(?P<cid>.+?)/(?P<sid>.+?)/json$',data_views.download_reports,name='download_reports_json'), # in set
-
+    url(r'^download/collection/json/(?P<cid>.+?)$',data_views.download_reports_json,name='download_reports_json'), # all
 ]
