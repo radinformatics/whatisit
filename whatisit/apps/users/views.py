@@ -177,8 +177,8 @@ def social_user(backend, uid, user=None, *args, **kwargs):
     if social:
         if user and social.user != user:
             msg = 'This {0} account is already in use.'.format(provider)
-            return login(request=backend.strategy.request,
-                         message=msg)
+            messages.info(backend.strategy.request,msg)
+            return login(request=backend.strategy.request)
             #raise AuthAlreadyAssociated(backend, msg)
         elif not user:
             user = social.user
