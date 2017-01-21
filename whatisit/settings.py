@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_user_agents',
     'whatisit.apps.wordfish',
+    'whatisit.apps.tagtrout', 
     'whatisit.apps.main',
     'whatisit.apps.api',
     'whatisit.apps.users',
