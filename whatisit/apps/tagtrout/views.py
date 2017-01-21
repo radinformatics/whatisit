@@ -1,7 +1,7 @@
 from notifications.signals import notify
 from whatisit.apps.tagtrout.forms import (
-    docForm, 
-    docCollectionForm,
+    DocForm, 
+    DocsCollectionForm,
 )
 
 from whatisit.apps.tagtrout.models import (
