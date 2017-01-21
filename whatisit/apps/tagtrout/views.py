@@ -6,7 +6,7 @@ from whatisit.apps.tagtrout.forms import (
 
 from whatisit.apps.tagtrout.models import (
     Doc,
-    DocCollection,
+    DocsCollection
 )
 
 
@@ -204,7 +204,7 @@ def remove_contributor(request,did,uid):
 # View all collections
 def view_docs_collections(request):
     has_collections = False
-    collections = DocsCollection.objects.filter(private=False)
+    collections = DocsCollection.objects.all()
     context = {"collections":collections,
                "page_title":"Document Collections"}
     return render(request, 'docs/all_docs.html', context)

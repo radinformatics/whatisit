@@ -17,14 +17,14 @@ import os
 
 
 #######################################################################################################
-# Reports #############################################################################################
+# Docs #############################################################################################
 #######################################################################################################
 
 class DocsCollection(models.Model):
     '''A report collection is a grouping of reports owned by one or more users
     '''
 
-    # Report Collection Descriptors
+    # Docs Collection Descriptors
     name = models.CharField(max_length=200, null=False, verbose_name="Name of collection")
     description = models.TextField(blank=True, null=True)
     add_date = models.DateTimeField('date published', auto_now_add=True)
@@ -48,7 +48,7 @@ class DocsCollection(models.Model):
         return "docs_collection"
 
     def save(self, *args, **kwargs):
-        super(ReportCollection, self).save(*args, **kwargs)
+        super(DocsCollection, self).save(*args, **kwargs)
         assign_perm('del_docs_collection', self.owner, self)
         assign_perm('edit_docs_collection', self.owner, self)
 

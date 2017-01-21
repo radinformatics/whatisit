@@ -26,14 +26,9 @@ from django import forms
 from glob import glob
 import os
 
-from whatisit.apps.wordfish.models import (
+from whatisit.apps.tagtrout.models import (
     Doc, 
     DocsCollection
-)
-
-from whatisit.apps.wordfish.utils import (
-    format_report_name, 
-    get_allowed_annotations
 )
 
 class DocForm(ModelForm):
@@ -57,7 +52,7 @@ class DocForm(ModelForm):
 class DocsCollectionForm(ModelForm):
 
     class Meta:
-        model = DocCollection
+        model = DocsCollection
         fields = ("name",)
 
     def __init__(self, *args, **kwargs):
