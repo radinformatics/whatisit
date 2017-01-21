@@ -21,7 +21,13 @@
 </div>
 <hr>
 {% endblock %}
-
+{% block scripts %}i
+<script>
+$(document).ready(function(){
+  $('.dropdown-toggle').dropdown()
+})
+</script>
+{% endblock %}
 
 
 
