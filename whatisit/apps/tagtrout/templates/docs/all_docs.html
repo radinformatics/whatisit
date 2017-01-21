@@ -1,0 +1,178 @@
+{% extends "main/base.html" %}
+{% load staticfiles %}
+{% block header %}
+{% include 'main/mega_dropdown.html' %}
+{% endblock %}
+{% block css %}
+<style>
+.g {
+    padding: 0.25em;
+	overflow: hidden;
+	}
+.g li {
+	float: left;
+	width: 50%;
+	padding: 0.25em;
+        list-style:none;
+    }
+.g img {
+        display: block;
+        max-width:10em;
+       }
+.g li:nth-child(odd) {
+        clear: left;
+}
+
+@media screen and (min-width: 40em) {
+    .g li {
+        width: 33.3333333333333333%; 
+    }
+    .g li:nth-child(3n+1) {
+        clear: left;
+    }
+    .g li:nth-child(odd) {
+        clear: none;
+    }
+}
+@media screen and (min-width: 55em) {
+    .g li {
+        width: 25%; 
+     }
+    .g li:nth-child(4n+1) {
+        clear: left;
+     } 
+    .g li:nth-child(3n+1) {
+        clear: none;
+     }
+}
+@media screen and (min-width: 72em) {
+    .g li {
+        width: 20%; 
+    }
+    .g li:nth-child(5n+1) {
+        clear: left;
+    }
+    .g li:nth-child(4n+1) {
+        clear: none;
+    }
+}
+@media screen and (min-width: 90em) {
+    .g li {
+        width: 16.666666666%; 
+    }
+    .g li:nth-child(6n+1) {
+	clear: left;
+    }
+    .g li:nth-child(5n+1) {
+	clear: none;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+        <div id="fh5co-portfolio" style="min-height:600px">
+            <div class="container-fluid">
+                <div class="row" style="padding-bottom:50px;">
+
+                     {% if collections %}
+                     <h2 class="title">{{ page_title }}</h2>
+                     <p style='padding-bottom:50px;'>You can ask for permission to annotate any of the following report collections.</p>
+                     {% endif %}
+
+                    {% if not collections %}
+
+                        <!-- For authenticated users, tell to make collection-->
+                        {% if request.user.is_authenticated %}
+                    <p class="text-center" style="margin-top:50px; margin-bottom:50px; font-size:20px;"><a href="{% url 'new_report_collection' %}" data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance."><button class="btn btn-lg btn-default btn-huge btn-big" disabled>Create A Collection</button></a>
+                   {% if page_title == "My Collections" %}
+                   or <a href="{% url 'report_collections' %}"><button class="btn btn-lg btn-default btn-huge btn-big">See All Collections</button></a>
+                   {% endif %}
+                   </p>
+                       {% else %}
+<a href="{% url 'login' %}" style="margin:auto"><button class="btn btn-lg btn-default btn-huge btn-big">Login</button></a>
+                       {% endif %}
+                    {% else %}
+                        <div id="pattern" class="pattern">
+                           <ul class="g">
+
+                        {% for collection in collections %}  
+                            <li><a href="{% url 'report_collection_details' collection.id %}"><img src="http://api.adorable.io/avatars/270/con-{{ collection.id }}" style="border-radius:4px" alt="Product Name" /></a>  {{ collection.name }}</a>
+                            </li>
+                        {% endfor %}
+                             </ul>
+	                </div>
+                    {% endif %}
+               </div>
+            </div>
+            <div class="button-box">
+                    {% if collections %}
+                    <a data-toggle="tooltip" data-placement="bottom" title="Upload via the web is currently disabled, contact admin (vsochat@stanford.edu) for assistance." href="{% url 'new_report_collection' %}"><button class="btn btn-lg btn-default" disabled>New Report Collection</button></a>
+                    {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+{% if collections %}
+<script>
+! function(t) {
+        "use strict";
+
+        function e(t, e, i, n, r) {
+                var o = Array.prototype.forEach,
+                        f = t instanceof Node ? t : document.querySelector(t);
+                if (!f) return !1;
+                var s = f.querySelectorAll(e);
+                if (0 === s.length) return !1;
+                i = "number" == typeof i && isFinite(i) && Math.floor(i) === i ? i : 6, f.style.width = "";
+                var u = f.getBoundingClientRect().width,
+                        d = s[0].getBoundingClientRect().width + i,
+                        l = Math.max(Math.floor((u - i) / d), 1),
+                        a = 0;
+                u = d * l + i + "px", f.style.width = u, f.style.position = "relative";
+                for (var c = [], m = [], p = 0; l > p; p++) m.push(p * d + i), c.push(i);
+                o.call(s, function(t) {
+                        var e = c.slice(0).sort(function(t, e) {
+                                return t - e
+                        }).shift();
+                        e = c.indexOf(e);
+                        var r = m[e],
+                                f = c[e],
+                                s = ["webkitTransform", "MozTransform", "msTransform", "OTransform", "transform"];
+                        return t.style.position = "absolute", n || o.call(s, function(e) {
+                                t.style[e] = "translate3D(" + r + "px," + f + "px,0)"
+                        }), c[e] += t.getBoundingClientRect().height + i, a += 1, n ? n(t, r, f, a) : void 0
+                });
+                var h = c.slice(0).sort(function(t, e) {
+                        return t - e
+                }).pop();
+                f.style.height = h + "px", "function" == typeof r && r(s)
+        }
+        "function" == typeof define && define.amd ? define(function() {
+                return e
+        }) : "undefined" != typeof module && module.exports ? module.exports = e : t.minigrid = e
+}(this),
+function() {
+        minigrid(".grid", ".grid-item"), window.addEventListener("resize", function() {
+                minigrid(".grid", ".grid-item")
+        })
+}();
+
+$(document).ready(function() {
+
+    // Enable tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $(".report-collection").click(function() {
+        console.log('clicked')
+        window.location = $(this).find("a").attr("href"); 
+        return false
+    });
+});
+</script>
+{% endif %}
+{% endblock %}
