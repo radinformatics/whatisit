@@ -162,12 +162,18 @@ def get_annotation_status(report_set,user):
     :param report_set: the report_set to check
     :param user: the user to check status for
     '''
+    # if the user is an annotator or contributor, they can annotate
+    if user in report_set.collection.contributors.all():
+        return "PASSED"
+
     try:
         credential = Credential.objects.get(report_set=report_set,
                                             user=user)
     except Credential.DoesNotExist:
         return None
 
+    # Note - this should be "PASSED" but we haven't tested the
+    # needs_testing function, so it's "disabled"
     if credential.status == "APPROVED":
         if needs_testing(credential):
             credential.status = "TESTING"

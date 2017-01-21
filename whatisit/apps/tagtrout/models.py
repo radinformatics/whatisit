@@ -32,7 +32,7 @@ class DocsCollection(models.Model):
     
     # Users
     owner = models.ForeignKey(User)
-    contributors = models.ManyToManyField(User,related_name="container_collection_contributors",related_query_name="contributor", blank=True,help_text="Select other users to add as contributes to the collection.",verbose_name="Contributors")
+    contributors = models.ManyToManyField(User,related_name="docs_collection_contributors",related_query_name="contributor", blank=True,help_text="Select other users to add as contributes to the collection.",verbose_name="Contributors")
 
     def get_absolute_url(self):
         return_cid = self.id
@@ -68,7 +68,7 @@ class Doc(models.Model):
     doc_id = models.CharField(max_length=250, null=False, blank=False)
     doc_text = models.CharField(max_length=50000, null=False, blank=False)
     #image = models.FileField(upload_to=get_upload_folder,null=True,blank=False)
-    collection = models.ForeignKey(DocCollection,null=False,blank=False)
+    collection = models.ForeignKey(DocsCollection,null=False,blank=False)
     tags = TaggableManager()
     
     def __str__(self):
